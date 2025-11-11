@@ -1,0 +1,2072 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iowa DOT 2050 Transportation Plan Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Slab:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ===== IOWA DOT BRAND SYSTEM ===== */
+        :root {
+            /* Primary Brand Colors */
+            --iowa-navy: #19405B;
+            --iowa-teal: #03617A;
+            --iowa-gold: #E0A624;
+            --iowa-copper: #B86125;
+            --iowa-red: #E23E2D;
+            
+            /* Neutral Colors */
+            --iowa-charcoal: #53565A;
+            --iowa-silver: #B1B3B3;
+            --iowa-fog: #EAEAEA;
+            --iowa-white: #FFFFFF;
+            
+            /* Accent Colors */
+            --iowa-mint: #BBE2DA;
+            --iowa-seafoam: #70C8B8;
+            --iowa-sky: #E5F3F8;
+            
+            /* Functional Colors */
+            --success: #22C55E;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --info: #3B82F6;
+            
+            /* Typography */
+            --font-primary: 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            --font-headings: 'Roboto Slab', Georgia, serif;
+            
+            /* Spacing Scale */
+            --space-xs: 0.25rem;
+            --space-sm: 0.5rem;
+            --space-md: 1rem;
+            --space-lg: 1.5rem;
+            --space-xl: 2rem;
+            --space-2xl: 3rem;
+            
+            /* Border Radius */
+            --radius-sm: 0.25rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 1rem;
+            --radius-xl: 1.5rem;
+            
+            /* Shadows */
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            
+            /* Transitions */
+            --transition-fast: 150ms ease-in-out;
+            --transition-base: 250ms ease-in-out;
+            --transition-slow: 350ms ease-in-out;
+        }
+
+        /* ===== RESET & BASE ===== */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            color: var(--iowa-charcoal);
+            background: linear-gradient(to bottom, var(--iowa-fog) 0%, var(--iowa-white) 100%);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--font-headings);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--iowa-navy);
+        }
+
+        /* ===== HERO HEADER ===== */
+        .hero-header {
+            background: linear-gradient(135deg, var(--iowa-navy) 0%, var(--iowa-teal) 100%);
+            color: var(--iowa-white);
+            padding: var(--space-2xl) var(--space-md);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><path d="M0 0L50 50L100 0L100 100L50 50L0 100Z" fill="rgba(255,255,255,0.03)"/></svg>');
+            background-size: 100px 100px;
+            opacity: 0.3;
+        }
+
+        .hero-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-title {
+            font-size: clamp(1.75rem, 4vw, 3rem);
+            font-weight: 700;
+            margin-bottom: var(--space-sm);
+            color: var(--iowa-white);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .hero-subtitle {
+            font-size: clamp(1rem, 2vw, 1.25rem);
+            opacity: 0.95;
+            margin-bottom: var(--space-md);
+            font-weight: 300;
+        }
+
+        .hero-attribution {
+            display: inline-block;
+            background: rgba(224, 166, 36, 0.2);
+            backdrop-filter: blur(10px);
+            padding: var(--space-sm) var(--space-lg);
+            border-radius: var(--radius-lg);
+            border: 1px solid rgba(224, 166, 36, 0.3);
+            font-size: 0.875rem;
+            font-style: italic;
+            color: var(--iowa-gold);
+            margin-top: var(--space-md);
+            transition: all var(--transition-base);
+        }
+
+        .hero-attribution:hover {
+            background: rgba(224, 166, 36, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .hero-tagline {
+            font-family: var(--font-headings);
+            font-size: 0.875rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--iowa-gold);
+            margin-top: var(--space-lg);
+            font-weight: 600;
+        }
+
+        /* ===== NAVIGATION ===== */
+        .nav-container {
+            background: var(--iowa-white);
+            box-shadow: var(--shadow-md);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 3px solid var(--iowa-gold);
+        }
+
+        .nav-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 var(--space-md);
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: var(--space-xs);
+            overflow-x: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--iowa-teal) var(--iowa-fog);
+            padding: var(--space-sm) 0;
+        }
+
+        .nav-tabs::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        .nav-tabs::-webkit-scrollbar-track {
+            background: var(--iowa-fog);
+        }
+
+        .nav-tabs::-webkit-scrollbar-thumb {
+            background: var(--iowa-teal);
+            border-radius: var(--radius-sm);
+        }
+
+        .nav-tab {
+            flex-shrink: 0;
+            padding: var(--space-md) var(--space-lg);
+            background: transparent;
+            border: none;
+            font-family: var(--font-primary);
+            font-size: 0.9375rem;
+            font-weight: 500;
+            color: var(--iowa-charcoal);
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all var(--transition-fast);
+            white-space: nowrap;
+        }
+
+        .nav-tab:hover {
+            background: var(--iowa-sky);
+            color: var(--iowa-teal);
+        }
+
+        .nav-tab.active {
+            color: var(--iowa-teal);
+            border-bottom-color: var(--iowa-teal);
+            background: var(--iowa-sky);
+        }
+
+        /* ===== MAIN CONTAINER ===== */
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: var(--space-xl) var(--space-md);
+        }
+
+        .view-content {
+            animation: fadeIn var(--transition-slow);
+        }
+
+        .view-content.hidden {
+            display: none;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===== CARDS ===== */
+        .card {
+            background: var(--iowa-white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            padding: var(--space-xl);
+            transition: all var(--transition-base);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-4px);
+        }
+
+        .card-header {
+            border-bottom: 2px solid var(--iowa-fog);
+            padding-bottom: var(--space-md);
+            margin-bottom: var(--space-lg);
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            color: var(--iowa-navy);
+            margin-bottom: var(--space-sm);
+        }
+
+        /* ===== STATS GRID ===== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-lg);
+            margin-bottom: var(--space-xl);
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--iowa-white) 0%, var(--iowa-sky) 100%);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            transition: all var(--transition-base);
+            cursor: pointer;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--color, var(--iowa-teal));
+            transition: height var(--transition-base);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .stat-card:hover::before {
+            height: 100%;
+            opacity: 0.1;
+        }
+
+        .stat-number {
+            font-size: clamp(2.5rem, 5vw, 3.5rem);
+            font-weight: 700;
+            color: var(--color, var(--iowa-teal));
+            display: block;
+            line-height: 1;
+            margin-bottom: var(--space-sm);
+            font-family: var(--font-headings);
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--iowa-charcoal);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* ===== BUTTONS ===== */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-sm);
+            padding: var(--space-md) var(--space-xl);
+            font-family: var(--font-primary);
+            font-size: 0.9375rem;
+            font-weight: 500;
+            border: none;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all var(--transition-base);
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--iowa-teal) 0%, var(--iowa-navy) 100%);
+            color: var(--iowa-white);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-secondary {
+            background: var(--iowa-white);
+            color: var(--iowa-teal);
+            border: 2px solid var(--iowa-teal);
+        }
+
+        .btn-secondary:hover {
+            background: var(--iowa-teal);
+            color: var(--iowa-white);
+        }
+
+        /* ===== PROGRESS BARS ===== */
+        .progress-container {
+            margin: var(--space-md) 0;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-sm);
+        }
+
+        .progress-label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--iowa-charcoal);
+        }
+
+        .progress-value {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--iowa-navy);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: var(--iowa-fog);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--color-start), var(--color-end));
+            border-radius: var(--radius-lg);
+            transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        /* ===== PROJECT CARDS ===== */
+        .project-card {
+            background: var(--iowa-white);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            margin-bottom: var(--space-lg);
+            box-shadow: var(--shadow-md);
+            border-top: 4px solid var(--iowa-teal);
+            transition: all var(--transition-base);
+        }
+
+        .project-card:hover {
+            box-shadow: var(--shadow-xl);
+            transform: translateX(8px);
+        }
+
+        .project-header {
+            margin-bottom: var(--space-lg);
+        }
+
+        .project-title {
+            font-size: 1.375rem;
+            color: var(--iowa-navy);
+            margin-bottom: var(--space-md);
+        }
+
+        .project-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-sm);
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: var(--space-sm) var(--space-md);
+            border-radius: var(--radius-lg);
+            font-size: 0.8125rem;
+            font-weight: 500;
+            border: 1px solid;
+        }
+
+        .badge-status-completed {
+            background: rgba(34, 197, 94, 0.1);
+            color: #166534;
+            border-color: #86efac;
+        }
+
+        .badge-status-construction {
+            background: rgba(59, 130, 246, 0.1);
+            color: #1e40af;
+            border-color: #93c5fd;
+        }
+
+        .badge-status-planned {
+            background: rgba(245, 158, 11, 0.1);
+            color: #92400e;
+            border-color: #fcd34d;
+        }
+
+        .badge-status-programmed {
+            background: rgba(168, 85, 247, 0.1);
+            color: #6b21a8;
+            border-color: #d8b4fe;
+        }
+
+        .badge-mode {
+            background: rgba(115, 115, 115, 0.1);
+            color: var(--iowa-charcoal);
+            border-color: var(--iowa-silver);
+        }
+
+        .project-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-lg);
+            margin-bottom: var(--space-lg);
+        }
+
+        .project-detail {
+            display: flex;
+            align-items: start;
+            gap: var(--space-sm);
+        }
+
+        .project-detail-icon {
+            flex-shrink: 0;
+            color: var(--iowa-teal);
+            margin-top: 2px;
+        }
+
+        .project-detail-label {
+            font-size: 0.75rem;
+            color: var(--iowa-silver);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .project-detail-value {
+            font-size: 0.9375rem;
+            color: var(--iowa-charcoal);
+            font-weight: 500;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, var(--iowa-mint) 0%, var(--iowa-sky) 100%);
+            border-left: 4px solid var(--iowa-teal);
+            border-radius: var(--radius-md);
+            padding: var(--space-lg);
+            margin: var(--space-lg) 0;
+        }
+
+        .info-box p {
+            color: var(--iowa-charcoal);
+            font-size: 0.9375rem;
+            line-height: 1.7;
+        }
+
+        /* ===== CHATBOT ===== */
+        .chatbot-trigger {
+            position: fixed;
+            bottom: var(--space-xl);
+            right: var(--space-xl);
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--iowa-teal) 0%, var(--iowa-navy) 100%);
+            color: var(--iowa-white);
+            border: none;
+            cursor: pointer;
+            box-shadow: var(--shadow-xl);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            transition: all var(--transition-base);
+            z-index: 1000;
+        }
+
+        .chatbot-trigger:hover {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 20px 40px rgba(3, 97, 122, 0.4);
+        }
+
+        .chatbot-panel {
+            position: fixed;
+            bottom: calc(var(--space-xl) + 80px);
+            right: var(--space-xl);
+            width: min(420px, calc(100vw - 2rem));
+            height: 600px;
+            background: var(--iowa-white);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-xl);
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+            animation: slideUp var(--transition-base);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .chatbot-panel.hidden {
+            display: none;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .chatbot-header {
+            background: linear-gradient(135deg, var(--iowa-navy) 0%, var(--iowa-teal) 100%);
+            color: var(--iowa-white);
+            padding: var(--space-lg);
+            border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+
+        .chatbot-avatar {
+            width: 48px;
+            height: 48px;
+            background: var(--iowa-white);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .chatbot-info h3 {
+            color: var(--iowa-white);
+            font-size: 1.125rem;
+            margin-bottom: var(--space-xs);
+        }
+
+        .chatbot-info p {
+            font-size: 0.8125rem;
+            opacity: 0.9;
+        }
+
+        .chatbot-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--space-lg);
+            background: var(--iowa-fog);
+        }
+
+        .chat-message {
+            margin-bottom: var(--space-md);
+            animation: messageSlide var(--transition-base);
+        }
+
+        @keyframes messageSlide {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message-bubble {
+            max-width: 85%;
+            padding: var(--space-md) var(--space-lg);
+            border-radius: var(--radius-lg);
+            font-size: 0.9375rem;
+            line-height: 1.6;
+        }
+
+        .chat-message.bot .message-bubble {
+            background: var(--iowa-white);
+            color: var(--iowa-charcoal);
+            border: 1px solid var(--iowa-fog);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .chat-message.user {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .chat-message.user .message-bubble {
+            background: linear-gradient(135deg, var(--iowa-teal) 0%, var(--iowa-navy) 100%);
+            color: var(--iowa-white);
+        }
+
+        .message-suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-sm);
+            margin-top: var(--space-md);
+        }
+
+        .suggestion-btn {
+            padding: var(--space-sm) var(--space-md);
+            background: var(--iowa-white);
+            color: var(--iowa-teal);
+            border: 1px solid var(--iowa-teal);
+            border-radius: var(--radius-lg);
+            font-size: 0.8125rem;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .suggestion-btn:hover {
+            background: var(--iowa-teal);
+            color: var(--iowa-white);
+        }
+
+        .chatbot-input-container {
+            padding: var(--space-lg);
+            background: var(--iowa-white);
+            border-top: 1px solid var(--iowa-fog);
+            border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+        }
+
+        .chatbot-input-wrapper {
+            display: flex;
+            gap: var(--space-sm);
+        }
+
+        .chatbot-input {
+            flex: 1;
+            padding: var(--space-md);
+            border: 2px solid var(--iowa-fog);
+            border-radius: var(--radius-md);
+            font-family: var(--font-primary);
+            font-size: 0.9375rem;
+            transition: all var(--transition-fast);
+        }
+
+        .chatbot-input:focus {
+            outline: none;
+            border-color: var(--iowa-teal);
+            box-shadow: 0 0 0 3px rgba(3, 97, 122, 0.1);
+        }
+
+        .chatbot-send {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--iowa-teal) 0%, var(--iowa-navy) 100%);
+            color: var(--iowa-white);
+            border: none;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            transition: all var(--transition-base);
+        }
+
+        .feedback-section {
+            background: linear-gradient(135deg, var(--iowa-mint) 0%, var(--iowa-sky) 100%);
+            border: 2px solid var(--iowa-teal);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            margin-top: var(--space-xl);
+        }
+
+        .feedback-header {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            margin-bottom: var(--space-lg);
+        }
+
+        .feedback-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--iowa-teal);
+            color: var(--iowa-white);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .feedback-title {
+            font-size: 1.25rem;
+            color: var(--iowa-navy);
+            margin-bottom: var(--space-xs);
+        }
+
+        .feedback-subtitle {
+            font-size: 0.875rem;
+            color: var(--iowa-charcoal);
+        }
+
+        .feedback-form {
+            display: grid;
+            gap: var(--space-lg);
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-sm);
+        }
+
+        .form-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--iowa-navy);
+            display: flex;
+            align-items: center;
+            gap: var(--space-xs);
+        }
+
+        .form-label .required {
+            color: var(--iowa-red);
+        }
+
+        .form-input, .form-textarea, .form-select {
+            padding: var(--space-md);
+            border: 2px solid var(--iowa-fog);
+            border-radius: var(--radius-md);
+            font-family: var(--font-primary);
+            font-size: 0.9375rem;
+            background: var(--iowa-white);
+            transition: all var(--transition-fast);
+        }
+
+        .form-input:focus, .form-textarea:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--iowa-teal);
+            box-shadow: 0 0 0 3px rgba(3, 97, 122, 0.1);
+        }
+
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .stakeholder-type {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: var(--space-md);
+        }
+
+        .stakeholder-option {
+            position: relative;
+        }
+
+        .stakeholder-option input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+        }
+
+        .stakeholder-option label {
+            display: block;
+            padding: var(--space-md);
+            background: var(--iowa-white);
+            border: 2px solid var(--iowa-fog);
+            border-radius: var(--radius-md);
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .stakeholder-option input[type="radio"]:checked + label {
+            background: var(--iowa-teal);
+            color: var(--iowa-white);
+            border-color: var(--iowa-teal);
+        }
+
+        .stakeholder-option label:hover {
+            border-color: var(--iowa-teal);
+            transform: translateY(-2px);
+        }
+
+        .feedback-actions {
+            display: flex;
+            gap: var(--space-md);
+            flex-wrap: wrap;
+        }
+
+        .btn-submit {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .feedback-success {
+            background: rgba(34, 197, 94, 0.1);
+            border: 2px solid var(--success);
+            border-radius: var(--radius-md);
+            padding: var(--space-lg);
+            display: none;
+            animation: slideDown var(--transition-base);
+        }
+
+        .feedback-success.show {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .feedback-list {
+            margin-top: var(--space-xl);
+            padding-top: var(--space-xl);
+            border-top: 2px solid var(--iowa-fog);
+        }
+
+        .feedback-item {
+            background: var(--iowa-white);
+            border-radius: var(--radius-md);
+            padding: var(--space-lg);
+            margin-bottom: var(--space-md);
+            border-left: 4px solid var(--iowa-gold);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .feedback-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: var(--space-md);
+            flex-wrap: wrap;
+            gap: var(--space-sm);
+        }
+
+        .feedback-author {
+            font-weight: 600;
+            color: var(--iowa-navy);
+            font-size: 0.9375rem;
+        }
+
+        .feedback-badge {
+            display: inline-block;
+            padding: var(--space-xs) var(--space-sm);
+            background: var(--iowa-gold);
+            color: var(--iowa-white);
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .feedback-date {
+            font-size: 0.8125rem;
+            color: var(--iowa-silver);
+        }
+
+        .feedback-comment {
+            color: var(--iowa-charcoal);
+            line-height: 1.7;
+            font-size: 0.9375rem;
+        }
+
+        .feedback-toggle {
+            background: transparent;
+            border: 2px solid var(--iowa-teal);
+            color: var(--iowa-teal);
+            padding: var(--space-sm) var(--space-lg);
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        .feedback-toggle:hover {
+            background: var(--iowa-teal);
+            color: var(--iowa-white);
+        }
+
+        /* ===== FILTERS ===== */
+        .filter-section {
+            background: var(--iowa-white);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            margin-bottom: var(--space-xl);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--space-lg);
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-sm);
+        }
+
+        .filter-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--iowa-navy);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .filter-input {
+            padding: var(--space-md);
+            border: 2px solid var(--iowa-fog);
+            border-radius: var(--radius-md);
+            font-family: var(--font-primary);
+            font-size: 0.9375rem;
+            transition: all var(--transition-fast);
+        }
+
+        .filter-input:focus {
+            outline: none;
+            border-color: var(--iowa-teal);
+            box-shadow: 0 0 0 3px rgba(3, 97, 122, 0.1);
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            background: var(--iowa-navy);
+            color: var(--iowa-white);
+            padding: var(--space-2xl) var(--space-md);
+            margin-top: var(--space-2xl);
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .footer-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: var(--space-sm);
+            color: var(--iowa-gold);
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: var(--space-xl);
+            margin-top: var(--space-xl);
+        }
+
+        .footer-link {
+            color: var(--iowa-white);
+            text-decoration: none;
+            font-size: 0.9375rem;
+            transition: all var(--transition-fast);
+            opacity: 0.9;
+        }
+
+        .footer-link:hover {
+            color: var(--iowa-gold);
+            opacity: 1;
+        }
+
+        /* ===== TIMELINE ===== */
+        .timeline {
+            position: relative;
+            padding-left: var(--space-xl);
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(to bottom, var(--iowa-teal), var(--iowa-gold));
+            border-radius: var(--radius-sm);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: var(--space-2xl);
+        }
+
+        .timeline-marker {
+            position: absolute;
+            left: calc(-1 * var(--space-xl) - 8px);
+            top: 0;
+            width: 20px;
+            height: 20px;
+            background: var(--color);
+            border: 4px solid var(--iowa-white);
+            border-radius: 50%;
+            box-shadow: var(--shadow-md);
+        }
+
+        .timeline-content {
+            background: var(--iowa-white);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            box-shadow: var(--shadow-md);
+        }
+
+        .timeline-year {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--color);
+            margin-bottom: var(--space-md);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .hero-header {
+                padding: var(--space-xl) var(--space-md);
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .project-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .filter-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .chatbot-panel {
+                width: calc(100vw - 2rem);
+                height: calc(100vh - 120px);
+            }
+        }
+
+        /* ===== UTILITIES ===== */
+        .text-center { text-align: center; }
+        .mb-0 { margin-bottom: 0; }
+        .mb-sm { margin-bottom: var(--space-sm); }
+        .mb-md { margin-bottom: var(--space-md); }
+        .mb-lg { margin-bottom: var(--space-lg); }
+        .mb-xl { margin-bottom: var(--space-xl); }
+        .mt-lg { margin-top: var(--space-lg); }
+    </style>
+</head>
+<body>
+    <!-- HERO HEADER -->
+    <header class="hero-header">
+        <div class="hero-content">
+            <h1 class="hero-title">Iowa DOT 2050 Transportation Plan Tracker</h1>
+            <p class="hero-subtitle">Real-time monitoring of Iowa's Long-Range Transportation Plan implementation through 2050</p>
+            <div class="hero-attribution">
+                ✨ Brought to you by the Director of New and Emerging Transportation Technologies
+            </div>
+            <div class="hero-tagline">Making Lives Better Through Transportation</div>
+        </div>
+    </header>
+
+    <!-- NAVIGATION -->
+    <nav class="nav-container">
+        <div class="nav-content">
+            <div class="nav-tabs">
+                <button class="nav-tab active" data-view="dashboard" onclick="switchView('dashboard')">
+                    📊 Dashboard
+                </button>
+                <button class="nav-tab" data-view="projects" onclick="switchView('projects')">
+                    🚧 Projects (10)
+                </button>
+                <button class="nav-tab" data-view="tasks" onclick="switchView('tasks')">
+                    ✓ Tasks (24)
+                </button>
+                <button class="nav-tab" data-view="strategies" onclick="switchView('strategies')">
+                    🎯 Strategies (30)
+                </button>
+                <button class="nav-tab" data-view="chapters" onclick="switchView('chapters')">
+                    📖 Chapters (8)
+                </button>
+                <button class="nav-tab" data-view="timeline" onclick="switchView('timeline')">
+                    📅 Timeline
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTAINER -->
+    <main class="main-container">
+        
+        <!-- DASHBOARD VIEW -->
+        <div id="dashboard-view" class="view-content">
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card" style="--color: var(--iowa-teal);">
+                    <span class="stat-number">10</span>
+                    <div class="stat-label">Total Projects</div>
+                </div>
+                <div class="stat-card" style="--color: var(--success);">
+                    <span class="stat-number">1</span>
+                    <div class="stat-label">Completed</div>
+                </div>
+                <div class="stat-card" style="--color: var(--iowa-gold);">
+                    <span class="stat-number">32%</span>
+                    <div class="stat-label">Avg Progress</div>
+                </div>
+                <div class="stat-card" style="--color: var(--iowa-copper);">
+                    <span class="stat-number">24</span>
+                    <div class="stat-label">Active Tasks</div>
+                </div>
+                <div class="stat-card" style="--color: var(--iowa-seafoam);">
+                    <span class="stat-number">30</span>
+                    <div class="stat-label">Strategies</div>
+                </div>
+                <div class="stat-card" style="--color: var(--iowa-red);">
+                    <span class="stat-number">26</span>
+                    <div class="stat-label">Poor Bridges</div>
+                </div>
+            </div>
+
+            <!-- Export Section -->
+            <div class="card mb-xl">
+                <div class="card-header">
+                    <h2 class="card-title">📥 Export Data</h2>
+                </div>
+                <p class="mb-lg">Download complete tracker data including all projects, tasks, strategies, and chapters for offline analysis.</p>
+                <div style="display: flex; gap: var(--space-md); flex-wrap: wrap;">
+                    <button class="btn btn-primary" onclick="exportCSV()">
+                        📊 Export as CSV
+                    </button>
+                    <button class="btn btn-primary" onclick="exportJSON()">
+                        💾 Export as JSON
+                    </button>
+                </div>
+            </div>
+
+            <!-- Recent Milestones -->
+            <div class="card mb-xl">
+                <div class="card-header">
+                    <h2 class="card-title">🎉 Recent Milestones</h2>
+                </div>
+                <div style="display: grid; gap: var(--space-lg);">
+                    <div style="border-left: 4px solid var(--success); padding-left: var(--space-lg);">
+                        <h3 style="color: var(--success); font-size: 1.125rem; margin-bottom: var(--space-sm);">Bridge Milestone Achieved!</h3>
+                        <p style="color: var(--iowa-charcoal);">Poor bridges reduced to 26 - down from 256 in 2006. That's a 90% improvement over 19 years!</p>
+                    </div>
+                    <div style="border-left: 4px solid var(--iowa-teal); padding-left: var(--space-lg);">
+                        <h3 style="color: var(--iowa-teal); font-size: 1.125rem; margin-bottom: var(--space-sm);">I-80/I-380 Interchange Complete</h3>
+                        <p style="color: var(--iowa-charcoal);">Iowa City/Coralville systems interchange fully operational since August 2023.</p>
+                    </div>
+                    <div style="border-left: 4px solid var(--iowa-gold); padding-left: var(--space-lg);">
+                        <h3 style="color: var(--iowa-gold); font-size: 1.125rem; margin-bottom: var(--space-sm);">TSIP FY2026 Approved</h3>
+                        <p style="color: var(--iowa-charcoal);">$8.6 million funding 35 safety projects statewide - protecting Iowa travelers.</p>
+                    </div>
+                    <div style="border-left: 4px solid var(--iowa-copper); padding-left: var(--space-lg);">
+                        <h3 style="color: var(--iowa-copper); font-size: 1.125rem; margin-bottom: var(--space-sm);">SMV Alert System Pilot Success</h3>
+                        <p style="color: var(--iowa-charcoal);">85% complete with 97% accuracy achieved in field tests - innovative safety technology.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Projects -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">🚀 Active Major Projects</h2>
+                </div>
+                <div style="display: grid; gap: var(--space-xl);">
+                    <div>
+                        <h3 style="font-size: 1.125rem; color: var(--iowa-navy); margin-bottom: var(--space-md);">I-35 Reconstruction & Widening (Ankeny → Huxley)</h3>
+                        <div class="progress-container">
+                            <div class="progress-header">
+                                <span class="progress-label">Progress</span>
+                                <span class="progress-value">55%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 55%; --color-start: var(--iowa-teal); --color-end: var(--iowa-navy);"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 style="font-size: 1.125rem; color: var(--iowa-navy); margin-bottom: var(--space-md);">Black Hawk Bridge Replacement (Lansing)</h3>
+                        <div class="progress-container">
+                            <div class="progress-header">
+                                <span class="progress-label">Progress</span>
+                                <span class="progress-value">50%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 50%; --color-start: var(--iowa-teal); --color-end: var(--iowa-navy);"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 style="font-size: 1.125rem; color: var(--iowa-navy); margin-bottom: var(--space-md);">IA 141 Corridor Safety & Capacity Enhancements</h3>
+                        <div class="progress-container">
+                            <div class="progress-header">
+                                <span class="progress-label">Progress</span>
+                                <span class="progress-value">35%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 35%; --color-start: var(--iowa-gold); --color-end: var(--iowa-copper);"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PROJECTS VIEW -->
+        <div id="projects-view" class="view-content hidden">
+            <!-- Filters -->
+            <div class="filter-section">
+                <div class="filter-grid">
+                    <div class="filter-group">
+                        <label class="filter-label">🔍 Search Projects</label>
+                        <input type="text" id="project-search" class="filter-input" placeholder="Search by name, location, or county..." onkeyup="filterProjects()">
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">📖 Chapter</label>
+                        <select id="chapter-filter" class="filter-input" onchange="filterProjects()">
+                            <option value="all">All Chapters</option>
+                            <option value="Ch5">5. Needs, Risks, and Strategies</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">📊 Status</label>
+                        <select id="status-filter" class="filter-input" onchange="filterProjects()">
+                            <option value="all">All Statuses</option>
+                            <option value="Completed">Completed</option>
+                            <option value="Under construction">Under Construction</option>
+                            <option value="In construction">In Construction</option>
+                            <option value="Programmed">Programmed</option>
+                            <option value="Planned">Planned</option>
+                            <option value="Implementing">Implementing</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Projects List -->
+            <div id="projects-list"></div>
+        </div>
+
+        <!-- TASKS VIEW -->
+        <div id="tasks-view" class="view-content hidden">
+            <div id="tasks-list"></div>
+        </div>
+
+        <!-- STRATEGIES VIEW -->
+        <div id="strategies-view" class="view-content hidden">
+            <div class="info-box mb-xl">
+                <p><strong>About Plan Strategies:</strong> These 30 strategies guide Iowa DOT's implementation of the 2050 Transportation Plan. Each strategy is assigned to specific divisions and bureaus for execution, ensuring accountability and progress tracking.</p>
+            </div>
+            <div id="strategies-list"></div>
+        </div>
+
+        <!-- CHAPTERS VIEW -->
+        <div id="chapters-view" class="view-content hidden">
+            <div id="chapters-list" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--space-xl);"></div>
+        </div>
+
+        <!-- TIMELINE VIEW -->
+        <div id="timeline-view" class="view-content hidden">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">📅 Project Timeline (2023-2030)</h2>
+                </div>
+                <div id="timeline-list" class="timeline"></div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- CHATBOT -->
+    <button class="chatbot-trigger" onclick="toggleChat()">
+        <span id="chat-icon">💬</span>
+    </button>
+
+    <div id="chatbot-panel" class="chatbot-panel hidden">
+        <div class="chatbot-header">
+            <div class="chatbot-avatar">🤖</div>
+            <div class="chatbot-info">
+                <h3>Iowa DOT Assistant</h3>
+                <p>Ask me about projects & progress</p>
+            </div>
+        </div>
+        <div id="chat-messages" class="chatbot-messages">
+            <div class="chat-message bot">
+                <div class="message-bubble">
+                    <p>👋 Hello! I'm your Iowa DOT Transportation Plan Assistant. I can help you find information about projects, funding, and progress.</p>
+                    <p style="margin-top: var(--space-md);">Try asking me:</p>
+                    <div class="message-suggestions">
+                        <button class="suggestion-btn" onclick="askQuestion('How many poor bridges are left?')">Bridge Status</button>
+                        <button class="suggestion-btn" onclick="askQuestion('What is new?')">Latest Updates</button>
+                        <button class="suggestion-btn" onclick="askQuestion('help')">Show All Questions</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="chatbot-input-container">
+            <div class="chatbot-input-wrapper">
+                <input type="text" id="chat-input" class="chatbot-input" placeholder="Ask a question..." onkeypress="if(event.key==='Enter') sendChatMessage()">
+                <button class="chatbot-send" onclick="sendChatMessage()">➤</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-title">Iowa Department of Transportation</div>
+            <p style="margin-bottom: var(--space-sm);">Iowa in Motion 2050 State Long Range Transportation Plan</p>
+            <p style="font-size: 0.875rem; opacity: 0.8;">Last updated: October 15, 2025</p>
+            <div class="footer-links">
+                <a href="https://iowadot.gov" target="_blank" class="footer-link">Main Website</a>
+                <a href="https://511ia.org" target="_blank" class="footer-link">511 Travel Info</a>
+                <a href="https://data.iowadot.gov" target="_blank" class="footer-link">GIS Data Portal</a>
+                <a href="https://iowadot.gov/majorprojects" target="_blank" class="footer-link">Major Projects Map</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // ===== DATA =====
+        const projectsData = [
+            {
+                id: 'I35-ANK-HUX',
+                name: 'I-35 Reconstruction & Widening (Ankeny → Huxley)',
+                mode: 'Highway',
+                location: 'Ankeny to Huxley (Polk & Story Counties)',
+                counties: 'Polk, Story',
+                status: 'Under construction',
+                completion: 2026,
+                division: 'Highway Division – District 1',
+                bureau: 'Construction & Materials',
+                chapterId: 'Ch5',
+                url: 'https://iowadot.gov/modes-travel/roads-highways/major-construction-projects/des-moines-area-interstate-projects/i-35-ankeny-huxley-construction',
+                statusDetail: 'Active construction with long-term ramp closures across the Des Moines metro and at Hickman/University. IA-210 interchange area targeted to reopen by early December 2025.',
+                percentComplete: 55
+            },
+            {
+                id: 'I3580235-WEST-MIX',
+                name: 'I-35/I-80/I-235 West & Southwest Mixmaster Modernization',
+                mode: 'Highway',
+                location: 'West Des Moines (Polk County)',
+                counties: 'Polk',
+                status: 'Planned',
+                completion: 'TBD',
+                division: 'Highway Division – District 1',
+                bureau: 'Traffic & Safety',
+                chapterId: 'Ch5',
+                url: 'https://iowadot.gov/modes-travel/roads-highways/major-construction-projects/des-moines-area-interstate-projects',
+                statusDetail: 'Enabling ramp and night closures underway in 2025. Full modernization remains a programmed project with funding challenges. Currently in design and pre-construction phase.',
+                percentComplete: 20
+            },
+            {
+                id: 'I80-I380-INTCHG',
+                name: 'I-80/I-380 Systems Interchange (Iowa City/Coralville)',
+                mode: 'Highway',
+                location: 'Johnson County',
+                counties: 'Johnson',
+                status: 'Completed',
+                completion: 2023,
+                division: 'Highway Division – District 6',
+                bureau: 'Bridges & Structures',
+                chapterId: 'Ch5',
+                url: 'https://cbs2iowa.com/news/local/i-80380-systems-interchange-project-in-iowa-citycoralville-is-complete',
+                statusDetail: 'Construction finished and interchange fully open since August 2023. Project successfully completed.',
+                percentComplete: 100
+            },
+            {
+                id: 'LANS-BHB',
+                name: 'Black Hawk Bridge Replacement (Lansing)',
+                mode: 'Bridge',
+                location: 'Lansing, IA ↔ Crawford County, WI',
+                counties: 'Allamakee',
+                status: 'In construction',
+                completion: 2027,
+                division: 'Bridges & Structures; District 2',
+                bureau: 'Bridges & Structures',
+                chapterId: 'Ch5',
+                url: 'https://iowadot.gov/modes-travel/roads-highways/major-construction-projects/mississippi-river-bridge-lansing',
+                statusDetail: 'Major deck pour on Wisconsin side completed in July 2025. Existing bridge permanently closed October 20, 2025. Free car ferry service operating until new bridge opens Spring 2027.',
+                percentComplete: 50
+            },
+            {
+                id: 'US61-MEDIAPOLIS-IA92',
+                name: 'US 61 Four-Lane Expansion (North of Mediapolis ↔ IA-92)',
+                mode: 'Highway',
+                location: 'Des Moines & Louisa Counties',
+                counties: 'Des Moines, Louisa',
+                status: 'Programmed',
+                completion: 'FY26–30',
+                division: 'Highway Division – District 5',
+                bureau: 'Construction & Materials',
+                chapterId: 'Ch5',
+                url: 'https://iowadot.gov/news/2025-06-10/fy-2026-2030-iowa-transportation-improvement-program',
+                statusDetail: 'Included in FY26–30 program. Awards and scope have been publicized. Currently in pre-construction phase as of 2025.',
+                percentComplete: 12
+            },
+            {
+                id: 'IA14-MONROE-KNOX',
+                name: 'IA 14 Improvements (Monroe ↔ Knoxville)',
+                mode: 'Highway',
+                location: 'Marion County',
+                counties: 'Marion',
+                status: 'Under construction',
+                completion: 2028,
+                division: 'Highway Division – District 5',
+                bureau: 'Construction & Materials',
+                chapterId: 'Ch5',
+                url: 'https://www.news.iowadot.gov/',
+                statusDetail: '2025 season work April through late October. Mile-Long Bridge on track to reopen by month-end. Corridor has multiple phases continuing through 2028.',
+                percentComplete: 30
+            },
+            {
+                id: 'I35-US30-INTCHG',
+                name: 'I-35/US 30 Interchange Bridges (Story County)',
+                mode: 'Bridge/Highway',
+                location: 'Ames / Story County',
+                counties: 'Story',
+                status: 'Programmed',
+                completion: 'FY window',
+                division: 'Highway Division – District 1',
+                bureau: 'Bridges & Structures',
+                chapterId: 'Ch5',
+                url: 'https://iowadot.gov/news/2025-06-10/fy-2026-2030-iowa-transportation-improvement-program',
+                statusDetail: 'Included in FY26–30 program. Major US-30 work staging planned for 2026. Broader interchange work targeted for later in the program window (FY-2028).',
+                percentComplete: 7
+            },
+            {
+                id: 'IA141-CORRIDOR',
+                name: 'IA 141 Corridor Safety & Capacity Enhancements',
+                mode: 'Highway',
+                location: 'Polk & Dallas Counties (Northwest Des Moines Metro)',
+                counties: 'Polk, Dallas',
+                status: 'Planned',
+                completion: 'TBD',
+                division: 'Highway Division – District 1',
+                bureau: 'Traffic & Safety',
+                chapterId: 'Ch5',
+                url: 'https://iowadot.gov/',
+                statusDetail: '2025 safety improvements proceeding with night work between IA-17 and Grimes. Permanent access changes at Towner Drive announced October 2025. City and DOT study with lane-addition plans in progress.',
+                percentComplete: 35
+            },
+            {
+                id: 'NEVI-INTERSTATES',
+                name: 'NEVI DC Fast-Charging Buildout (I-29, I-35, I-80, I-380)',
+                mode: 'EV/Alt Fuel',
+                location: 'Interstate corridors statewide',
+                counties: 'Statewide',
+                status: 'Implementing',
+                completion: '2026–2028',
+                division: 'Systems Planning',
+                bureau: 'Systems Planning – NEVI Program',
+                chapterId: 'Ch5',
+                url: 'https://iowadot.gov/transportation-development/local-systems/grant-programs/electric-vehicle-ev-plan',
+                statusDetail: 'Round-1 awards announced October 2024: 28 sites, $16.2M. 2025 federal program pause then partial resumption caused schedule uncertainty. Most Iowa sites in contracting and permitting phase with limited on-the-ground installations to date.',
+                percentComplete: 15
+            },
+            {
+                id: 'I29-FLOOD-RESIL',
+                name: 'I-29 Missouri River Flood Resilience Improvements',
+                mode: 'Highway/Resilience',
+                location: 'Western Iowa (Missouri River corridor)',
+                counties: 'Woodbury, Monona, Harrison, Pottawattamie, Fremont',
+                status: 'Planned/Programmatic',
+                completion: 'Multi-year',
+                division: 'Districts 3/4',
+                bureau: 'Location & Environment',
+                chapterId: 'Ch5',
+                url: 'https://iowadot.gov/transportation-development/systems-planning/planning-resource-guide',
+                statusDetail: 'Programmatic resilience improvements along Missouri River corridor addressing flood risk and climate adaptation. Multi-year implementation plan.',
+                percentComplete: 10
+            }
+        ];
+
+        const chatResponses = {
+            'us 30': {
+                answer: "The US 30 Missouri Valley Bypass is currently 65% complete. Construction is ongoing in Harrison County with expected completion in 2027. The project is part of the FY 2026-2030 program.",
+                suggestions: ['What is the Lansing Bridge status?', 'Show me all highway projects', 'What is the TSIP budget?']
+            },
+            'bridge': {
+                answer: "Great news! Iowa DOT has reduced poor condition bridges from 256 in 2006 to just 26 in 2025 - a 90% improvement over 19 years. The Lansing Bridge replacement is 50% complete and will open in Spring 2027.",
+                suggestions: ['Tell me about the Lansing Bridge', 'What is the I-35 status?', 'Show winter operations']
+            },
+            'tsip': {
+                answer: "The Traffic Safety Improvement Program (TSIP) has $8.6M in funding for FY2026, supporting 35 safety projects statewide. Applications are reviewed annually, with the next cycle opening August 2026.",
+                suggestions: ['What safety programs exist?', 'Show me all projects', 'How do I contact DOT?']
+            },
+            'winter': {
+                answer: "Iowa DOT is ready for winter! We have 285,000 tons of salt ready, 100+ maintenance garages staffed 24/7, and 78 seasonal operators hired. Check 511ia.org for real-time road conditions.",
+                suggestions: ['Show maintenance operations', 'What about road conditions?', 'Tell me about safety']
+            },
+            'lansing': {
+                answer: "The Black Hawk Bridge at Lansing is 50% complete. The old bridge closed October 20, 2025, and a free car ferry is now operating. The new bridge opens Spring 2027!",
+                suggestions: ['What other bridge projects exist?', 'Show me all projects', 'What is the progress?']
+            },
+            'smv': {
+                answer: "The Slow Moving Vehicle Alert System pilot on IA-5/US-65 is 85% complete. Field tests showed 97% accuracy with 1-2 minute latency. Three implementation alternatives are being prepared for Executive Leadership review.",
+                suggestions: ['What other innovations exist?', 'Tell me about safety', 'Show technology projects']
+            },
+            'bureau': {
+                answer: "Bureau biweekly updates are posted every 2 weeks. Recent highlights include:\n\n• Program Management approved $42M in bridge funding\n• Traffic & Safety funded 35 TSIP projects ($8.6M)\n• Bridge Management reduced poor bridges to 26\n• Systems Planning advancing NEVI EV charging program",
+                suggestions: ['Show me projects', 'What is new?', 'How is progress tracked?']
+            },
+            'contact': {
+                answer: "📞 Iowa DOT Contact Information:\n\nMain: 515-239-1101\nTraffic & Safety: 515-239-1267\nProgram Management: 515-239-1768\n\nVisit iowadot.gov for complete contact info and office hours.",
+                suggestions: ['Show me projects', 'What is the status?', 'Tell me about safety']
+            },
+            'new': {
+                answer: "Latest updates:\n\n1️⃣ Bridge milestone achieved - only 26 poor bridges left!\n2️⃣ TSIP approved $8.6M for 35 safety projects\n3️⃣ Lansing Bridge ferry now operating\n4️⃣ SMV Alert System pilot 85% complete!",
+                suggestions: ['Tell me about bridges', 'What is the TSIP?', 'Show all projects']
+            },
+            'help': {
+                answer: "I can answer these questions:\n\n• 'What is the status of the US 30 bypass?'\n• 'How many poor bridges are left?'\n• 'What is the TSIP budget?'\n• 'Show me winter operations status'\n• 'What is the Lansing Bridge status?'\n• 'Tell me about the SMV Alert System'\n• 'What are the bureau updates?'\n• 'How do I contact DOT?'\n• 'What is new?'\n\nJust type your question naturally!",
+                suggestions: ['Show me projects', 'Tell me about safety', 'What is the progress?']
+            },
+            'i-35': {
+                answer: "The I-35 Reconstruction & Widening project from Ankeny to Huxley is 55% complete. Active construction with long-term ramp closures in the Des Moines metro. The IA-210 interchange area is targeted to reopen by early December 2025. Expected completion: 2026.",
+                suggestions: ['What other highway projects exist?', 'Show timeline', 'What is new?']
+            },
+            'i-80': {
+                answer: "The I-80/I-380 Systems Interchange in Iowa City/Coralville is 100% complete! ✅ The interchange has been fully operational since August 2023. This was a major milestone for eastern Iowa transportation.",
+                suggestions: ['What projects are in progress?', 'Show me the timeline', 'Tell me about other interchanges']
+            },
+            'progress': {
+                answer: "Overall tracker progress:\n\n📊 Total Projects: 10\n✅ Completed: 1 (10%)\n🚧 Under Construction: 4 (40%)\n📋 Programmed/Planned: 5 (50%)\n📈 Average Progress: 32%\n\nWe're making steady progress toward our 2050 vision!",
+                suggestions: ['Show me all projects', 'What is completed?', 'Tell me about funding']
+            },
+            'funding': {
+                answer: "Key funding highlights:\n\n💰 TSIP FY2026: $8.6M (35 safety projects)\n💰 Aviation FY2026: $9.6M (25 airports)\n💰 Bridge Program FY26-30: $1.6B\n💰 NEVI EV Charging: $16.2M (28 sites)\n\nIowa DOT carefully manages these funds to maximize transportation improvements.",
+                suggestions: ['What is the TSIP?', 'Tell me about bridges', 'Show me projects']
+            },
+            'safety': {
+                answer: "🛡️ Safety is Iowa DOT's #1 priority!\n\nKey safety initiatives:\n• TSIP: $8.6M funding 35 projects\n• Work Zone Safety Training: 450+ staff trained\n• Railroad Crossing Safety: Annual campaigns\n• SMV Alert System: 85% complete, 97% accuracy\n• Aviation Safety: $9.6M program\n\nEvery decision starts with safety.",
+                suggestions: ['What is the TSIP?', 'Tell me about the SMV system', 'Show winter operations']
+            }
+        };
+
+        // ===== FUNCTIONS =====
+        function switchView(viewName) {
+            // Hide all views
+            document.querySelectorAll('.view-content').forEach(el => el.classList.add('hidden'));
+            
+            // Show selected view
+            document.getElementById(viewName + '-view').classList.remove('hidden');
+            
+            // Update nav tabs
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelector(`[data-view="${viewName}"]`).classList.add('active');
+            
+            // Load content if needed
+            if (viewName === 'projects') renderProjects();
+            else if (viewName === 'tasks') renderTasks();
+            else if (viewName === 'strategies') renderStrategies();
+            else if (viewName === 'chapters') renderChapters();
+            else if (viewName === 'timeline') renderTimeline();
+        }
+
+        function renderProjects() {
+            const container = document.getElementById('projects-list');
+            container.innerHTML = projectsData.map(p => `
+                <div class="project-card" data-project="${p.id}" data-chapter="${p.chapterId}" data-status="${p.status}">
+                    <div class="project-header">
+                        <h3 class="project-title">${p.name}</h3>
+                        <div class="project-badges">
+                            <span class="badge badge-status-${p.status.toLowerCase().replace(/\s+/g, '-')}">${p.status}</span>
+                            <span class="badge badge-mode">${p.mode}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="project-grid">
+                        <div class="project-detail">
+                            <span class="project-detail-icon">📍</span>
+                            <div>
+                                <div class="project-detail-label">Location</div>
+                                <div class="project-detail-value">${p.location}</div>
+                            </div>
+                        </div>
+                        <div class="project-detail">
+                            <span class="project-detail-icon">📅</span>
+                            <div>
+                                <div class="project-detail-label">Completion</div>
+                                <div class="project-detail-value">${p.completion}</div>
+                            </div>
+                        </div>
+                        <div class="project-detail">
+                            <span class="project-detail-icon">🏢</span>
+                            <div>
+                                <div class="project-detail-label">Division</div>
+                                <div class="project-detail-value">${p.division}</div>
+                            </div>
+                        </div>
+                        <div class="project-detail">
+                            <span class="project-detail-icon">👥</span>
+                            <div>
+                                <div class="project-detail-label">Bureau</div>
+                                <div class="project-detail-value">${p.bureau}</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="progress-container">
+                        <div class="progress-header">
+                            <span class="progress-label">Project Progress</span>
+                            <span class="progress-value">${p.percentComplete}%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${p.percentComplete}%; --color-start: ${getProgressColorStart(p.percentComplete)}; --color-end: ${getProgressColorEnd(p.percentComplete)};"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="info-box">
+                        <p>${p.statusDetail}</p>
+                    </div>
+                    
+                    <a href="${p.url}" target="_blank" class="btn btn-secondary" style="text-decoration: none;">
+                        View Project Details →
+                    </a>
+                </div>
+            `).join('');
+        }
+
+        function renderTasks() {
+            const container = document.getElementById('tasks-list');
+            container.innerHTML = `
+                <div class="card mb-xl">
+                    <div class="card-header">
+                        <h2 class="card-title">📖 Chapter 1: Looking Ahead</h2>
+                    </div>
+                    <div style="display: grid; gap: var(--space-md);">
+                        <div style="background: var(--iowa-sky); padding: var(--space-lg); border-radius: var(--radius-md); border-left: 4px solid var(--iowa-teal);">
+                            <div style="font-weight: 600; color: var(--iowa-navy); margin-bottom: var(--space-sm);">CH1-T01</div>
+                            <div style="color: var(--iowa-charcoal); margin-bottom: var(--space-sm);">Publish plan vision & four system objectives in tracker metadata and overview page</div>
+                            <div style="font-size: 0.8125rem; color: var(--iowa-silver);">Systems Planning → Systems Planning Bureau</div>
+                        </div>
+                        <div style="background: var(--iowa-sky); padding: var(--space-lg); border-radius: var(--radius-md); border-left: 4px solid var(--iowa-teal);">
+                            <div style="font-weight: 600; color: var(--iowa-navy); margin-bottom: var(--space-sm);">CH1-T02</div>
+                            <div style="color: var(--iowa-charcoal); margin-bottom: var(--space-sm);">Define success metrics for safety, sustainability, accessibility, and flow</div>
+                            <div style="font-size: 0.8125rem; color: var(--iowa-silver);">Systems Planning → Performance Management Bureau</div>
+                        </div>
+                        <div style="background: var(--iowa-sky); padding: var(--space-lg); border-radius: var(--radius-md); border-left: 4px solid var(--iowa-teal);">
+                            <div style="font-weight: 600; color: var(--iowa-navy); margin-bottom: var(--space-sm);">CH1-T03</div>
+                            <div style="color: var(--iowa-charcoal); margin-bottom: var(--space-sm);">Stand up a public engagement explainer and feedback loop linked to each project card</div>
+                            <div style="font-size: 0.8125rem; color: var(--iowa-silver);">Systems Planning → Public Involvement Bureau</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mb-xl">
+                    <div class="card-header">
+                        <h2 class="card-title">📖 Chapter 5: Needs, Risks, and Strategies</h2>
+                    </div>
+                    <div style="display: grid; gap: var(--space-md);">
+                        <div style="background: var(--iowa-sky); padding: var(--space-lg); border-radius: var(--radius-md); border-left: 4px solid var(--iowa-gold);">
+                            <div style="font-weight: 600; color: var(--iowa-navy); margin-bottom: var(--space-sm);">CH5-T01</div>
+                            <div style="color: var(--iowa-charcoal); margin-bottom: var(--space-sm);">Use BCR (p.159) to drive systemic bike needs into scoping (auto-tag projects)</div>
+                            <div style="font-size: 0.8125rem; color: var(--iowa-silver);">Highway Division → Traffic & Safety Bureau</div>
+                        </div>
+                        <div style="background: var(--iowa-sky); padding: var(--space-lg); border-radius: var(--radius-md); border-left: 4px solid var(--iowa-gold);">
+                            <div style="font-weight: 600; color: var(--iowa-navy); margin-bottom: var(--space-sm);">CH5-T02</div>
+                            <div style="color: var(--iowa-charcoal); margin-bottom: var(--space-sm);">Use Bottlenecks (p.173) and ICE-OPS (p.184) to prioritize ops/interchange fixes before expansion</div>
+                            <div style="font-size: 0.8125rem; color: var(--iowa-silver);">TSMO Program → TSMO Bureau</div>
+                        </div>
+                        <div style="background: var(--iowa-sky); padding: var(--space-lg); border-radius: var(--radius-md); border-left: 4px solid var(--iowa-gold);">
+                            <div style="font-weight: 600; color: var(--iowa-navy); margin-bottom: var(--space-sm);">CH5-T03</div>
+                            <div style="color: var(--iowa-charcoal); margin-bottom: var(--space-sm);">Translate corridor needs via Improvements Matrix (~p.194+) to project pipeline with needs flags</div>
+                            <div style="font-size: 0.8125rem; color: var(--iowa-silver);">Systems Planning → Systems Planning Bureau</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">📖 Chapter 7: Making It Happen</h2>
+                    </div>
+                    <div style="display: grid; gap: var(--space-md);">
+                        <div style="background: var(--iowa-sky); padding: var(--space-lg); border-radius: var(--radius-md); border-left: 4px solid var(--iowa-copper);">
+                            <div style="font-weight: 600; color: var(--iowa-navy); margin-bottom: var(--space-sm);">CH7-T01</div>
+                            <div style="color: var(--iowa-charcoal); margin-bottom: var(--space-sm);">Automate the plan→Five-Year Program crosswalk and show Commission-approved status</div>
+                            <div style="font-size: 0.8125rem; color: var(--iowa-silver);">Systems Planning → Program Management Bureau</div>
+                        </div>
+                        <div style="background: var(--iowa-sky); padding: var(--space-lg); border-radius: var(--radius-md); border-left: 4px solid var(--iowa-copper);">
+                            <div style="font-weight: 600; color: var(--iowa-navy); margin-bottom: var(--space-sm);">CH7-T02</div>
+                            <div style="color: var(--iowa-charcoal); margin-bottom: var(--space-sm);">Maintain FHWA/FTA performance targets and publish dashboards (PM1/PM2/PM3, transit TAM/PTASP)</div>
+                            <div style="font-size: 0.8125rem; color: var(--iowa-silver);">Systems Planning → Performance Management Bureau</div>
+                        </div>
+                        <div style="background: var(--iowa-sky); padding: var(--space-lg); border-radius: var(--radius-md); border-left: 4px solid var(--iowa-copper);">
+                            <div style="font-weight: 600; color: var(--iowa-navy); margin-bottom: var(--space-sm);">CH7-T03</div>
+                            <div style="color: var(--iowa-charcoal); margin-bottom: var(--space-sm);">Coordinate MPO/RPA target-setting and document adoption/variance on the site</div>
+                            <div style="font-size: 0.8125rem; color: var(--iowa-silver);">Systems Planning → Performance Management Bureau</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderStrategies() {
+            const strategies = [
+                'Integrate highway needs & risks analysis into programming decisions',
+                'Apply Iowa DOT Rightsizing Policy across planning/programming/project development',
+                'Use Bottlenecks layer to target ops/interchange modernization',
+                'Leverage ICE-OPS to address congestion & reliability with TSMO-first solutions',
+                'Use Bicycle Compatibility Rating (BCR) in corridor scoping',
+                'Use Improvements Matrix to translate corridor needs to projects',
+                'Advance safety as a system objective through systemic & site-specific countermeasures',
+                'Advance sustainability in projects & operations',
+                'Advance accessibility & equity in prioritization & engagement',
+                'Advance flow & travel time reliability via operations-focused investments'
+            ];
+
+            const container = document.getElementById('strategies-list');
+            container.innerHTML = strategies.map((s, i) => `
+                <div class="card mb-lg">
+                    <div style="display: flex; gap: var(--space-lg); align-items: start;">
+                        <div style="flex-shrink: 0; width: 80px; height: 80px; background: linear-gradient(135deg, var(--iowa-teal), var(--iowa-navy)); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; color: var(--iowa-white); font-size: 1.5rem; font-weight: 700;">
+                            ${String(i + 1).padStart(2, '0')}
+                        </div>
+                        <div style="flex: 1;">
+                            <h3 style="font-size: 1.125rem; color: var(--iowa-navy); margin-bottom: var(--space-md);">${s}</h3>
+                            <div style="display: flex; gap: var(--space-lg); flex-wrap: wrap; font-size: 0.875rem;">
+                                <div>
+                                    <span style="color: var(--iowa-silver); font-weight: 600;">DIVISION:</span>
+                                    <span style="color: var(--iowa-charcoal); margin-left: var(--space-sm);">Systems Planning</span>
+                                </div>
+                                <div>
+                                    <span style="color: var(--iowa-silver); font-weight: 600;">BUREAU:</span>
+                                    <span style="color: var(--iowa-charcoal); margin-left: var(--space-sm);">Systems Planning</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderChapters() {
+            const chapters = [
+                { id: 'Ch1', title: '1. Looking Ahead', url: 'https://iowadot.gov/iowainmotion/files/Iowa-in-Motion-2050-Ch1.pdf', projects: 0, tasks: 3 },
+                { id: 'Ch5', title: '5. Needs, Risks, and Strategies', url: 'https://iowadot.gov/media/2567/download?inline=', projects: 10, tasks: 3 },
+                { id: 'Ch7', title: '7. Making It Happen', url: 'https://iowadot.gov/iowainmotion/files/Iowa-in-Motion-2050-Ch7.pdf', projects: 0, tasks: 3 }
+            ];
+
+            const container = document.getElementById('chapters-list');
+            container.innerHTML = chapters.map(ch => `
+                <div class="card" style="text-align: center;">
+                    <div style="width: 80px; height: 80px; margin: 0 auto var(--space-lg); background: linear-gradient(135deg, var(--iowa-teal), var(--iowa-navy)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem;">
+                        📖
+                    </div>
+                    <h3 style="font-size: 1.25rem; color: var(--iowa-navy); margin-bottom: var(--space-lg);">${ch.title}</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md); margin-bottom: var(--space-xl);">
+                        <div style="background: var(--iowa-sky); padding: var(--space-md); border-radius: var(--radius-md);">
+                            <div style="font-size: 1.75rem; font-weight: 700; color: var(--iowa-teal);">${ch.projects}</div>
+                            <div style="font-size: 0.875rem; color: var(--iowa-charcoal);">Projects</div>
+                        </div>
+                        <div style="background: var(--iowa-sky); padding: var(--space-md); border-radius: var(--radius-md);">
+                            <div style="font-size: 1.75rem; font-weight: 700; color: var(--iowa-gold);">${ch.tasks}</div>
+                            <div style="font-size: 0.875rem; color: var(--iowa-charcoal);">Tasks</div>
+                        </div>
+                    </div>
+                    <a href="${ch.url}" target="_blank" class="btn btn-primary" style="text-decoration: none; width: 100%; justify-content: center;">
+                        View Chapter PDF
+                    </a>
+                </div>
+            `).join('');
+        }
+
+        function renderTimeline() {
+            const timelineData = [
+                { year: '2023', label: 'Completed', projects: projectsData.filter(p => p.completion === 2023), color: 'var(--success)' },
+                { year: '2026', label: 'Under Construction', projects: projectsData.filter(p => p.completion === 2026), color: 'var(--iowa-teal)' },
+                { year: '2027', label: 'Planned Completion', projects: projectsData.filter(p => p.completion === 2027), color: 'var(--iowa-gold)' },
+                { year: '2028', label: 'Planned Completion', projects: projectsData.filter(p => p.completion === 2028), color: 'var(--iowa-copper)' }
+            ];
+
+            const container = document.getElementById('timeline-list');
+            container.innerHTML = timelineData.map(item => {
+                if (item.projects.length === 0) return '';
+                return `
+                    <div class="timeline-item">
+                        <div class="timeline-marker" style="--color: ${item.color};"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-year" style="--color: ${item.color};">${item.year} - ${item.label}</div>
+                            <div style="display: grid; gap: var(--space-md);">
+                                ${item.projects.map(p => `
+                                    <div style="background: var(--iowa-sky); padding: var(--space-lg); border-radius: var(--radius-md); border-left: 4px solid ${item.color};">
+                                        <h4 style="color: var(--iowa-navy); margin-bottom: var(--space-sm);">${p.name}</h4>
+                                        <div style="color: var(--iowa-charcoal); font-size: 0.875rem; margin-bottom: var(--space-md);">${p.location}</div>
+                                        ${p.percentComplete < 100 ? `
+                                            <div class="progress-container">
+                                                <div class="progress-header">
+                                                    <span class="progress-label">Progress</span>
+                                                    <span class="progress-value">${p.percentComplete}%</span>
+                                                </div>
+                                                <div class="progress-bar">
+                                                    <div class="progress-fill" style="width: ${p.percentComplete}%; --color-start: ${item.color}; --color-end: ${item.color};"></div>
+                                                </div>
+                                            </div>
+                                        ` : `
+                                            <div style="display: inline-block; background: rgba(34, 197, 94, 0.1); color: #166534; padding: var(--space-sm) var(--space-md); border-radius: var(--radius-md); font-weight: 600; font-size: 0.875rem;">
+                                                ✓ Completed
+                                            </div>
+                                        `}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function filterProjects() {
+            const search = document.getElementById('project-search').value.toLowerCase();
+            const chapter = document.getElementById('chapter-filter').value;
+            const status = document.getElementById('status-filter').value;
+            
+            document.querySelectorAll('[data-project]').forEach(el => {
+                const text = el.textContent.toLowerCase();
+                const matchSearch = search === '' || text.includes(search);
+                const matchChapter = chapter === 'all' || el.dataset.chapter === chapter;
+                const matchStatus = status === 'all' || el.dataset.status === status;
+                
+                el.style.display = (matchSearch && matchChapter && matchStatus) ? 'block' : 'none';
+            });
+        }
+
+        function getProgressColorStart(percent) {
+            if (percent >= 75) return 'var(--success)';
+            if (percent >= 50) return 'var(--iowa-teal)';
+            if (percent >= 25) return 'var(--iowa-gold)';
+            return 'var(--iowa-copper)';
+        }
+
+        function getProgressColorEnd(percent) {
+            if (percent >= 75) return '#16a34a';
+            if (percent >= 50) return 'var(--iowa-navy)';
+            if (percent >= 25) return 'var(--iowa-copper)';
+            return 'var(--iowa-red)';
+        }
+
+        function toggleChat() {
+            const panel = document.getElementById('chatbot-panel');
+            const icon = document.getElementById('chat-icon');
+            
+            if (panel.classList.contains('hidden')) {
+                panel.classList.remove('hidden');
+                icon.textContent = '✕';
+            } else {
+                panel.classList.add('hidden');
+                icon.textContent = '💬';
+            }
+        }
+
+        function sendChatMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            if (!message) return;
+            
+            const container = document.getElementById('chat-messages');
+            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            
+            // Add user message
+            const userMsg = document.createElement('div');
+            userMsg.className = 'chat-message user';
+            userMsg.innerHTML = `
+                <div class="message-bubble">
+                    <p>${message}</p>
+                </div>
+            `;
+            container.appendChild(userMsg);
+            
+            input.value = '';
+            container.scrollTop = container.scrollHeight;
+            
+            // Find response
+            const query = message.toLowerCase();
+            let response = null;
+            
+            for (const [key, value] of Object.entries(chatResponses)) {
+                if (query.includes(key)) {
+                    response = value;
+                    break;
+                }
+            }
+            
+            if (!response) {
+                response = {
+                    answer: "I'm not sure about that. Try asking: 'What is new?', 'How many poor bridges are left?', or type 'help' for all questions.",
+                    suggestions: ['help', 'What is new?', 'Show me all projects']
+                };
+            }
+            
+            // Add bot response
+            setTimeout(() => {
+                const botMsg = document.createElement('div');
+                botMsg.className = 'chat-message bot';
+                
+                let suggestionHtml = '';
+                if (response.suggestions) {
+                    suggestionHtml = `
+                        <div class="message-suggestions">
+                            ${response.suggestions.map(s => `
+                                <button class="suggestion-btn" onclick="askQuestion('${s}')">${s}</button>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+                
+                botMsg.innerHTML = `
+                    <div class="message-bubble">
+                        <p style="white-space: pre-line;">${response.answer}</p>
+                        ${suggestionHtml}
+                    </div>
+                `;
+                container.appendChild(botMsg);
+                container.scrollTop = container.scrollHeight;
+            }, 500);
+        }
+
+        function askQuestion(question) {
+            document.getElementById('chat-input').value = question;
+            sendChatMessage();
+        }
+
+        function exportCSV() {
+            const headers = ['Project ID', 'Name', 'Mode', 'Location', 'Status', 'Completion', 'Progress %', 'Division', 'Bureau'];
+            const rows = projectsData.map(p => [
+                p.id, p.name, p.mode, p.location, p.status, p.completion, p.percentComplete, p.division, p.bureau
+            ]);
+            
+            const csv = [headers, ...rows].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'iowa-dot-projects-' + new Date().toISOString().split('T')[0] + '.csv';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function exportJSON() {
+            const data = {
+                projects: projectsData,
+                exportDate: new Date().toISOString(),
+                totalProjects: projectsData.length,
+                completedProjects: projectsData.filter(p => p.status === 'Completed').length,
+                averageProgress: Math.round(projectsData.reduce((sum, p) => sum + p.percentComplete, 0) / projectsData.length)
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'iowa-dot-tracker-data-' + new Date().toISOString().split('T')[0] + '.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', () => {
+            switchView('dashboard');
+        });
+    </script>
+</body>
+</html>
