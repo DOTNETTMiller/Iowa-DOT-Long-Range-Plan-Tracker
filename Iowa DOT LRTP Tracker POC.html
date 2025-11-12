@@ -1148,6 +1148,100 @@
         .mb-lg { margin-bottom: var(--space-lg); }
         .mb-xl { margin-bottom: var(--space-xl); }
         .mt-lg { margin-top: var(--space-lg); }
+
+        /* ===== ADD PROJECT BUTTON ===== */
+        .add-project-btn {
+            position: fixed;
+            bottom: calc(var(--space-xl) + 80px);
+            right: calc(var(--space-xl) + 80px);
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--iowa-gold) 0%, var(--iowa-copper) 100%);
+            color: var(--iowa-white);
+            border: none;
+            cursor: pointer;
+            box-shadow: var(--shadow-xl);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            transition: all var(--transition-base);
+            z-index: 999;
+        }
+
+        .add-project-btn:hover {
+            transform: scale(1.1) rotate(90deg);
+            box-shadow: 0 20px 40px rgba(224, 166, 36, 0.4);
+        }
+
+        /* ===== MODAL ===== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            animation: fadeIn var(--transition-base);
+        }
+
+        .modal-overlay.hidden {
+            display: none;
+        }
+
+        .modal-content {
+            background: var(--iowa-white);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-xl);
+            width: min(600px, calc(100vw - 2rem));
+            max-height: calc(100vh - 2rem);
+            overflow-y: auto;
+            animation: slideUp var(--transition-base);
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, var(--iowa-navy) 0%, var(--iowa-teal) 100%);
+            color: var(--iowa-white);
+            padding: var(--space-xl);
+            border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-header h2 {
+            color: var(--iowa-white);
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--iowa-white);
+            font-size: 1.5rem;
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all var(--transition-fast);
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .modal-body {
+            padding: var(--space-xl);
+        }
     </style>
 </head>
 <body>
@@ -1373,6 +1467,99 @@
         </div>
 
     </main>
+
+    <!-- ADD PROJECT BUTTON -->
+    <button class="add-project-btn" onclick="toggleAddProjectModal()" title="Add New Project">
+        +
+    </button>
+
+    <!-- ADD PROJECT MODAL -->
+    <div id="add-project-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add New Project</h2>
+                <button class="modal-close" onclick="toggleAddProjectModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <form id="add-project-form" class="feedback-form">
+                    <div class="form-group">
+                        <label class="form-label">Project Name <span class="required">*</span></label>
+                        <input type="text" id="project-name" class="form-input" required placeholder="Enter project name">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Mode <span class="required">*</span></label>
+                        <select id="project-mode" class="form-select" required>
+                            <option value="">Select mode...</option>
+                            <option value="Highway">Highway</option>
+                            <option value="Bridge">Bridge</option>
+                            <option value="Bridge/Highway">Bridge/Highway</option>
+                            <option value="EV/Alt Fuel">EV/Alt Fuel</option>
+                            <option value="Highway/Resilience">Highway/Resilience</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Location <span class="required">*</span></label>
+                        <input type="text" id="project-location" class="form-input" required placeholder="e.g., Des Moines (Polk County)">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Counties <span class="required">*</span></label>
+                        <input type="text" id="project-counties" class="form-input" required placeholder="e.g., Polk, Story">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Status <span class="required">*</span></label>
+                        <select id="project-status" class="form-select" required>
+                            <option value="">Select status...</option>
+                            <option value="Planned">Planned</option>
+                            <option value="Programmed">Programmed</option>
+                            <option value="Under construction">Under Construction</option>
+                            <option value="In construction">In Construction</option>
+                            <option value="Implementing">Implementing</option>
+                            <option value="Completed">Completed</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Completion Year</label>
+                        <input type="text" id="project-completion" class="form-input" placeholder="e.g., 2027 or TBD">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Division</label>
+                        <input type="text" id="project-division" class="form-input" placeholder="e.g., Highway Division – District 1">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Bureau</label>
+                        <input type="text" id="project-bureau" class="form-input" placeholder="e.g., Construction & Materials">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Project URL</label>
+                        <input type="url" id="project-url" class="form-input" placeholder="https://iowadot.gov/...">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Status Detail</label>
+                        <textarea id="project-status-detail" class="form-textarea" placeholder="Describe the current status and progress of the project..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Percent Complete <span class="required">*</span></label>
+                        <input type="number" id="project-percent" class="form-input" required min="0" max="100" value="0" placeholder="0-100">
+                    </div>
+
+                    <div class="feedback-actions">
+                        <button type="submit" class="btn btn-primary btn-submit">Add Project</button>
+                        <button type="button" class="btn btn-secondary" onclick="toggleAddProjectModal()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
     <!-- CHATBOT -->
     <button class="chatbot-trigger" onclick="toggleChat()">
@@ -2061,6 +2248,97 @@
             a.download = 'iowa-dot-tracker-data-' + new Date().toISOString().split('T')[0] + '.json';
             a.click();
             URL.revokeObjectURL(url);
+        }
+
+        // ===== ADD PROJECT FUNCTIONS =====
+        function toggleAddProjectModal() {
+            const modal = document.getElementById('add-project-modal');
+            modal.classList.toggle('hidden');
+        }
+
+        function generateProjectId(name) {
+            // Generate a simple ID from the project name
+            return name
+                .toUpperCase()
+                .replace(/[^A-Z0-9\s]/g, '')
+                .split(/\s+/)
+                .filter(word => word.length > 0)
+                .slice(0, 3)
+                .join('-');
+        }
+
+        // Handle form submission
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('add-project-form');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+
+                    // Get form values
+                    const newProject = {
+                        id: generateProjectId(document.getElementById('project-name').value),
+                        name: document.getElementById('project-name').value,
+                        mode: document.getElementById('project-mode').value,
+                        location: document.getElementById('project-location').value,
+                        counties: document.getElementById('project-counties').value,
+                        status: document.getElementById('project-status').value,
+                        completion: document.getElementById('project-completion').value || 'TBD',
+                        division: document.getElementById('project-division').value || 'TBD',
+                        bureau: document.getElementById('project-bureau').value || 'TBD',
+                        chapterId: 'Ch5',
+                        url: document.getElementById('project-url').value || 'https://iowadot.gov/',
+                        statusDetail: document.getElementById('project-status-detail').value || 'Project details to be updated.',
+                        percentComplete: parseInt(document.getElementById('project-percent').value) || 0
+                    };
+
+                    // Add to projects array
+                    projectsData.push(newProject);
+
+                    // Close modal
+                    toggleAddProjectModal();
+
+                    // Reset form
+                    form.reset();
+
+                    // Refresh projects view if currently showing
+                    const currentView = document.querySelector('.nav-tab.active').dataset.view;
+                    if (currentView === 'projects') {
+                        renderProjects();
+                    }
+
+                    // Update dashboard stats
+                    updateDashboardStats();
+
+                    // Show success message
+                    alert('Project added successfully!');
+                });
+            }
+        });
+
+        function updateDashboardStats() {
+            // Update the project count in the nav tab
+            const projectsTab = document.querySelector('[data-view="projects"]');
+            if (projectsTab) {
+                projectsTab.textContent = `🚧 Projects (${projectsData.length})`;
+            }
+
+            // Update stats cards on dashboard
+            const totalProjectsStat = document.querySelector('.stats-grid .stat-card:first-child .stat-number');
+            if (totalProjectsStat) {
+                totalProjectsStat.textContent = projectsData.length;
+            }
+
+            const completedCount = projectsData.filter(p => p.status === 'Completed').length;
+            const completedStat = document.querySelector('.stats-grid .stat-card:nth-child(2) .stat-number');
+            if (completedStat) {
+                completedStat.textContent = completedCount;
+            }
+
+            const avgProgress = Math.round(projectsData.reduce((sum, p) => sum + p.percentComplete, 0) / projectsData.length);
+            const avgProgressStat = document.querySelector('.stats-grid .stat-card:nth-child(3) .stat-number');
+            if (avgProgressStat) {
+                avgProgressStat.textContent = avgProgress + '%';
+            }
         }
 
         // Initialize on load
