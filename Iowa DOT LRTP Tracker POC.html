@@ -1171,7 +1171,7 @@
                     📊 Dashboard
                 </button>
                 <button class="nav-tab" data-view="lrp" onclick="switchView('lrp')">
-                    📋 All Plan Items (<span id="lrp-count">54</span>)
+                    📋 All Plan Items (<span id="lrp-count">81</span>)
                 </button>
                 <button class="nav-tab" data-view="projects" onclick="switchView('projects')">
                     🚧 Projects (10)
@@ -1323,12 +1323,21 @@
                         <input type="text" id="lrp-search" class="filter-input" placeholder="Search by name, description, or owner..." onkeyup="filterLRP()">
                     </div>
                     <div class="filter-group">
+                        <label class="filter-label">📊 Level</label>
+                        <select id="lrp-level-filter" class="filter-input" onchange="filterLRP()">
+                            <option value="all">All Items</option>
+                            <option value="Plan Item">Plan Items (What the Plan Says)</option>
+                            <option value="Implementation Project">Implementation Projects (What We're Tracking)</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
                         <label class="filter-label">📂 Category</label>
                         <select id="lrp-category-filter" class="filter-input" onchange="filterLRP()">
                             <option value="all">All Categories</option>
                             <option value="Strategy">Strategy</option>
                             <option value="Key Action">Key Action</option>
                             <option value="Modal/System Plan">Modal/System Plan</option>
+                            <option value="Implementation Project">Implementation Project</option>
                             <option value="Project">Project</option>
                             <option value="Corridor/Tool">Corridor/Tool</option>
                             <option value="Tool">Tool</option>
@@ -1339,9 +1348,29 @@
                         </select>
                     </div>
                     <div class="filter-group">
+                        <label class="filter-label">🚦 Project Status</label>
+                        <select id="lrp-status-filter" class="filter-input" onchange="filterLRP()">
+                            <option value="all">All Statuses</option>
+                            <option value="Proposed">Proposed</option>
+                            <option value="Proposed/expanding">Proposed/Expanding</option>
+                            <option value="Proposed/ongoing">Proposed/Ongoing</option>
+                            <option value="Already emerging">Already Emerging</option>
+                            <option value="Already in motion">Already in Motion</option>
+                            <option value="Already underway">Already Underway</option>
+                            <option value="Proposed/under discussion">Proposed/Under Discussion</option>
+                            <option value="Proposed, can be phased">Proposed (Can Be Phased)</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
                         <label class="filter-label">👥 Owner</label>
                         <select id="lrp-owner-filter" class="filter-input" onchange="filterLRP()">
                             <option value="all">All Owners</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">🔧 Project Type</label>
+                        <select id="lrp-type-filter" class="filter-input" onchange="filterLRP()">
+                            <option value="all">All Types</option>
                         </select>
                     </div>
                 </div>
@@ -1358,8 +1387,16 @@
             <!-- Stats -->
             <div class="stats-grid" style="margin-bottom: var(--space-xl);">
                 <div class="stat-card" style="--color: var(--iowa-teal);">
-                    <span class="stat-number" id="stat-total-lrp">54</span>
+                    <span class="stat-number" id="stat-total-lrp">81</span>
                     <div class="stat-label">Total Items</div>
+                </div>
+                <div class="stat-card" style="--color: var(--info);">
+                    <span class="stat-number" id="stat-plan-items">54</span>
+                    <div class="stat-label">Plan Items</div>
+                </div>
+                <div class="stat-card" style="--color: var(--success);">
+                    <span class="stat-number" id="stat-impl-projects">27</span>
+                    <div class="stat-label">Implementation Projects</div>
                 </div>
                 <div class="stat-card" style="--color: var(--iowa-gold);">
                     <span class="stat-number" id="stat-strategies">30</span>
@@ -1550,7 +1587,49 @@
             { category: 'Network', name: 'Iowa Multimodal Freight Network (IMFN)', description: 'Priority freight network where freight-related investments are targeted based on flows and economic significance.', owners: 'Freight Planning; Program Management; freight stakeholders', url: 'https://iowadot.gov/iowainmotion/Specialized-System-plans/2022-State-Freight-Plan' },
             { category: 'Tool', name: 'get There Your Way', description: 'Location-based equity and mobility tool for identifying low-access populations and supporting equity-focused investments.', owners: 'Equity/planning staff; IT/data teams', url: 'https://iowadot.gov/iowainmotion/Long-Range-Transportation-Plans/2022-State-Transportation-Plan' },
             { category: 'Program Area', name: 'Truck parking improvements and information', description: 'Address growing truck parking demand and improve information about real-time parking availability.', owners: 'Freight Planning; Operations/TSMO; private truck stop operators', url: 'https://iowadot.gov/iowainmotion/Specialized-System-plans/2022-State-Freight-Plan' },
-            { category: 'Toolbox', name: 'Flood mitigation and resilience countermeasure toolbox', description: 'Packages of strategies, countermeasures and research tasks for floods, winter storms and freeze–thaw conditions.', owners: 'Resiliency Working Group; Bridges & Structures; Maintenance', url: 'https://iowadot.gov/iowainmotion/Specialized-System-plans/Resilience-Improvement-Plan' }
+            { category: 'Toolbox', name: 'Flood mitigation and resilience countermeasure toolbox', description: 'Packages of strategies, countermeasures and research tasks for floods, winter storms and freeze–thaw conditions.', owners: 'Resiliency Working Group; Bridges & Structures; Maintenance', url: 'https://iowadot.gov/iowainmotion/Specialized-System-plans/Resilience-Improvement-Plan', level: 'Plan Item', projectStatus: 'N/A', projectType: 'Toolbox' },
+
+            // ===== IMPLEMENTATION PROJECTS =====
+            // 1. Connected & Automated Corridor Projects
+            { category: 'Implementation Project', name: 'I-80/I-35 Connected Corridor Testbed', description: 'Flagship corridor where you concentrate RSUs, HD maps, V2X, work-zone messaging, winter operations data, and CAV pilots. Becomes the proof point that your long-range plan is real.', owners: 'Systems Planning; TSMO; Traffic & Safety; New & Emerging Tech; Districts', url: 'https://iowadot.gov/iowainmotion/Long-Range-Transportation-Plans/2022-State-Transportation-Plan', level: 'Implementation Project', projectStatus: 'Proposed/expanding', projectType: 'Corridor program' },
+            { category: 'Implementation Project', name: 'Roadway Digital Infrastructure (RDI) Inventory', description: 'Single inventory of where you have fiber, backhaul, RSUs, CCTV, DMS, truck parking sensors, etc. Lets you prioritize gaps, support private AV pilots, and coordinate utilities.', owners: 'TSMO; IT; Systems Planning', url: 'https://iowadot.gov/iowainmotion/Long-Range-Transportation-Plans/2022-State-Transportation-Plan', level: 'Implementation Project', projectStatus: 'Proposed', projectType: 'Data platform' },
+            { category: 'Implementation Project', name: 'Statewide RSU + V2X Deployment Plan', description: 'Converts "emerging tech" strategy into miles, intersections, and timelines. Can be tied to priority corridors (freight routes, Super-2s, urban safety hot spots).', owners: 'New & Emerging Tech/CAV; TSMO; Districts', url: 'https://iowadot.gov/iowainmotion/Long-Range-Transportation-Plans/2022-State-Transportation-Plan', level: 'Implementation Project', projectStatus: 'Proposed', projectType: 'Implementation plan' },
+            { category: 'Implementation Project', name: 'CAV Freight Platooning Corridor Pilot', description: 'Aligns freight + automation strategies. Designate a platooning corridor (e.g., I-80 segment), coordinate with carriers and enforcement, and track safety/fuel outcomes.', owners: 'Freight; CAV program; Enforcement partners', url: 'https://iowadot.gov/iowainmotion/Long-Range-Transportation-Plans/2022-State-Transportation-Plan', level: 'Implementation Project', projectStatus: 'Proposed', projectType: 'Pilot project' },
+            { category: 'Implementation Project', name: 'Connected Work Zone Program', description: 'Builds on WZDx and your lane closure work: standardized digital TTC, automated 511, geofenced work zone warnings into vehicles, and safety analytics.', owners: 'Work Zone/Construction; TSMO; New & Emerging Tech', url: 'https://iowadot.gov/iowainmotion/Long-Range-Transportation-Plans/2022-State-Transportation-Plan', level: 'Implementation Project', projectStatus: 'Already emerging', projectType: 'Program' },
+
+            // 2. Truck Freight & Parking / Freight Operations
+            { category: 'Implementation Project', name: 'Truck Parking Information Management 2.0 (TPIMS 2.0)', description: 'Take truck parking from "we have sensors" to predictive occupancy, CAV-ready data feeds, and integrated 511/third-party distribution.', owners: 'Freight; TSMO; IT; private truck stops', url: 'https://iowadot.gov/iowainmotion/Specialized-System-plans/2022-State-Freight-Plan', level: 'Implementation Project', projectStatus: 'Proposed/ongoing', projectType: 'Data & operations' },
+            { category: 'Implementation Project', name: 'Statewide OS/OW Digital Routing & Permit Modernization', description: 'Aligns with freight, safety, and resilience strategies. Modern, map-based OS/OW permitting with corridor protections and future AV/heavy-haul integration.', owners: 'MCS; Freight; IT; Systems Planning', url: 'https://iowadot.gov/iowainmotion/Specialized-System-plans/2022-State-Freight-Plan', level: 'Implementation Project', projectStatus: 'Proposed', projectType: 'System project' },
+            { category: 'Implementation Project', name: 'IMFN Priority Freight Projects List', description: 'Iowa in Motion references the IMFN; turn that into a tracked capital list (interchanges, passing lanes, rail connections, key bridges).', owners: 'Freight; Systems Planning; Program Management', url: 'https://iowadot.gov/iowainmotion/Specialized-System-plans/2022-State-Freight-Plan', level: 'Implementation Project', projectStatus: 'Proposed', projectType: 'Program list' },
+            { category: 'Implementation Project', name: 'Freight Data Hub & Carrier Portal', description: 'Centralizes freight performance data (travel time, reliability, truck parking, bottlenecks) and gives carriers a portal to see and contribute info.', owners: 'Freight; IT; TSMO', url: 'https://iowadot.gov/iowainmotion/Specialized-System-plans/2022-State-Freight-Plan', level: 'Implementation Project', projectStatus: 'Proposed', projectType: 'Platform' },
+
+            // 3. Digital Delivery, Asset Data & BIM/IFC
+            { category: 'Implementation Project', name: 'IFC/OpenBIM Implementation Program (Road & Bridge)', description: 'Long-range plan leans on asset management and resilience; IFC/OpenBIM turns projects into structured data for lifecycle use, automation, and digital twins.', owners: 'Design; Bridges & Structures; Construction & Materials; BIM/IFC team', url: 'https://iowadot.gov/iowainmotion/Long-Range-Transportation-Plans/2022-State-Transportation-Plan', level: 'Implementation Project', projectStatus: 'Already in motion', projectType: 'Program' },
+            { category: 'Implementation Project', name: 'Digital Construction Data Standard & Specs Update', description: 'Aligns as-built and construction data (tickets, 3D models, pay items) to standard schemas so it can feed asset mgmt, safety, and operations tools.', owners: 'Construction & Materials; IT; Asset Management; BIM team', url: 'https://iowadot.gov/iowainmotion/Long-Range-Transportation-Plans/2022-State-Transportation-Plan', level: 'Implementation Project', projectStatus: 'Proposed/ongoing', projectType: 'Policy & tools' },
+            { category: 'Implementation Project', name: 'Lane Closure & Work Zone Digital Platform (e.g., ZoneLock)', description: 'A single source for lane closures, automatically producing 511 events, WZDx feeds, contractor reporting, and TTC compliance analytics.', owners: 'Systems Operations/TSMO; Work Zone; IT', url: 'https://iowadot.gov/iowainmotion/Long-Range-Transportation-Plans/2022-State-Transportation-Plan', level: 'Implementation Project', projectStatus: 'Already underway', projectType: 'System project' },
+            { category: 'Implementation Project', name: 'Digital Utility As-Built & Underground Mapping', description: 'Explicitly supports resilience and safety (reduced strikes), and future RDI and AV efforts that rely on accurate locational data.', owners: 'Utilities group; GIS; Construction & Materials; external partners', url: 'https://iowadot.gov/iowainmotion/Long-Range-Transportation-Plans/2022-State-Transportation-Plan', level: 'Implementation Project', projectStatus: 'Proposed/ongoing', projectType: 'Program' },
+            { category: 'Implementation Project', name: 'Priority Corridor Digital Twins (I-80/I-35 segments, key bridges)', description: 'Combines IFC, condition data, traffic, and resilience into a living model for scenario testing (floods, incidents, work zones, detours).', owners: 'BIM/IFC team; Bridges; TSMO; Asset Management', url: 'https://iowadot.gov/iowainmotion/Long-Range-Transportation-Plans/2022-State-Transportation-Plan', level: 'Implementation Project', projectStatus: 'Proposed, can be phased', projectType: 'Initiative' },
+
+            // 4. Customer-Facing Mobility & Transit/Access
+            { category: 'Implementation Project', name: 'Statewide Multimodal Trip Planner & Open Data Suite', description: 'Aligns with accessibility/equity: single front door for transit, bike, park-and-ride, and intercity trips, supported by GTFS/GTFS-RT and open APIs.', owners: 'Public Transit; IT; MPOs/RPAs; local transit', url: 'https://iowadot.gov/iowainmotion/Modal-Plans/Public-Transit-Plan', level: 'Implementation Project', projectStatus: 'Proposed', projectType: 'Platform' },
+            { category: 'Implementation Project', name: 'Rural Mobility Innovation Pilots (e.g., microtransit zones)', description: 'Tests new operating models in low-density areas, directly linked to the transit LR plan and equity/access strategies.', owners: 'Public Transit; RPAs; local providers', url: 'https://iowadot.gov/iowainmotion/Modal-Plans/Public-Transit-Plan', level: 'Implementation Project', projectStatus: 'Proposed', projectType: 'Pilot program' },
+            { category: 'Implementation Project', name: 'Transit Signal Priority & Dedicated Bus Corridors on Key Urban Routes', description: 'Combines TSMO + transit strategies; improves travel time and reliability for key corridors and supports emissions goals.', owners: 'TSMO; Cities; Transit Agencies', url: 'https://iowadot.gov/iowainmotion/Modal-Plans/Public-Transit-Plan', level: 'Implementation Project', projectStatus: 'Proposed', projectType: 'Corridor projects' },
+            { category: 'Implementation Project', name: 'Safe Multimodal Corridors on State Routes through Communities', description: 'Turns bike/ped and safety strategies into a list of corridors with crossing, speed management, and streetscape improvements.', owners: 'Traffic & Safety; Design; Local partners', url: 'https://iowadot.gov/iowainmotion/Modal-Plans/Bicycle-Pedestrian-Plan', level: 'Implementation Project', projectStatus: 'Proposed/ongoing', projectType: 'Program' },
+
+            // 5. Resilience, Flood & Climate Adaptation Projects
+            { category: 'Implementation Project', name: 'Priority Flood Mitigation Corridors Program', description: 'Picks top Tier 1–2 flood-risk corridors and packages grade raises, drainage upgrades, scour retrofit, and levee coordination into trackable projects.', owners: 'Resiliency Working Group; Bridges & Structures; Maintenance; Systems Planning', url: 'https://iowadot.gov/iowainmotion/Specialized-System-plans/Resilience-Improvement-Plan', level: 'Implementation Project', projectStatus: 'Proposed', projectType: 'Program list' },
+            { category: 'Implementation Project', name: 'Winter Operations Data & Decision Support Platform', description: 'Integrates AVL, MDSS, RWIS, crash data, and CAV messages for better storm response and post-storm analytics – a resilience plus safety win.', owners: 'Maintenance; TSMO; IT', url: 'https://iowadot.gov/iowainmotion/Specialized-System-plans/Resilience-Improvement-Plan', level: 'Implementation Project', projectStatus: 'Proposed/ongoing', projectType: 'Platform' },
+            { category: 'Implementation Project', name: 'Climate-Resilient Design Standards Update', description: 'Updates design manuals to incorporate new precipitation, freeze–thaw, and temperature expectations, tied back to RIP and carbon strategies.', owners: 'Design; Bridges; Resiliency Working Group', url: 'https://iowadot.gov/iowainmotion/Specialized-System-plans/Resilience-Improvement-Plan', level: 'Implementation Project', projectStatus: 'Proposed', projectType: 'Policy project' },
+
+            // 6. Data Platforms, APIs & Governance
+            { category: 'Implementation Project', name: 'Statewide Transportation Data Hub & API Gateway', description: 'Single governed environment for WZDx, 511, TPIMS, crash, asset, transit, and CAV data feeds; aligns with your I-80/I-35 coalition data standards work.', owners: 'IT; Systems Planning; TSMO; Modal leads', url: 'https://iowadot.gov/iowainmotion/Long-Range-Transportation-Plans/2022-State-Transportation-Plan', level: 'Implementation Project', projectStatus: 'Proposed/under discussion', projectType: 'Platform' },
+            { category: 'Implementation Project', name: 'Transportation Data Governance & Standards Program', description: 'Permanent structure (council, schema library, change control) so data standards like WZDx, IFC, HPMS, MIRE, GTFS, etc. stay coherent and implementable.', owners: 'Systems Planning; IT; BIM/IFC; Data Governance group', url: 'https://iowadot.gov/iowainmotion/Long-Range-Transportation-Plans/2022-State-Transportation-Plan', level: 'Implementation Project', projectStatus: 'Proposed', projectType: 'Governance' },
+            { category: 'Implementation Project', name: 'OT/ITS Cybersecurity Hardening Program', description: 'Supports resilience, safety, and trust: inventory field devices, segment networks, patch management, and incident response tailored to traffic systems.', owners: 'IT Security; TSMO; Maintenance; Traffic Systems', url: 'https://iowadot.gov/iowainmotion/Long-Range-Transportation-Plans/2022-State-Transportation-Plan', level: 'Implementation Project', projectStatus: 'Proposed', projectType: 'Program' },
+
+            // 7. Workforce, Training & Change Management
+            { category: 'Implementation Project', name: 'Transportation Digital Skills Academy', description: 'Structured training path (CAV, TSMO, BIM/IFC, data analytics, AI) for planners, designers, maintenance, and field staff.', owners: 'HR/Training; BIM/IFC; TSMO; New & Emerging Tech', url: 'https://iowadot.gov/iowainmotion/Long-Range-Transportation-Plans/2022-State-Transportation-Plan', level: 'Implementation Project', projectStatus: 'Proposed', projectType: 'Program' },
+            { category: 'Implementation Project', name: 'Operations & Maintenance Tech Upskilling Initiative', description: 'Focused training for snowplow operators, TMC staff, and field maintenance on new systems, apps, and data expectations.', owners: 'Maintenance; TSMO; HR/Training', url: 'https://iowadot.gov/iowainmotion/Long-Range-Transportation-Plans/2022-State-Transportation-Plan', level: 'Implementation Project', projectStatus: 'Proposed', projectType: 'Program' },
+            { category: 'Implementation Project', name: 'Innovation Sandbox & Pilot Governance Process', description: 'Clear intake, evaluation, and scaling pathway for new tech pilots so they connect back to SLRTP strategies and don\'t die as one-offs.', owners: 'Technology/Innovation Office; Division leads', url: 'https://iowadot.gov/iowainmotion/Long-Range-Transportation-Plans/2022-State-Transportation-Plan', level: 'Implementation Project', projectStatus: 'Proposed', projectType: 'Governance + program' }
         ];
 
         const projectsData = [
@@ -1833,9 +1912,28 @@
             ownerFilter.innerHTML = '<option value="all">All Owners</option>' +
                 uniqueOwners.map(owner => `<option value="${owner}">${owner}</option>`).join('');
 
+            // Populate project type filter
+            const typeFilter = document.getElementById('lrp-type-filter');
+            const uniqueTypes = [...new Set(lrpData.filter(item => item.projectType).map(item => item.projectType))].sort();
+            typeFilter.innerHTML = '<option value="all">All Types</option>' +
+                uniqueTypes.map(type => `<option value="${type}">${type}</option>`).join('');
+
             // Render items
-            container.innerHTML = lrpData.map((item, index) => `
-                <div class="card mb-lg lrp-item" data-category="${item.category}" data-owner="${item.owners}" data-index="${index}">
+            container.innerHTML = lrpData.map((item, index) => {
+                const isImplementation = item.level === 'Implementation Project';
+                const statusBadge = isImplementation && item.projectStatus !== 'N/A' ? `
+                    <span class="badge" style="background: var(--success)20; color: var(--success); border-color: var(--success);">
+                        ${item.projectStatus}
+                    </span>
+                ` : '';
+                const typeBadge = isImplementation && item.projectType ? `
+                    <span class="badge" style="background: var(--info)20; color: var(--info); border-color: var(--info);">
+                        ${item.projectType}
+                    </span>
+                ` : '';
+
+                return `
+                <div class="card mb-lg lrp-item" data-category="${item.category}" data-owner="${item.owners}" data-level="${item.level || 'Plan Item'}" data-status="${item.projectStatus || 'N/A'}" data-type="${item.projectType || 'N/A'}" data-index="${index}">
                     <div style="display: flex; gap: var(--space-lg); align-items: start;">
                         <div style="flex-shrink: 0; width: 60px; height: 60px; background: linear-gradient(135deg, ${getCategoryColor(item.category)}, var(--iowa-navy)); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; color: var(--iowa-white); font-size: 1.75rem;">
                             ${getCategoryIcon(item.category)}
@@ -1845,6 +1943,8 @@
                                 <span class="badge" style="background: ${getCategoryColor(item.category)}20; color: ${getCategoryColor(item.category)}; border-color: ${getCategoryColor(item.category)};">
                                     ${item.category}
                                 </span>
+                                ${statusBadge}
+                                ${typeBadge}
                             </div>
                             <h3 style="font-size: 1.125rem; color: var(--iowa-navy); margin-bottom: var(--space-md);">${item.name}</h3>
                             <p style="color: var(--iowa-charcoal); line-height: 1.7; margin-bottom: var(--space-md);">${item.description}</p>
@@ -1860,13 +1960,16 @@
                         </div>
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
         }
 
         function filterLRP() {
             const search = document.getElementById('lrp-search').value.toLowerCase();
+            const level = document.getElementById('lrp-level-filter').value;
             const category = document.getElementById('lrp-category-filter').value;
+            const status = document.getElementById('lrp-status-filter').value;
             const owner = document.getElementById('lrp-owner-filter').value;
+            const type = document.getElementById('lrp-type-filter').value;
 
             let visibleCount = 0;
 
@@ -1876,10 +1979,13 @@
                 const text = (item.name + ' ' + item.description + ' ' + item.owners).toLowerCase();
 
                 const matchSearch = search === '' || text.includes(search);
+                const matchLevel = level === 'all' || el.dataset.level === level;
                 const matchCategory = category === 'all' || el.dataset.category === category;
+                const matchStatus = status === 'all' || el.dataset.status === status;
                 const matchOwner = owner === 'all' || el.dataset.owner === owner;
+                const matchType = type === 'all' || el.dataset.type === type;
 
-                const shouldShow = matchSearch && matchCategory && matchOwner;
+                const shouldShow = matchSearch && matchLevel && matchCategory && matchStatus && matchOwner && matchType;
                 el.style.display = shouldShow ? 'block' : 'none';
                 if (shouldShow) visibleCount++;
             });
@@ -1889,9 +1995,16 @@
         }
 
         function exportLRPCSV() {
-            const headers = ['Category', 'Item Name', 'Description', 'Owners', 'URL'];
+            const headers = ['Level', 'Category', 'Item Name', 'Description', 'Owners', 'Project Type', 'Project Status', 'URL'];
             const rows = lrpData.map(item => [
-                item.category, item.name, item.description, item.owners, item.url
+                item.level || 'Plan Item',
+                item.category,
+                item.name,
+                item.description,
+                item.owners,
+                item.projectType || '',
+                item.projectStatus || '',
+                item.url
             ]);
 
             const csv = [headers, ...rows].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
@@ -1905,14 +2018,22 @@
         }
 
         function exportLRPJSON() {
+            const planItems = lrpData.filter(i => i.level !== 'Implementation Project');
+            const implProjects = lrpData.filter(i => i.level === 'Implementation Project');
+
             const data = {
                 items: lrpData,
                 exportDate: new Date().toISOString(),
-                totalItems: lrpData.length,
+                summary: {
+                    totalItems: lrpData.length,
+                    planItems: planItems.length,
+                    implementationProjects: implProjects.length
+                },
                 categories: {
                     'Strategy': lrpData.filter(i => i.category === 'Strategy').length,
                     'Key Action': lrpData.filter(i => i.category === 'Key Action').length,
                     'Modal/System Plan': lrpData.filter(i => i.category === 'Modal/System Plan').length,
+                    'Implementation Project': implProjects.length,
                     'Project': lrpData.filter(i => i.category === 'Project').length,
                     'Corridor/Tool': lrpData.filter(i => i.category === 'Corridor/Tool').length,
                     'Tool': lrpData.filter(i => i.category === 'Tool').length,
@@ -1920,6 +2041,16 @@
                     'Network': lrpData.filter(i => i.category === 'Network').length,
                     'Program Area': lrpData.filter(i => i.category === 'Program Area').length,
                     'Toolbox': lrpData.filter(i => i.category === 'Toolbox').length
+                },
+                implementationProjectsByStatus: {
+                    'Proposed': implProjects.filter(i => i.projectStatus === 'Proposed').length,
+                    'Proposed/expanding': implProjects.filter(i => i.projectStatus === 'Proposed/expanding').length,
+                    'Proposed/ongoing': implProjects.filter(i => i.projectStatus === 'Proposed/ongoing').length,
+                    'Already emerging': implProjects.filter(i => i.projectStatus === 'Already emerging').length,
+                    'Already in motion': implProjects.filter(i => i.projectStatus === 'Already in motion').length,
+                    'Already underway': implProjects.filter(i => i.projectStatus === 'Already underway').length,
+                    'Proposed/under discussion': implProjects.filter(i => i.projectStatus === 'Proposed/under discussion').length,
+                    'Proposed, can be phased': implProjects.filter(i => i.projectStatus === 'Proposed, can be phased').length
                 }
             };
 
