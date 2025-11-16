@@ -1170,6 +1170,9 @@
                 <button class="nav-tab active" data-view="dashboard" onclick="switchView('dashboard')">
                     📊 Dashboard
                 </button>
+                <button class="nav-tab" data-view="lrp" onclick="switchView('lrp')">
+                    📋 All Plan Items (<span id="lrp-count">54</span>)
+                </button>
                 <button class="nav-tab" data-view="projects" onclick="switchView('projects')">
                     🚧 Projects (10)
                 </button>
@@ -1309,6 +1312,73 @@
             </div>
         </div>
 
+        <!-- LONG RANGE PLAN VIEW -->
+        <div id="lrp-view" class="view-content hidden">
+            <!-- Filters -->
+            <div class="filter-section">
+                <h2 style="font-size: 1.5rem; color: var(--iowa-navy); margin-bottom: var(--space-lg);">Iowa DOT Long Range Plan Tracker</h2>
+                <div class="filter-grid">
+                    <div class="filter-group">
+                        <label class="filter-label">🔍 Search</label>
+                        <input type="text" id="lrp-search" class="filter-input" placeholder="Search by name, description, or owner..." onkeyup="filterLRP()">
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">📂 Category</label>
+                        <select id="lrp-category-filter" class="filter-input" onchange="filterLRP()">
+                            <option value="all">All Categories</option>
+                            <option value="Strategy">Strategy</option>
+                            <option value="Key Action">Key Action</option>
+                            <option value="Modal/System Plan">Modal/System Plan</option>
+                            <option value="Project">Project</option>
+                            <option value="Corridor/Tool">Corridor/Tool</option>
+                            <option value="Tool">Tool</option>
+                            <option value="Corridor">Corridor</option>
+                            <option value="Network">Network</option>
+                            <option value="Program Area">Program Area</option>
+                            <option value="Toolbox">Toolbox</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">👥 Owner</label>
+                        <select id="lrp-owner-filter" class="filter-input" onchange="filterLRP()">
+                            <option value="all">All Owners</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="margin-top: var(--space-lg); display: flex; gap: var(--space-md); flex-wrap: wrap;">
+                    <button class="btn btn-primary" onclick="exportLRPCSV()">
+                        📊 Export as CSV
+                    </button>
+                    <button class="btn btn-primary" onclick="exportLRPJSON()">
+                        💾 Export as JSON
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-grid" style="margin-bottom: var(--space-xl);">
+                <div class="stat-card" style="--color: var(--iowa-teal);">
+                    <span class="stat-number" id="stat-total-lrp">54</span>
+                    <div class="stat-label">Total Items</div>
+                </div>
+                <div class="stat-card" style="--color: var(--iowa-gold);">
+                    <span class="stat-number" id="stat-strategies">30</span>
+                    <div class="stat-label">Strategies</div>
+                </div>
+                <div class="stat-card" style="--color: var(--iowa-copper);">
+                    <span class="stat-number" id="stat-key-actions">5</span>
+                    <div class="stat-label">Key Actions</div>
+                </div>
+                <div class="stat-card" style="--color: var(--iowa-seafoam);">
+                    <span class="stat-number" id="stat-modal-plans">11</span>
+                    <div class="stat-label">Modal/System Plans</div>
+                </div>
+            </div>
+
+            <!-- LRP Items List -->
+            <div id="lrp-list"></div>
+        </div>
+
         <!-- PROJECTS VIEW -->
         <div id="projects-view" class="view-content hidden">
             <!-- Filters -->
@@ -1425,6 +1495,64 @@
 
     <script>
         // ===== DATA =====
+        // Long Range Plan Items from CSV
+        const lrpData = [
+            { category: 'Strategy', name: 'Support the implementation of modal and system plans', description: 'Continue implementing and updating aviation, bike/ped, transit, freight, rail, safety, asset management, TSMO, carbon reduction, resilience and Transportation 4.0 plans; use their strategies to achieve the SLRTP vision.', owners: 'Iowa DOT modal and system plan owners; Systems Planning; external partners', url: 'https://iowadot.gov/iowainmotion/Long-Range-Transportation-Plans/2022-State-Transportation-Plan' },
+            { category: 'Strategy', name: 'Adopt and integrate system objectives into Iowa DOT decision-making', description: 'Integrate SLRTP system objectives into planning, programming, project development and prioritization tools.', owners: 'Iowa DOT leadership; Systems Planning; Program Management; design/project development bureaus', url: 'https://iowadot.gov/iowainmotion/Long-Range-Transportation-Plans/2022-State-Transportation-Plan' },
+            { category: 'Strategy', name: 'Implement the rightsizing policy across planning, programming, and project development', description: 'Apply a rightsizing lens so investments match actual and forecast needs and avoid overbuilding or under-investing.', owners: 'Systems Planning; Program Management; design and environmental bureaus; Iowa Transportation Commission', url: 'https://iowadot.gov/iowainmotion/Long-Range-Transportation-Plans/2022-State-Transportation-Plan' },
+            { category: 'Strategy', name: 'Enhance relationship between SLRTP and Iowa DOT business plan', description: 'Align Iowa DOT business plan goals and performance measures with SLRTP objectives so day-to-day work advances the long-range vision.', owners: 'Iowa DOT executive leadership; business-planning teams', url: 'https://iowadot.gov/iowainmotion/Long-Range-Transportation-Plans/2022-State-Transportation-Plan' },
+            { category: 'Strategy', name: 'Enhance accessibility planning', description: 'Improve data and methods to understand and enhance access to jobs, services and key destinations across modes, including for vulnerable users.', owners: 'Systems Planning; modal offices; equity/accessibility staff', url: 'https://iowadot.gov/iowainmotion/Long-Range-Transportation-Plans/2022-State-Transportation-Plan' },
+            { category: 'Strategy', name: 'Enhance planning for emerging transportation technology and automated transportation', description: 'Integrate CAV, UAS and other emerging technologies into planning frameworks, forecasts and investment decisions.', owners: 'New & Emerging Transportation Technology / CAV programs; Systems Planning; Operations', url: 'https://iowadot.gov/iowainmotion/Long-Range-Transportation-Plans/2022-State-Transportation-Plan' },
+            { category: 'Strategy', name: 'Enhance equity planning', description: 'Use improved data and tools (including the \'get There Your Way\' tool) to identify and address disparities in access, safety and exposure to risk.', owners: 'Equity/Title VI staff; Systems Planning; modal offices', url: 'https://iowadot.gov/iowainmotion/Long-Range-Transportation-Plans/2022-State-Transportation-Plan' },
+            { category: 'Strategy', name: 'Continue to enhance resiliency planning', description: 'Integrate resilience analysis, the Resilience Improvement Plan and hazard mitigation strategies into statewide and corridor planning.', owners: 'Resiliency Working Group; Systems Planning; Maintenance; Bridges & Structures', url: 'https://iowadot.gov/iowainmotion/Long-Range-Transportation-Plans/2022-State-Transportation-Plan' },
+            { category: 'Strategy', name: 'Continue to enhance sustainability planning', description: 'Advance sustainability and carbon reduction metrics and policies and embed them into decision-making.', owners: 'Sustainability Working Group; Systems Planning; modal units', url: 'https://iowadot.gov/iowainmotion/Long-Range-Transportation-Plans/2022-State-Transportation-Plan' },
+            { category: 'Strategy', name: 'Advance rural transportation planning issues', description: 'Work with MPOs/RPAs and rural partners on rural access, safety, freight and mobility challenges.', owners: 'Systems Planning; MPOs/RPAs; local governments', url: 'https://iowadot.gov/iowainmotion/Long-Range-Transportation-Plans/2022-State-Transportation-Plan' },
+            { category: 'Strategy', name: 'Advance systems and technology for driver licensing, titling, registration, and motor carrier services', description: 'Modernize and integrate MVD systems for licensing, registration, permitting and motor carrier compliance.', owners: 'Motor Vehicle Division (MVD)', url: 'https://iowadot.gov/iowainmotion/Long-Range-Transportation-Plans/2022-State-Transportation-Plan' },
+            { category: 'Strategy', name: 'Enhance customer relations and communication for MVD services', description: 'Improve customer experience and communications for driver licensing, titling, registration and motor carrier services.', owners: 'Motor Vehicle Division (MVD)', url: 'https://iowadot.gov/iowainmotion/Long-Range-Transportation-Plans/2022-State-Transportation-Plan' },
+            { category: 'Strategy', name: 'Advance transportation system safety planning and implementation', description: 'Use SHSP and safety analytics to target emphasis areas and support multi-disciplinary safety strategies.', owners: 'Traffic & Safety; Districts; safety partners', url: 'https://iowadot.gov/iowainmotion/Long-Range-Transportation-Plans/2022-State-Transportation-Plan' },
+            { category: 'Strategy', name: 'Monitor and support freight movement and multimodal freight planning', description: 'Implement State Freight Plan strategies, including sustainable funding, emerging freight tech, intermodal facilities, truck parking and inland waterways.', owners: 'Freight/Systems Planning; private freight stakeholders; railroads; ports', url: 'https://iowadot.gov/iowainmotion/Long-Range-Transportation-Plans/2022-State-Transportation-Plan' },
+            { category: 'Strategy', name: 'Monitor and support passenger transportation planning', description: 'Implement Iowa Public Transit 2050 strategies for service, partnerships, facilities/fleet/workforce and funding.', owners: 'Iowa DOT Public Transit; regional transit agencies; MPOs/RPAs', url: 'https://iowadot.gov/iowainmotion/Long-Range-Transportation-Plans/2022-State-Transportation-Plan' },
+            { category: 'Strategy', name: 'Seek dual-benefit policies and investments', description: 'Prioritize investments that deliver benefits for today\'s users and prepare corridors for future technologies (data, comms, EV, CAV).', owners: 'Systems Planning; Operations; ITS/TSMO; CAV program', url: 'https://iowadot.gov/iowainmotion/Long-Range-Transportation-Plans/2022-State-Transportation-Plan' },
+            { category: 'Strategy', name: 'Monitor and support research and planning for automated transportation use cases', description: 'Focus on specific automation use cases (platooning, automated transit/shuttles, work zones, rural AV, etc.) and evaluate pilot opportunities.', owners: 'CAV research partners; universities; Iowa Advisory Council on Automated Transportation; Operations', url: 'https://iowadot.gov/iowainmotion/Long-Range-Transportation-Plans/2022-State-Transportation-Plan' },
+            { category: 'Strategy', name: 'Leverage the Iowa Advisory Council on Automated Transportation (ATC)', description: 'Use ATC and the Iowa Automated Transportation Vision to coordinate automation policy, pilots and long-term direction.', owners: 'Iowa Advisory Council on Automated Transportation (ATC)', url: 'https://iowadot.gov/iowainmotion/Long-Range-Transportation-Plans/2022-State-Transportation-Plan' },
+            { category: 'Strategy', name: 'Coordinate on energy and alternative fuel infrastructure planning', description: 'Work with local governments, utilities and state agencies on EV and alternative fuel infrastructure and charging/fueling corridors.', owners: 'Systems Planning; Energy/EV program staff; utilities; IEDA; IDNR; local partners', url: 'https://iowadot.gov/iowainmotion/Long-Range-Transportation-Plans/2022-State-Transportation-Plan' },
+            { category: 'Strategy', name: 'Advance workforce adaptation and planning', description: 'Plan for changing workforce needs from automation and digital delivery, including training and recruitment for new skillsets.', owners: 'HR/training; divisions and bureaus across Iowa DOT', url: 'https://iowadot.gov/iowainmotion/Long-Range-Transportation-Plans/2022-State-Transportation-Plan' },
+            { category: 'Strategy', name: 'Advance highway planning and analysis efforts', description: 'Refine and use tools such as ICE, ICE-OPS and I3P to analyze condition, performance and risk and support prioritization.', owners: 'Systems Planning; Program Management; Bridges & Structures; Maintenance', url: 'https://iowadot.gov/iowainmotion/Long-Range-Transportation-Plans/2022-State-Transportation-Plan' },
+            { category: 'Strategy', name: 'Target investment to address measured pavement condition needs', description: 'Use pavement condition data to prioritize structural and service-level improvements, especially on critical routes.', owners: 'Asset Management; Maintenance; Program Management', url: 'https://iowadot.gov/iowainmotion/Long-Range-Transportation-Plans/2022-State-Transportation-Plan' },
+            { category: 'Strategy', name: 'Target investment to address bridges with measured condition needs', description: 'Use bridge condition indices and risk metrics to prioritize bridge rehabilitation and replacement.', owners: 'Bridges & Structures; Asset Management; Program Management', url: 'https://iowadot.gov/iowainmotion/Long-Range-Transportation-Plans/2022-State-Transportation-Plan' },
+            { category: 'Strategy', name: 'Target investment to address measured bottlenecks', description: 'Use congestion and reliability data to identify and address recurring bottlenecks including key interchanges and freight corridors.', owners: 'Systems Planning; TSMO; Program Management', url: 'https://iowadot.gov/iowainmotion/Long-Range-Transportation-Plans/2022-State-Transportation-Plan' },
+            { category: 'Strategy', name: 'Target investment to address mobility and safety needs on Super-2 routes', description: 'Focus passing lanes, intersection upgrades and other improvements on designated Super-2 corridors (e.g., US 18, 30, 34, 63, 71).', owners: 'Systems Planning; Design; Program Management; Districts', url: 'https://iowadot.gov/iowainmotion/Long-Range-Transportation-Plans/2022-State-Transportation-Plan' },
+            { category: 'Strategy', name: 'Target investment to address capacity needs', description: 'Evaluate and program capacity additions only where justified by traffic, freight, safety and economic importance, applying rightsizing.', owners: 'Systems Planning; Program Management; Iowa Transportation Commission', url: 'https://iowadot.gov/iowainmotion/Long-Range-Transportation-Plans/2022-State-Transportation-Plan' },
+            { category: 'Strategy', name: 'Target investment to address locations with most potential to improve safety', description: 'Use priority crash rankings and systemic safety tools to focus on high-benefit locations and systemic treatments.', owners: 'Traffic & Safety; Districts', url: 'https://iowadot.gov/iowainmotion/Long-Range-Transportation-Plans/2022-State-Transportation-Plan' },
+            { category: 'Strategy', name: 'Target investment to address corridors with higher operations risk', description: 'Identify corridors with poor reliability, weather and incident vulnerabilities and address them using TSMO strategies.', owners: 'TSMO program; Traffic Management Center; District Maintenance', url: 'https://iowadot.gov/iowainmotion/Long-Range-Transportation-Plans/2022-State-Transportation-Plan' },
+            { category: 'Strategy', name: 'Target investment to address corridors with higher flood resiliency risk', description: 'Use RIP hazard tiers and corridor lists to prioritize flood-related mitigation such as grade raises and scour protection.', owners: 'Resiliency Working Group; Bridges & Structures; Maintenance; Systems Planning', url: 'https://iowadot.gov/iowainmotion/Long-Range-Transportation-Plans/2022-State-Transportation-Plan' },
+            { category: 'Strategy', name: 'Target investment to address locations with higher bicyclist and pedestrian risk', description: 'Apply bike/ped safety analysis and network gap data to target improvements on the primary system and local networks.', owners: 'Traffic & Safety; Design; Bike/Ped program', url: 'https://iowadot.gov/iowainmotion/Long-Range-Transportation-Plans/2022-State-Transportation-Plan' },
+            { category: 'Key Action', name: 'Support development and implementation of modal and system plans', description: 'Ensure updates of aviation, transit, freight, rail, safety, TAMP, TSMO, carbon reduction and resilience plans align with SLRTP objectives.', owners: 'Modal and specialized system plan owners; Systems Planning', url: 'https://iowadot.gov/iowainmotion/Long-Range-Transportation-Plans/2022-State-Transportation-Plan' },
+            { category: 'Key Action', name: 'Implement rightsizing policy across all phases', description: 'Apply rightsizing consistently in long-range planning, programming, corridor studies, project scoping and design.', owners: 'Systems Planning; Program Management; project development bureaus', url: 'https://iowadot.gov/iowainmotion/Long-Range-Transportation-Plans/2022-State-Transportation-Plan' },
+            { category: 'Key Action', name: 'Advance planning for accessibility, emerging tech, equity, resiliency and sustainability', description: 'Build out data, tools, working groups and processes for these focus areas and integrate them into decisions.', owners: 'Accessibility/equity staff; ATC; Resiliency and Sustainability Working Groups', url: 'https://iowadot.gov/iowainmotion/Long-Range-Transportation-Plans/2022-State-Transportation-Plan' },
+            { category: 'Key Action', name: 'Integrate needs and risk analysis into investment decisions', description: 'Use the combined needs and risks framework (condition, safety, operations, resilience) to drive the Five-Year Program and corridor decisions.', owners: 'Systems Planning; Program Management; Iowa Transportation Commission', url: 'https://iowadot.gov/iowainmotion/Long-Range-Transportation-Plans/2022-State-Transportation-Plan' },
+            { category: 'Key Action', name: 'Strengthen partnerships with MPOs/RPAs and stakeholders', description: 'Coordinate more closely with regional and local agencies and private partners to implement SLRTP strategies.', owners: 'Systems Planning; modal offices; MPOs/RPAs; local governments; private partners', url: 'https://iowadot.gov/iowainmotion/Long-Range-Transportation-Plans/2022-State-Transportation-Plan' },
+            { category: 'Modal/System Plan', name: '2020–2040 Iowa Aviation System Plan (IASP)', description: 'Guides aviation system roles, airport improvements, security, sustainability and major projects including South Central Airport.', owners: 'Iowa DOT Aviation; local airport sponsors; FAA', url: 'https://iowadot.gov/aviation/studiesreports/systemplanreports' },
+            { category: 'Modal/System Plan', name: 'Iowa Bicycle and Pedestrian Long-Range Plan (2018)', description: 'Sets statewide strategy for bicycle and pedestrian networks, Complete Streets, safety, trails and U.S. Bicycle Routes.', owners: 'Iowa DOT design and bike/ped staff; cities; counties; MPOs/RPAs; Iowa DNR; nonprofits', url: 'https://iowadot.gov/iowainmotion/Modal-Plans/Bicycle-Pedestrian-Plan' },
+            { category: 'Modal/System Plan', name: 'Iowa Public Transit 2050 Long-Range Plan (2020)', description: 'Defines long-range actions for transit service, partnerships, facilities and fleet, workforce and funding across Iowa.', owners: 'Iowa DOT Public Transit; regional transit agencies; MPOs/RPAs; local governments', url: 'https://iowadot.gov/iowainmotion/Modal-Plans/Public-Transit-Plan' },
+            { category: 'Modal/System Plan', name: 'Iowa State Freight Plan (2022)', description: 'Provides strategies for sustainable freight funding, emerging freight technologies, IMFN investments, truck parking and inland waterways.', owners: 'Freight/Systems Planning; freight carriers; shippers; railroads; ports', url: 'https://iowadot.gov/iowainmotion/Specialized-System-plans/2022-State-Freight-Plan' },
+            { category: 'Modal/System Plan', name: 'Iowa State Rail Plan (2021)', description: 'Outlines freight and passenger rail improvements, right-of-way preservation, intermodal facilities and regional coordination.', owners: 'Iowa DOT Rail; railroads; neighboring states; local partners', url: 'https://iowadot.gov/iowainmotion/Modal-Plans/Rail-Transportation-Plan' },
+            { category: 'Modal/System Plan', name: 'Iowa Strategic Highway Safety Plan (2019–2023)', description: 'Multidisciplinary highway safety plan with emphasis area strategies for fatalities and serious injury reduction.', owners: 'Traffic & Safety; law enforcement; EMS; local governments; education partners', url: 'https://iowadot.gov/traffic/shsp/home' },
+            { category: 'Modal/System Plan', name: 'Transportation Asset Management Plan (TAMP, 2019–2028)', description: 'Establishes asset management framework, governance, data and investment strategies for pavements and bridges.', owners: 'Asset Management program; Systems Planning; Maintenance; Iowa Transportation Commission', url: 'https://iowadot.gov/systems_planning/fpmam/IowaDOT-TAMP-2019.pdf' },
+            { category: 'Modal/System Plan', name: 'Transportation Systems Management and Operations (TSMO) program plans', description: 'Drive expanded TSMO culture, integration into decision-making and improved traveler information and ITS.', owners: 'TSMO program; Traffic Management Center; Operations & Maintenance', url: 'https://iowadot.gov/tsmo/' },
+            { category: 'Modal/System Plan', name: 'Iowa Carbon Reduction Strategy (CRS)', description: 'Strategy for reducing transportation greenhouse gas emissions through transit, bike/ped, TDM, TSMO and freight efficiency.', owners: 'Systems Planning; TSMO; modal offices; MPOs/RPAs', url: 'https://iowadot.gov/iowainmotion/Long-Range-Transportation-Plans/2022-State-Transportation-Plan' },
+            { category: 'Modal/System Plan', name: 'Iowa Resilience Improvement Plan (RIP)', description: 'Identifies hazards, countermeasures and research for improving infrastructure resilience to flooding, winter storms and freeze–thaw.', owners: 'Resiliency Working Group; Bridges & Structures; Maintenance; Systems Planning; emergency management partners', url: 'https://iowadot.gov/iowainmotion/Specialized-System-plans/Resilience-Improvement-Plan' },
+            { category: 'Modal/System Plan', name: 'Transportation 4.0: Innovative strategies for the transportation revolution', description: 'Innovation agenda for automation, digitization and new mobility; complements SLRTP objectives.', owners: 'Iowa DOT technology and innovation leadership; cross-divisional teams', url: 'https://iowadot.gov/iowainmotion/Long-Range-Transportation-Plans/2022-State-Transportation-Plan' },
+            { category: 'Project', name: 'South Central Airport Project', description: 'Development of a new regional airport with associated closure of Pella and Oskaloosa airports as recommended in the Aviation System Plan.', owners: 'Local airport sponsors; Iowa DOT Aviation; FAA', url: 'https://iowadot.gov/aviation/studiesreports/systemplanreports' },
+            { category: 'Corridor/Tool', name: 'Iowa Interstate Investment Plan (I3P)', description: 'Interstate system planning document used with ICE tool to guide I-80 and I-35 programming and investment decisions.', owners: 'Systems Planning; Program Management; Districts', url: 'https://iowadot.gov/iowainmotion/Long-Range-Transportation-Plans/2022-State-Transportation-Plan' },
+            { category: 'Tool', name: 'Iowa Infrastructure Condition Evaluation (ICE & ICE-OPS)', description: 'Analytical tools for pavement and bridge condition, operations and risk that underpin highway investment strategies.', owners: 'Systems Planning; Asset Management; Program Management', url: 'https://iowadot.gov/iowainmotion/Long-Range-Transportation-Plans/2022-State-Transportation-Plan' },
+            { category: 'Corridor', name: 'Super-2 Corridors (US 18, 30, 34, 63, 71)', description: 'Designated two-lane routes targeted for passing lanes, safety and mobility improvements.', owners: 'Systems Planning; Design; Program Management; Districts', url: 'https://iowadot.gov/iowainmotion/Long-Range-Transportation-Plans/2022-State-Transportation-Plan' },
+            { category: 'Network', name: 'Iowa Multimodal Freight Network (IMFN)', description: 'Priority freight network where freight-related investments are targeted based on flows and economic significance.', owners: 'Freight Planning; Program Management; freight stakeholders', url: 'https://iowadot.gov/iowainmotion/Specialized-System-plans/2022-State-Freight-Plan' },
+            { category: 'Tool', name: 'get There Your Way', description: 'Location-based equity and mobility tool for identifying low-access populations and supporting equity-focused investments.', owners: 'Equity/planning staff; IT/data teams', url: 'https://iowadot.gov/iowainmotion/Long-Range-Transportation-Plans/2022-State-Transportation-Plan' },
+            { category: 'Program Area', name: 'Truck parking improvements and information', description: 'Address growing truck parking demand and improve information about real-time parking availability.', owners: 'Freight Planning; Operations/TSMO; private truck stop operators', url: 'https://iowadot.gov/iowainmotion/Specialized-System-plans/2022-State-Freight-Plan' },
+            { category: 'Toolbox', name: 'Flood mitigation and resilience countermeasure toolbox', description: 'Packages of strategies, countermeasures and research tasks for floods, winter storms and freeze–thaw conditions.', owners: 'Resiliency Working Group; Bridges & Structures; Maintenance', url: 'https://iowadot.gov/iowainmotion/Specialized-System-plans/Resilience-Improvement-Plan' }
+        ];
+
         const projectsData = [
             {
                 id: 'I35-ANK-HUX',
@@ -1645,22 +1773,163 @@
         function switchView(viewName) {
             // Hide all views
             document.querySelectorAll('.view-content').forEach(el => el.classList.add('hidden'));
-            
+
             // Show selected view
             document.getElementById(viewName + '-view').classList.remove('hidden');
-            
+
             // Update nav tabs
             document.querySelectorAll('.nav-tab').forEach(tab => {
                 tab.classList.remove('active');
             });
             document.querySelector(`[data-view="${viewName}"]`).classList.add('active');
-            
+
             // Load content if needed
-            if (viewName === 'projects') renderProjects();
+            if (viewName === 'lrp') renderLRP();
+            else if (viewName === 'projects') renderProjects();
             else if (viewName === 'tasks') renderTasks();
             else if (viewName === 'strategies') renderStrategies();
             else if (viewName === 'chapters') renderChapters();
             else if (viewName === 'timeline') renderTimeline();
+        }
+
+        function getCategoryColor(category) {
+            const colors = {
+                'Strategy': 'var(--iowa-teal)',
+                'Key Action': 'var(--iowa-gold)',
+                'Modal/System Plan': 'var(--iowa-copper)',
+                'Project': 'var(--success)',
+                'Corridor/Tool': 'var(--iowa-navy)',
+                'Tool': 'var(--iowa-seafoam)',
+                'Corridor': 'var(--info)',
+                'Network': 'var(--warning)',
+                'Program Area': 'var(--iowa-red)',
+                'Toolbox': 'var(--iowa-silver)'
+            };
+            return colors[category] || 'var(--iowa-teal)';
+        }
+
+        function getCategoryIcon(category) {
+            const icons = {
+                'Strategy': '🎯',
+                'Key Action': '⚡',
+                'Modal/System Plan': '📋',
+                'Project': '🚧',
+                'Corridor/Tool': '🛣️',
+                'Tool': '🔧',
+                'Corridor': '🛤️',
+                'Network': '🌐',
+                'Program Area': '📊',
+                'Toolbox': '🧰'
+            };
+            return icons[category] || '📌';
+        }
+
+        function renderLRP() {
+            const container = document.getElementById('lrp-list');
+
+            // Populate owner filter
+            const ownerFilter = document.getElementById('lrp-owner-filter');
+            const uniqueOwners = [...new Set(lrpData.map(item => item.owners))].sort();
+            ownerFilter.innerHTML = '<option value="all">All Owners</option>' +
+                uniqueOwners.map(owner => `<option value="${owner}">${owner}</option>`).join('');
+
+            // Render items
+            container.innerHTML = lrpData.map((item, index) => `
+                <div class="card mb-lg lrp-item" data-category="${item.category}" data-owner="${item.owners}" data-index="${index}">
+                    <div style="display: flex; gap: var(--space-lg); align-items: start;">
+                        <div style="flex-shrink: 0; width: 60px; height: 60px; background: linear-gradient(135deg, ${getCategoryColor(item.category)}, var(--iowa-navy)); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; color: var(--iowa-white); font-size: 1.75rem;">
+                            ${getCategoryIcon(item.category)}
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="display: flex; align-items: center; gap: var(--space-md); margin-bottom: var(--space-sm); flex-wrap: wrap;">
+                                <span class="badge" style="background: ${getCategoryColor(item.category)}20; color: ${getCategoryColor(item.category)}; border-color: ${getCategoryColor(item.category)};">
+                                    ${item.category}
+                                </span>
+                            </div>
+                            <h3 style="font-size: 1.125rem; color: var(--iowa-navy); margin-bottom: var(--space-md);">${item.name}</h3>
+                            <p style="color: var(--iowa-charcoal); line-height: 1.7; margin-bottom: var(--space-md);">${item.description}</p>
+                            <div style="display: flex; gap: var(--space-lg); flex-wrap: wrap; font-size: 0.875rem; margin-bottom: var(--space-md);">
+                                <div>
+                                    <span style="color: var(--iowa-silver); font-weight: 600;">OWNERS:</span>
+                                    <span style="color: var(--iowa-charcoal); margin-left: var(--space-sm);">${item.owners}</span>
+                                </div>
+                            </div>
+                            <a href="${item.url}" target="_blank" class="btn btn-secondary" style="text-decoration: none; font-size: 0.875rem; padding: var(--space-sm) var(--space-lg);">
+                                Learn More →
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterLRP() {
+            const search = document.getElementById('lrp-search').value.toLowerCase();
+            const category = document.getElementById('lrp-category-filter').value;
+            const owner = document.getElementById('lrp-owner-filter').value;
+
+            let visibleCount = 0;
+
+            document.querySelectorAll('.lrp-item').forEach(el => {
+                const index = parseInt(el.dataset.index);
+                const item = lrpData[index];
+                const text = (item.name + ' ' + item.description + ' ' + item.owners).toLowerCase();
+
+                const matchSearch = search === '' || text.includes(search);
+                const matchCategory = category === 'all' || el.dataset.category === category;
+                const matchOwner = owner === 'all' || el.dataset.owner === owner;
+
+                const shouldShow = matchSearch && matchCategory && matchOwner;
+                el.style.display = shouldShow ? 'block' : 'none';
+                if (shouldShow) visibleCount++;
+            });
+
+            // Update count
+            document.getElementById('lrp-count').textContent = visibleCount;
+        }
+
+        function exportLRPCSV() {
+            const headers = ['Category', 'Item Name', 'Description', 'Owners', 'URL'];
+            const rows = lrpData.map(item => [
+                item.category, item.name, item.description, item.owners, item.url
+            ]);
+
+            const csv = [headers, ...rows].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'iowa-dot-long-range-plan-' + new Date().toISOString().split('T')[0] + '.csv';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function exportLRPJSON() {
+            const data = {
+                items: lrpData,
+                exportDate: new Date().toISOString(),
+                totalItems: lrpData.length,
+                categories: {
+                    'Strategy': lrpData.filter(i => i.category === 'Strategy').length,
+                    'Key Action': lrpData.filter(i => i.category === 'Key Action').length,
+                    'Modal/System Plan': lrpData.filter(i => i.category === 'Modal/System Plan').length,
+                    'Project': lrpData.filter(i => i.category === 'Project').length,
+                    'Corridor/Tool': lrpData.filter(i => i.category === 'Corridor/Tool').length,
+                    'Tool': lrpData.filter(i => i.category === 'Tool').length,
+                    'Corridor': lrpData.filter(i => i.category === 'Corridor').length,
+                    'Network': lrpData.filter(i => i.category === 'Network').length,
+                    'Program Area': lrpData.filter(i => i.category === 'Program Area').length,
+                    'Toolbox': lrpData.filter(i => i.category === 'Toolbox').length
+                }
+            };
+
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'iowa-dot-long-range-plan-' + new Date().toISOString().split('T')[0] + '.json';
+            a.click();
+            URL.revokeObjectURL(url);
         }
 
         function renderProjects() {
