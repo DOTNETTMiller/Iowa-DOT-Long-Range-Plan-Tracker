@@ -1358,6 +1358,415 @@
         .link-item a { color: #03617A; text-decoration: none; font-weight: 600; }
         .link-item a:hover { text-decoration: underline; }
         .link-description { font-size: 0.85rem; color: #6b7280; margin-top: 0.25rem; }
+
+        /* Project 2025 Observer-Inspired Styles */
+
+        /* Hero Statistics Section */
+        .hero-stats-section {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 2rem 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            text-align: center;
+            transition: all 0.3s;
+            border: 1px solid #e5e7eb;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(3, 97, 122, 0.15);
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #19405B;
+            margin-bottom: 0.5rem;
+            line-height: 1;
+        }
+
+        .stat-number.stat-completed {
+            color: #059669;
+        }
+
+        .stat-number.stat-in-progress {
+            color: #F59E0B;
+        }
+
+        .stat-label {
+            font-size: 0.95rem;
+            color: #6b7280;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Status Badges - Colored Pills */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.4rem 0.9rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: capitalize;
+        }
+
+        .status-completed {
+            background: #D1FAE5;
+            color: #065F46;
+        }
+
+        .status-in-progress {
+            background: #FEF3C7;
+            color: #92400E;
+        }
+
+        .status-not-started {
+            background: #F3F4F6;
+            color: #374151;
+        }
+
+        .status-ongoing {
+            background: #DBEAFE;
+            color: #1E40AF;
+        }
+
+        /* Improved Project Cards */
+        .project-card {
+            background: white;
+            padding: 1.75rem;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            margin-bottom: 1.25rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid #e5e7eb;
+        }
+
+        .project-card:hover {
+            box-shadow: 0 8px 20px rgba(3, 97, 122, 0.12);
+            transform: translateY(-2px);
+            border-color: #03617A;
+        }
+
+        .project-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #19405B;
+            margin-bottom: 1rem;
+            line-height: 1.3;
+        }
+
+        .project-category {
+            display: inline-block;
+            padding: 0.35rem 0.8rem;
+            background: #E0F2FE;
+            color: #075985;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .project-description {
+            color: #4b5563;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 1.25rem;
+        }
+
+        /* Multi-Select Filters */
+        .filter-section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+
+        .filter-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.75rem;
+            display: block;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .filter-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .filter-pill {
+            padding: 0.6rem 1.1rem;
+            background: #F3F4F6;
+            color: #374151;
+            border-radius: 20px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .filter-pill:hover {
+            background: #E5E7EB;
+        }
+
+        .filter-pill.active {
+            background: #03617A;
+            color: white;
+            border-color: #03617A;
+        }
+
+        /* Search Enhancement */
+        .search-container {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 1rem 1rem 1rem 3rem;
+            font-size: 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            transition: all 0.2s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #03617A;
+            box-shadow: 0 0 0 3px rgba(3, 97, 122, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            font-size: 1.2rem;
+        }
+
+        /* Load More Button */
+        .load-more-btn {
+            display: block;
+            width: 100%;
+            max-width: 400px;
+            margin: 2rem auto;
+            padding: 1rem 2rem;
+            background: #03617A;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .load-more-btn:hover {
+            background: #19405B;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(3, 97, 122, 0.3);
+        }
+
+        .load-more-btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Theme Toggle */
+        .theme-toggle {
+            position: fixed;
+            top: 5.5rem;
+            right: 2rem;
+            z-index: 1000;
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 25px;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .theme-toggle:hover {
+            border-color: #03617A;
+        }
+
+        /* Dark Theme Styles */
+        body.dark-theme {
+            background: #1a202c;
+            color: #e2e8f0;
+        }
+
+        body.dark-theme .header {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        }
+
+        body.dark-theme .stat-card,
+        body.dark-theme .project-card,
+        body.dark-theme .filter-section {
+            background: #2d3748;
+            border-color: #4a5568;
+        }
+
+        body.dark-theme .stat-number {
+            color: #90cdf4;
+        }
+
+        body.dark-theme .project-name {
+            color: #e2e8f0;
+        }
+
+        body.dark-theme .project-description,
+        body.dark-theme .stat-label {
+            color: #cbd5e0;
+        }
+
+        body.dark-theme .filter-pill {
+            background: #4a5568;
+            color: #e2e8f0;
+        }
+
+        body.dark-theme .filter-pill.active {
+            background: #03617A;
+            color: white;
+        }
+
+        body.dark-theme .search-input {
+            background: #2d3748;
+            border-color: #4a5568;
+            color: #e2e8f0;
+        }
+
+        body.dark-theme .theme-toggle {
+            background: #2d3748;
+            border-color: #4a5568;
+        }
+
+        /* Timeline View */
+        .timeline-view {
+            display: none;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .timeline-item-wrapper {
+            position: relative;
+            padding-left: 3rem;
+            padding-bottom: 2rem;
+        }
+
+        .timeline-item-wrapper::before {
+            content: '';
+            position: absolute;
+            left: 0.75rem;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #e5e7eb;
+        }
+
+        .timeline-dot-large {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 1.5rem;
+            height: 1.5rem;
+            background: #03617A;
+            border: 4px solid white;
+            border-radius: 50%;
+            box-shadow: 0 0 0 4px #BBE2DA;
+        }
+
+        .timeline-date-header {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #19405B;
+            margin-bottom: 1rem;
+        }
+
+        /* View Toggle Tabs */
+        .view-toggle {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 0.5rem;
+        }
+
+        .view-tab {
+            padding: 0.75rem 1.5rem;
+            background: none;
+            border: none;
+            color: #6b7280;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+        }
+
+        .view-tab:hover {
+            color: #03617A;
+        }
+
+        .view-tab.active {
+            color: #03617A;
+            border-bottom-color: #03617A;
+        }
+
+        /* Active Filters Display */
+        .active-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .active-filter-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 0.8rem;
+            background: #03617A;
+            color: white;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .active-filter-remove {
+            cursor: pointer;
+            padding: 0 0.3rem;
+            border-radius: 50%;
+            transition: background 0.2s;
+        }
+
+        .active-filter-remove:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
@@ -1367,65 +1776,33 @@
         <div style="font-weight: 600;">Iowa DOT Interactive Project Tracker</div>
         <div id="userInfo"></div>
     </div>
-    <div class="header">
-        <h1>Iowa DOT 2050 Transportation Plan Tracker</h1>
-        <p>Tracking implementation of Iowa's Long-Range Transportation Plan through 2050</p>
-        <p style="font-size: 0.95rem; color: #E0A624; margin-top: 0.5rem; font-style: italic;">
-            Brought to you by the Director of New and Emerging Transportation Technologies
-        </p>
-        <div class="brand-tagline">MAKING LIVES BETTER THROUGH TRANSPORTATION</div>
+    <!-- Streamlined Header -->
+    <div class="header" style="padding: 2rem; text-align: center;">
+        <h1 style="font-size: 2.5rem; margin-bottom: 0.75rem;">Iowa DOT Transportation Plan Tracker</h1>
+        <p style="font-size: 1.1rem; opacity: 0.9;">Tracking Iowa's Long-Range Transportation Plan through 2050</p>
+    </div>
+
+    <!-- Hero Statistics Section -->
+    <div class="hero-stats-section">
+        <div class="stat-card">
+            <div class="stat-number" id="heroTotalProjects">40</div>
+            <div class="stat-label">Total Projects</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number stat-completed" id="heroCompleted">0</div>
+            <div class="stat-label">Completed</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number stat-in-progress" id="heroInProgress">0</div>
+            <div class="stat-label">In Progress</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="heroAvgCompletion">79%</div>
+            <div class="stat-label">Avg Completion</div>
+        </div>
     </div>
 
     <div class="container">
-        <!-- Implementation Status Box -->
-        <div style="background: linear-gradient(135deg, #E0A624 0%, #B86125 100%); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; color: white;">
-            <h3 style="margin-bottom: 0.75rem; font-size: 1.2rem;">📋 Tracker Implementation Status</h3>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
-                <div style="background: rgba(255,255,255,0.2); padding: 0.75rem; border-radius: 6px;">
-                    <strong>✅ WORKING:</strong>
-                    <ul style="margin: 0.5rem 0 0 1.2rem; padding: 0; font-size: 0.85rem;">
-                        <li>Pre-canned chatbot Q&A (11 questions)</li>
-                        <li>Bureau biweekly updates display</li>
-                        <li>PDF links with page numbers</li>
-                        <li>Project status displays</li>
-                        <li>Navigation & scrolling</li>
-                    </ul>
-                </div>
-                <div style="background: rgba(255,255,255,0.2); padding: 0.75rem; border-radius: 6px;">
-                    <strong>⚠️ NEEDS PRODUCTION SETUP:</strong>
-                    <ul style="margin: 0.5rem 0 0 1.2rem; padding: 0; font-size: 0.85rem;">
-                        <li>Live GIS map embeds (permissions needed)</li>
-                        <li>Real-time progress percentages (API needed)</li>
-                        <li>Bureau update submission (database needed)</li>
-                        <li>511 traffic data integration</li>
-                        <li>Commission meeting links</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-        <!-- PDF Navigation Helper Box -->
-        <div style="background: linear-gradient(135deg, #BBE2DA 0%, #70C8B8 100%); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid #03617A; display: flex; align-items: center; gap: 1rem;">
-            <div style="font-size: 2rem;">📄</div>
-            <div style="flex: 1;">
-                <strong style="color: #19405B;">Smart PDF Navigation:</strong>
-                <span style="color: #53565A;">All green "Plan Section" links open the official 2022 Iowa Transportation Plan PDF directly to the relevant page. Use your browser's search (Ctrl+F / Cmd+F) to highlight specific text once the PDF opens.</span>
-            </div>
-        </div>
-
-        <div style="background: #FEF3C7; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid #F59E0B; display: flex; align-items: center; gap: 1rem;">
-            <div style="font-size: 2rem;">⚠️</div>
-            <div style="flex: 1;">
-                <strong style="color: #92400E;">Progress Percentages - Demo Data:</strong>
-                <span style="color: #78350F;">The progress percentages shown are demonstration estimates. For actual project status, please verify with:</span>
-                <ul style="margin: 0.5rem 0 0 1.5rem; padding: 0; color: #78350F; font-size: 0.9rem;">
-                    <li><a href="https://iowadot.gov/program_management/project-status" target="_blank" style="color: #B45309;">Iowa DOT Project Status Reports</a></li>
-                    <li><a href="https://iowadot.gov/majorprojects" target="_blank" style="color: #B45309;">Major Projects Interactive Map</a></li>
-                    <li><a href="https://iowadot.gov/program_management/Five-Year-Program" target="_blank" style="color: #B45309;">Five-Year Program Updates</a></li>
-                    <li><a href="https://iowadot.gov/commission/meetings-minutes" target="_blank" style="color: #B45309;">Transportation Commission Meeting Minutes</a></li>
-                </ul>
-            </div>
-        </div>
 
         <!-- GIS Data Portal Section with Real Links -->
         <div class="gis-portal-section">
@@ -2900,17 +3277,63 @@
                 <strong>Complete Planning Portfolio:</strong> This section catalogs all major plans, programs, and initiatives that support Iowa's long-range transportation vision. Search, filter by category, or explore the complete list below.
             </div>
 
-            <div class="projects-search">
-                <input type="text" id="projectSearchInput" class="search-input" placeholder="🔍 Search projects by name, description, or responsible party...">
+            <!-- Theme Toggle Button -->
+            <div class="theme-toggle" onclick="toggleTheme()">
+                <span id="themeIcon">☀️</span>
+                <span id="themeLabel">Light</span>
             </div>
 
-            <div class="filter-buttons" id="categoryFilters">
-                <button class="filter-button active" data-category="all">All Projects</button>
+            <!-- View Toggle Tabs -->
+            <div class="view-toggle">
+                <button class="view-tab active" data-view="grid" onclick="switchView('grid')">
+                    📊 Grid View
+                </button>
+                <button class="view-tab" data-view="timeline" onclick="switchView('timeline')">
+                    📅 Timeline View
+                </button>
             </div>
 
-            <div class="projects-count" id="projectsCount"></div>
+            <!-- Grid View Section -->
+            <div id="gridView">
+                <!-- Enhanced Search -->
+                <div class="search-container">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="projectSearchInput" class="search-input" placeholder="Search projects, categories, or keywords...">
+                </div>
 
-            <div class="projects-grid" id="projectsGrid"></div>
+                <!-- Filter Section -->
+                <div class="filter-section">
+                    <label class="filter-label">Filter by Category</label>
+                    <div class="filter-pills" id="categoryFilters"></div>
+
+                    <label class="filter-label" style="margin-top: 1.5rem;">Filter by Status</label>
+                    <div class="filter-pills" id="statusFilters">
+                        <div class="filter-pill" data-status="all">All Status</div>
+                        <div class="filter-pill" data-status="completed">Completed</div>
+                        <div class="filter-pill" data-status="in-progress">In Progress</div>
+                        <div class="filter-pill" data-status="ongoing">Ongoing</div>
+                    </div>
+
+                    <!-- Active Filters Display -->
+                    <div id="activeFilters" class="active-filters" style="margin-top: 1rem;"></div>
+                </div>
+
+                <!-- Projects Count -->
+                <div class="projects-count" id="projectsCount" style="margin-bottom: 1.5rem; font-size: 1.1rem; color: #6b7280;">
+                    <strong id="visibleCount">0</strong> of <strong id="totalCount">40</strong> projects
+                </div>
+
+                <!-- Projects Grid -->
+                <div class="projects-grid" id="projectsGrid"></div>
+
+                <!-- Load More Button -->
+                <button class="load-more-btn" id="loadMoreBtn" style="display: none;">
+                    Load More Projects
+                </button>
+            </div>
+
+            <!-- Timeline View Section -->
+            <div id="timelineView" class="timeline-view"></div>
         </div>
     </div>
 
@@ -4421,6 +4844,380 @@
     <script src="/interactive-tracker.js"></script>
 
     <script>
+        // ===================================
+        // PROJECT 2025 OBSERVER-INSPIRED FEATURES
+        // ===================================
+
+        // Global state for filtering and pagination
+        let activeFilters = {
+            categories: [],
+            statuses: []
+        };
+        let currentProjectsView = 'grid';
+        let visibleProjectsCount = 12;
+        let allProjectsData = [];
+
+        // Theme Toggle
+        function toggleTheme() {
+            document.body.classList.toggle('dark-theme');
+            const isDark = document.body.classList.contains('dark-theme');
+            document.getElementById('themeIcon').textContent = isDark ? '🌙' : '☀️';
+            document.getElementById('themeLabel').textContent = isDark ? 'Dark' : 'Light';
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        }
+
+        // Initialize theme from localStorage
+        function initializeTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-theme');
+                document.getElementById('themeIcon').textContent = '🌙';
+                document.getElementById('themeLabel').textContent = 'Dark';
+            }
+        }
+
+        // View Switching (Grid / Timeline)
+        function switchView(view) {
+            currentProjectsView = view;
+
+            // Update tab active states
+            document.querySelectorAll('.view-tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.dataset.view === view) {
+                    tab.classList.add('active');
+                }
+            });
+
+            // Show/hide views
+            if (view === 'grid') {
+                document.getElementById('gridView').style.display = 'block';
+                document.getElementById('timelineView').style.display = 'none';
+            } else {
+                document.getElementById('gridView').style.display = 'none';
+                document.getElementById('timelineView').style.display = 'block';
+                renderTimelineView();
+            }
+        }
+
+        // Multi-Select Category Filter
+        function toggleCategoryFilter(category) {
+            const index = activeFilters.categories.indexOf(category);
+            if (index === -1) {
+                activeFilters.categories.push(category);
+            } else {
+                activeFilters.categories.splice(index, 1);
+            }
+            updateFilterDisplay();
+            applyFilters();
+        }
+
+        // Multi-Select Status Filter
+        function toggleStatusFilter(status) {
+            const index = activeFilters.statuses.indexOf(status);
+            if (index === -1) {
+                activeFilters.statuses = [status]; // Single select for status
+            } else {
+                activeFilters.statuses = [];
+            }
+            updateFilterDisplay();
+            applyFilters();
+        }
+
+        // Update Filter Pills Display
+        function updateFilterDisplay() {
+            // Update category pills
+            document.querySelectorAll('#categoryFilters .filter-pill').forEach(pill => {
+                const category = pill.dataset.category;
+                if (activeFilters.categories.includes(category)) {
+                    pill.classList.add('active');
+                } else {
+                    pill.classList.remove('active');
+                }
+            });
+
+            // Update status pills
+            document.querySelectorAll('#statusFilters .filter-pill').forEach(pill => {
+                const status = pill.dataset.status;
+                if (activeFilters.statuses.includes(status) || (status === 'all' && activeFilters.statuses.length === 0)) {
+                    pill.classList.add('active');
+                } else {
+                    pill.classList.remove('active');
+                }
+            });
+
+            // Show active filter chips
+            renderActiveFilterChips();
+        }
+
+        // Render Active Filter Chips
+        function renderActiveFilterChips() {
+            const container = document.getElementById('activeFilters');
+            const chips = [];
+
+            activeFilters.categories.forEach(cat => {
+                chips.push(`
+                    <div class="active-filter-chip">
+                        ${cat}
+                        <span class="active-filter-remove" onclick="removeCategoryFilter('${cat}')">×</span>
+                    </div>
+                `);
+            });
+
+            activeFilters.statuses.forEach(status => {
+                chips.push(`
+                    <div class="active-filter-chip">
+                        Status: ${status}
+                        <span class="active-filter-remove" onclick="removeStatusFilter('${status}')">×</span>
+                    </div>
+                `);
+            });
+
+            if (chips.length > 0) {
+                container.innerHTML = chips.join('') + `
+                    <button class="filter-pill" onclick="clearAllFilters()" style="background: #F3F4F6; color: #374151;">
+                        Clear All
+                    </button>
+                `;
+            } else {
+                container.innerHTML = '';
+            }
+        }
+
+        // Remove individual filters
+        function removeCategoryFilter(category) {
+            activeFilters.categories = activeFilters.categories.filter(c => c !== category);
+            updateFilterDisplay();
+            applyFilters();
+        }
+
+        function removeStatusFilter(status) {
+            activeFilters.statuses = activeFilters.statuses.filter(s => s !== status);
+            updateFilterDisplay();
+            applyFilters();
+        }
+
+        function clearAllFilters() {
+            activeFilters.categories = [];
+            activeFilters.statuses = [];
+            updateFilterDisplay();
+            applyFilters();
+        }
+
+        // Apply Filters and Render
+        function applyFilters() {
+            let filtered = [...allProjectsData];
+
+            // Apply category filters
+            if (activeFilters.categories.length > 0) {
+                filtered = filtered.filter(p => activeFilters.categories.includes(p.category));
+            }
+
+            // Apply status filters
+            if (activeFilters.statuses.length > 0) {
+                filtered = filtered.filter(p => {
+                    const status = p.status.toLowerCase();
+                    return activeFilters.statuses.some(s => {
+                        if (s === 'completed') return status.includes('completed');
+                        if (s === 'in-progress') return status.includes('in progress') || status.includes('draft');
+                        if (s === 'ongoing') return status.includes('ongoing') || status.includes('operational');
+                        return false;
+                    });
+                });
+            }
+
+            // Apply search
+            const searchTerm = document.getElementById('projectSearchInput').value.toLowerCase();
+            if (searchTerm) {
+                filtered = filtered.filter(p =>
+                    p.name.toLowerCase().includes(searchTerm) ||
+                    p.description.toLowerCase().includes(searchTerm) ||
+                    p.category.toLowerCase().includes(searchTerm)
+                );
+            }
+
+            // Reset pagination
+            visibleProjectsCount = 12;
+            renderProjectsWithPagination(filtered);
+            updateHeroStats();
+        }
+
+        // Render Projects with Pagination
+        function renderProjectsWithPagination(projects) {
+            const grid = document.getElementById('projectsGrid');
+            const loadMoreBtn = document.getElementById('loadMoreBtn');
+            const visibleCount = document.getElementById('visibleCount');
+            const totalCount = document.getElementById('totalCount');
+
+            visibleCount.textContent = Math.min(visibleProjectsCount, projects.length);
+            totalCount.textContent = projects.length;
+
+            if (projects.length === 0) {
+                grid.innerHTML = '<div style="text-align: center; padding: 3rem; color: #6b7280; font-size: 1.1rem;">No projects found matching your criteria.</div>';
+                loadMoreBtn.style.display = 'none';
+                return;
+            }
+
+            const visibleProjects = projects.slice(0, visibleProjectsCount);
+
+            grid.innerHTML = visibleProjects.map(project => `
+                <div class="project-card" onclick="openProjectDetail(${project.id})">
+                    <div class="project-name">${project.name}</div>
+                    <span class="project-category">${project.category}</span>
+                    <div class="project-description">${project.description}</div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" style="width: ${project.completion_percentage || 0}%">
+                            ${project.completion_percentage || 0}%
+                        </div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
+                        <span class="status-badge ${getStatusBadgeClass(project.status)}">
+                            ${project.status}
+                        </span>
+                        <div style="display: flex; gap: 1rem; font-size: 0.85rem; color: #6b7280;">
+                            <span>💬 ${project.comment_count || 0}</span>
+                            <span>❤️ ${project.like_count || 0}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            // Show/hide load more button
+            if (visibleProjectsCount < projects.length) {
+                loadMoreBtn.style.display = 'block';
+                loadMoreBtn.onclick = () => {
+                    visibleProjectsCount += 12;
+                    renderProjectsWithPagination(projects);
+                };
+            } else {
+                loadMoreBtn.style.display = 'none';
+            }
+        }
+
+        // Get Status Badge Class
+        function getStatusBadgeClass(status) {
+            const s = status.toLowerCase();
+            if (s.includes('completed')) return 'status-completed';
+            if (s.includes('in progress') || s.includes('draft')) return 'status-in-progress';
+            if (s.includes('ongoing') || s.includes('operational')) return 'status-ongoing';
+            return 'status-not-started';
+        }
+
+        // Update Hero Statistics
+        function updateHeroStats() {
+            if (!allProjectsData.length) return;
+
+            const completed = allProjectsData.filter(p => p.status.toLowerCase().includes('completed')).length;
+            const inProgress = allProjectsData.filter(p =>
+                p.status.toLowerCase().includes('in progress') ||
+                p.status.toLowerCase().includes('draft') ||
+                p.status.toLowerCase().includes('ongoing')
+            ).length;
+            const avgCompletion = Math.round(
+                allProjectsData.reduce((sum, p) => sum + (p.completion_percentage || 0), 0) / allProjectsData.length
+            );
+
+            document.getElementById('heroTotalProjects').textContent = allProjectsData.length;
+            document.getElementById('heroCompleted').textContent = completed;
+            document.getElementById('heroInProgress').textContent = inProgress;
+            document.getElementById('heroAvgCompletion').textContent = avgCompletion + '%';
+        }
+
+        // Render Timeline View
+        function renderTimelineView() {
+            const timeline = document.getElementById('timelineView');
+            const projects = [...allProjectsData].sort((a, b) => {
+                // Sort by completion percentage descending
+                return (b.completion_percentage || 0) - (a.completion_percentage || 0);
+            });
+
+            const grouped = {};
+            projects.forEach(p => {
+                const key = p.completion_percentage >= 100 ? 'Completed' :
+                            p.completion_percentage >= 50 ? 'In Progress (50%+)' :
+                            p.completion_percentage > 0 ? 'In Progress (<50%)' : 'Not Started';
+                if (!grouped[key]) grouped[key] = [];
+                grouped[key].push(p);
+            });
+
+            let html = '';
+            Object.entries(grouped).forEach(([group, items]) => {
+                html += `
+                    <div class="timeline-item-wrapper">
+                        <div class="timeline-dot-large"></div>
+                        <div class="timeline-date-header">${group} (${items.length})</div>
+                        <div style="display: grid; gap: 1rem;">
+                            ${items.map(project => `
+                                <div class="project-card" onclick="openProjectDetail(${project.id})">
+                                    <div class="project-name">${project.name}</div>
+                                    <span class="project-category">${project.category}</span>
+                                    <div class="project-description">${project.description}</div>
+                                    <div class="progress-bar-container">
+                                        <div class="progress-bar" style="width: ${project.completion_percentage || 0}%">
+                                            ${project.completion_percentage || 0}%
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+
+            timeline.innerHTML = html;
+        }
+
+        // Initialize Enhanced Filters
+        function initializeEnhancedFilters() {
+            const categories = [...new Set(allProjectsData.map(p => p.category))].sort();
+            const categoryFilters = document.getElementById('categoryFilters');
+
+            categoryFilters.innerHTML = categories.map(cat => `
+                <div class="filter-pill" data-category="${cat}" onclick="toggleCategoryFilter('${cat}')">
+                    ${cat}
+                </div>
+            `).join('');
+
+            // Status filter click handlers
+            document.querySelectorAll('#statusFilters .filter-pill').forEach(pill => {
+                pill.onclick = () => {
+                    const status = pill.dataset.status;
+                    if (status === 'all') {
+                        activeFilters.statuses = [];
+                    } else {
+                        toggleStatusFilter(status);
+                    }
+                };
+            });
+
+            // Search input
+            document.getElementById('projectSearchInput').addEventListener('input', applyFilters);
+        }
+
+        // Initialize on page load
+        async function initializeEnhancedTracker() {
+            initializeTheme();
+
+            // Fetch projects from API
+            allProjectsData = await window.IowaDOTTracker.fetchProjects();
+
+            if (allProjectsData.length > 0) {
+                initializeEnhancedFilters();
+                applyFilters();
+                updateHeroStats();
+            }
+        }
+
+        // Start initialization when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeEnhancedTracker);
+        } else {
+            initializeEnhancedTracker();
+        }
+
+        // ===================================
+        // ORIGINAL FUNCTIONS
+        // ===================================
+
         async function handleLogin() {
             const form = document.getElementById('loginForm');
             const formData = new FormData(form);
