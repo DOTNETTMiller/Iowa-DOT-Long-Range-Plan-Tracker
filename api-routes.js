@@ -416,12 +416,20 @@ function setupApiRoutes(app) {
             const [
                 projectCount,
                 avgCompletion,
+                weightedCompletion,
                 categoryBreakdown,
                 statusBreakdown,
                 recentActivity
             ] = await Promise.all([
                 dbGet('SELECT COUNT(*) as count FROM projects WHERE approved = 1'),
                 dbGet('SELECT AVG(completion_percentage) as avg FROM projects WHERE approved = 1'),
+                dbGet(`
+                    SELECT
+                        SUM(completion_percentage * weight) / NULLIF(SUM(weight), 0) as weighted_avg,
+                        SUM(weight) as total_weight
+                    FROM projects
+                    WHERE approved = 1
+                `),
                 dbAll('SELECT category, COUNT(*) as count, AVG(completion_percentage) as avg_completion FROM projects WHERE approved = 1 GROUP BY category ORDER BY count DESC'),
                 dbAll('SELECT status, COUNT(*) as count FROM projects WHERE approved = 1 GROUP BY status'),
                 dbGet('SELECT COUNT(*) as count FROM activity_log WHERE created_at >= datetime("now", "-7 days")')
@@ -432,6 +440,8 @@ function setupApiRoutes(app) {
                 data: {
                     total_projects: projectCount.count,
                     avg_completion: Math.round(avgCompletion.avg || 0),
+                    weighted_completion: Math.round(weightedCompletion.weighted_avg || 0),
+                    total_weight: weightedCompletion.total_weight || 0,
                     category_breakdown: categoryBreakdown,
                     status_breakdown: statusBreakdown,
                     weekly_activity: recentActivity.count
