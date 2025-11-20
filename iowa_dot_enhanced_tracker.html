@@ -1354,9 +1354,60 @@
             color: #6b7280;
             margin-bottom: 1rem;
         }
+
+        /* Interactive Modal & UI Styles */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); z-index: 10000; align-items: center; justify-content: center; padding: 1rem; }
+        .modal.show { display: flex; }
+        .modal-content { background: white; border-radius: 12px; max-width: 800px; width: 100%; max-height: 90vh; overflow-y: auto; position: relative; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); }
+        .modal-header { background: linear-gradient(135deg, #19405B 0%, #03617A 100%); color: white; padding: 1.5rem; border-radius: 12px 12px 0 0; display: flex; justify-content: space-between; align-items: center; }
+        .modal-header h2 { margin: 0; font-size: 1.5rem; }
+        .modal-close { background: none; border: none; color: white; font-size: 2rem; cursor: pointer; line-height: 1; padding: 0; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: background 0.2s; }
+        .modal-close:hover { background: rgba(255, 255, 255, 0.2); }
+        .modal-body { padding: 2rem; }
+        .modal-footer { padding: 1rem 2rem; border-top: 1px solid #e5e7eb; display: flex; justify-content: flex-end; gap: 1rem; }
+        .user-info-bar { background: linear-gradient(135deg, #19405B 0%, #03617A 100%); color: white; padding: 0.75rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .user-info-bar button { background: #E0A624; color: #19405B; border: none; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .user-info-bar button:hover { background: #F5B935; transform: scale(1.05); }
+        .form-group { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem; }
+        .form-group label { font-weight: 600; color: #19405B; }
+        .form-group input, .form-group textarea, .form-group select { padding: 0.75rem; border: 2px solid #d1d5db; border-radius: 6px; font-size: 1rem; font-family: 'Work Sans', sans-serif; }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: #03617A; }
+        .btn { padding: 0.75rem 1.5rem; border: none; border-radius: 6px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .btn-primary { background: #03617A; color: white; }
+        .btn-primary:hover { background: #19405B; transform: scale(1.05); }
+        .btn-secondary { background: #E0A624; color: #19405B; }
+        .btn-secondary:hover { background: #F5B935; }
+        .like-btn { background: white; border: 2px solid #03617A; color: #03617A; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 0.5rem; font-weight: 600; }
+        .like-btn.liked { background: #03617A; color: white; }
+        .progress-bar-container { background: #e5e7eb; height: 24px; border-radius: 12px; overflow: hidden; margin: 1rem 0; }
+        .progress-bar { height: 100%; background: linear-gradient(90deg, #03617A 0%, #BBE2DA 100%); transition: width 0.3s; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 0.85rem; }
+        .tabs { display: flex; border-bottom: 2px solid #e5e7eb; margin: 1.5rem 0; }
+        .tab { padding: 0.75rem 1.5rem; border: none; background: none; cursor: pointer; font-weight: 600; color: #6b7280; border-bottom: 3px solid transparent; transition: all 0.2s; }
+        .tab.active { color: #03617A; border-bottom-color: #03617A; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .comment { background: #f9fafb; padding: 1rem; border-radius: 8px; border-left: 4px solid #03617A; margin-bottom: 1rem; }
+        .comment-header { display: flex; justify-content: space-between; margin-bottom: 0.5rem; }
+        .comment-author { font-weight: 600; color: #19405B; }
+        .comment-date { font-size: 0.85rem; color: #6b7280; }
+        #notificationContainer { position: fixed; top: 1rem; right: 1rem; z-index: 11000; display: flex; flex-direction: column; gap: 0.5rem; }
+        .notification { background: white; padding: 1rem 1.5rem; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); min-width: 300px; border-left: 4px solid #03617A; transform: translateX(400px); opacity: 0; transition: all 0.3s; }
+        .notification.show { transform: translateX(0); opacity: 1; }
+        .notification-success { border-left-color: #059669; }
+        .notification-error { border-left-color: #dc2626; }
+        .project-card { cursor: pointer; }
+        .project-card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid #e5e7eb; font-size: 0.85rem; color: #6b7280; }
+        .add-project-btn { position: fixed; bottom: 2rem; right: 2rem; width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #03617A 0%, #19405B 100%); color: white; border: none; font-size: 2rem; cursor: pointer; box-shadow: 0 4px 12px rgba(3, 97, 122, 0.3); transition: all 0.3s; display: flex; align-items: center; justify-content: center; z-index: 1000; }
+        .add-project-btn:hover { transform: scale(1.1); box-shadow: 0 6px 20px rgba(3, 97, 122, 0.4); }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
+    <!-- User Info Bar -->
+    <div class="user-info-bar">
+        <div style="font-weight: 600;">Iowa DOT Interactive Project Tracker</div>
+        <div id="userInfo"></div>
+    </div>
     <div class="header">
         <h1>Iowa DOT 2050 Transportation Plan Tracker</h1>
         <p>Tracking implementation of Iowa's Long-Range Transportation Plan through 2050</p>
@@ -3738,6 +3789,347 @@
             document.addEventListener('DOMContentLoaded', initializeProjectsSection);
         } else {
             initializeProjectsSection();
+        }
+
+        // Load projects from API instead of hardcoded data
+        async function loadProjectsFromAPI() {
+            const projects = await window.IowaDOTTracker.fetchProjects();
+            if (projects.length > 0) {
+                window.iowaDOTProjects = projects;
+                renderProjects(projects);
+                initializeFilters();
+            }
+        }
+
+        // Override renderProjects to include interactive features
+        const originalRenderProjects = renderProjects;
+        renderProjects = function(projects) {
+            const grid = document.getElementById('projectsGrid');
+            const count = document.getElementById('projectsCount');
+
+            if (projects.length === 0) {
+                grid.innerHTML = '<div class="no-results">No projects found matching your search criteria.</div>';
+                count.textContent = 'No projects found';
+                return;
+            }
+
+            count.textContent = `Showing ${projects.length} of ${window.iowaDOTProjects.length} projects`;
+
+            grid.innerHTML = projects.map(project => `
+                <div class="project-card" onclick="openProjectDetail(${project.id})">
+                    <div class="project-name">${project.name}</div>
+                    <span class="project-category ${getCategoryClassName(project.category)}">${project.category}</span>
+                    <div class="project-description">${project.description}</div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" style="width: ${project.completion_percentage || 0}%">
+                            ${project.completion_percentage || 0}%
+                        </div>
+                    </div>
+                    <div class="project-meta">
+                        <div class="project-status ${getStatusClassName(project.status)}">
+                            📊 Status: ${project.status}
+                        </div>
+                        <div class="project-responsible">
+                            👥 ${project.responsible}
+                        </div>
+                    </div>
+                    <div class="project-card-footer">
+                        <div style="display: flex; gap: 1rem;">
+                            <span>💬 ${project.comment_count || 0}</span>
+                            <span>❤️ ${project.like_count || 0}</span>
+                        </div>
+                        ${project.url && project.url !== 'N/A' && !project.url.startsWith('N/A') ?
+                            `<a href="${project.url}" target="_blank" onclick="event.stopPropagation()" style="color: #03617A;">View Details →</a>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        };
+
+        // Open project detail modal
+        async function openProjectDetail(projectId) {
+            const modal = document.getElementById('projectDetailModal');
+            const project = await window.IowaDOTTracker.fetchProjectDetails(projectId);
+
+            if (!project) return;
+
+            // Populate modal
+            document.getElementById('projectDetailTitle').textContent = project.name;
+            document.getElementById('projectDetailCategory').textContent = project.category;
+            document.getElementById('projectDetailCategory').className = `project-category ${getCategoryClassName(project.category)}`;
+            document.getElementById('projectDetailDescription').textContent = project.description;
+            document.getElementById('projectDetailStatus').textContent = project.status;
+            document.getElementById('projectDetailResponsible').textContent = project.responsible;
+            document.getElementById('projectDetailProgress').style.width = `${project.completion_percentage || 0}%`;
+            document.getElementById('projectDetailProgress').textContent = `${project.completion_percentage || 0}%`;
+            document.getElementById('projectDetailLikeCount').textContent = project.like_count || 0;
+
+            // Store project ID
+            modal.dataset.projectId = projectId;
+
+            // Load tabs
+            loadComments(projectId);
+
+            modal.classList.add('show');
+        }
+
+        async function loadComments(projectId) {
+            const comments = await window.IowaDOTTracker.fetchComments(projectId);
+            const container = document.getElementById('commentsContainer');
+
+            if (comments.length === 0) {
+                container.innerHTML = '<p style="color: #6b7280;">No comments yet. Be the first to comment!</p>';
+            } else {
+                container.innerHTML = comments.map(c => `
+                    <div class="comment">
+                        <div class="comment-header">
+                            <span class="comment-author">${c.display_name}</span>
+                            <span class="comment-date">${window.IowaDOTTracker.formatDate(c.created_at)}</span>
+                        </div>
+                        <div class="comment-text">${c.comment_text}</div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        async function submitComment() {
+            const projectId = document.getElementById('projectDetailModal').dataset.projectId;
+            const commentText = document.getElementById('commentInput').value.trim();
+
+            if (!commentText) return;
+
+            const success = await window.IowaDOTTracker.postComment(projectId, commentText);
+            if (success) {
+                document.getElementById('commentInput').value = '';
+                loadComments(projectId);
+            }
+        }
+
+        async function toggleProjectLike() {
+            const projectId = document.getElementById('projectDetailModal').dataset.projectId;
+            const liked = await window.IowaDOTTracker.toggleLike(projectId);
+
+            if (liked !== null) {
+                const btn = document.getElementById('likeProjectBtn');
+                btn.classList.toggle('liked', liked);
+
+                // Refresh project details
+                const project = await window.IowaDOTTracker.fetchProjectDetails(projectId);
+                document.getElementById('projectDetailLikeCount').textContent = project.like_count || 0;
+            }
+        }
+
+        function closeProjectDetail() {
+            document.getElementById('projectDetailModal').classList.remove('show');
+        }
+
+        function openNewProjectModal() {
+            document.getElementById('newProjectModal').classList.add('show');
+        }
+
+        function closeNewProjectModal() {
+            document.getElementById('newProjectModal').classList.remove('show');
+        }
+
+        async function submitNewProject() {
+            const form = document.getElementById('newProjectForm');
+            const formData = new FormData(form);
+
+            const projectData = {
+                name: formData.get('name'),
+                category: formData.get('category'),
+                description: formData.get('description'),
+                status: formData.get('status'),
+                responsible: formData.get('responsible'),
+                url: formData.get('url'),
+                reference: formData.get('reference')
+            };
+
+            const success = await window.IowaDOTTracker.submitNewProject(projectData);
+            if (success) {
+                form.reset();
+                closeNewProjectModal();
+                loadProjectsFromAPI();
+            }
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+            event.target.classList.add('active');
+            document.getElementById(tabName + 'Tab').classList.add('active');
+        }
+
+        // Initialize when API client is ready
+        if (window.IowaDOTTracker) {
+            loadProjectsFromAPI();
+        }
+    </script>
+
+    <!-- Notification Container -->
+    <div id="notificationContainer"></div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content" style="max-width: 450px;">
+            <div class="modal-header">
+                <h2>Welcome to Iowa DOT Tracker</h2>
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom: 1.5rem; color: #6b7280;">Please enter your information to participate in project discussions and updates.</p>
+                <form id="loginForm" onsubmit="event.preventDefault(); handleLogin();">
+                    <div class="form-group">
+                        <label>Display Name *</label>
+                        <input type="text" name="displayName" required placeholder="John Doe">
+                    </div>
+                    <div class="form-group">
+                        <label>Username *</label>
+                        <input type="text" name="username" required placeholder="johndoe">
+                    </div>
+                    <div class="form-group">
+                        <label>Email (Optional)</label>
+                        <input type="email" name="email" placeholder="john@example.com">
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Continue</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Project Detail Modal -->
+    <div id="projectDetailModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="projectDetailTitle"></h2>
+                <button class="modal-close" onclick="closeProjectDetail()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <span id="projectDetailCategory" class="project-category"></span>
+                <p id="projectDetailDescription" style="margin: 1rem 0; line-height: 1.6;"></p>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1rem 0;">
+                    <div>
+                        <strong style="color: #19405B;">Status:</strong>
+                        <div id="projectDetailStatus"></div>
+                    </div>
+                    <div>
+                        <strong style="color: #19405B;">Responsible:</strong>
+                        <div id="projectDetailResponsible"></div>
+                    </div>
+                </div>
+
+                <div class="progress-bar-container">
+                    <div id="projectDetailProgress" class="progress-bar"></div>
+                </div>
+
+                <div style="display: flex; gap: 1rem; margin: 1rem 0;">
+                    <button id="likeProjectBtn" class="like-btn" onclick="toggleProjectLike()">
+                        <span>❤️</span>
+                        <span id="projectDetailLikeCount">0</span>
+                    </button>
+                </div>
+
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab('comments')">Comments</button>
+                    <button class="tab" onclick="switchTab('links')">Resources</button>
+                    <button class="tab" onclick="switchTab('history')">History</button>
+                </div>
+
+                <div id="commentsTab" class="tab-content active">
+                    <div id="commentsContainer"></div>
+                    <div class="comment-form" style="margin-top: 1.5rem;">
+                        <textarea id="commentInput" placeholder="Add your comment..." rows="3" style="width: 100%; padding: 0.75rem; border: 2px solid #d1d5db; border-radius: 6px; font-family: 'Work Sans', sans-serif;"></textarea>
+                        <button class="btn btn-primary" onclick="submitComment()">Post Comment</button>
+                    </div>
+                </div>
+
+                <div id="linksTab" class="tab-content">
+                    <p style="color: #6b7280;">Resource links coming soon...</p>
+                </div>
+
+                <div id="historyTab" class="tab-content">
+                    <p style="color: #6b7280;">Status history coming soon...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Project Modal -->
+    <div id="newProjectModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Submit New Project</h2>
+                <button class="modal-close" onclick="closeNewProjectModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="newProjectForm" onsubmit="event.preventDefault(); submitNewProject();">
+                    <div class="form-group">
+                        <label>Project Name *</label>
+                        <input type="text" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Category *</label>
+                        <select name="category" required>
+                            <option value="">Select a category</option>
+                            <option value="Modal Plan">Modal Plan</option>
+                            <option value="System Plan">System Plan</option>
+                            <option value="Policy Program">Policy Program</option>
+                            <option value="Funding Program">Funding Program</option>
+                            <option value="Specialized Plan">Specialized Plan</option>
+                            <option value="Digital Tool">Digital Tool</option>
+                            <option value="Analysis Tool">Analysis Tool</option>
+                            <option value="Study/Initiative">Study/Initiative</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Description *</label>
+                        <textarea name="description" required rows="4"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Status *</label>
+                        <input type="text" name="status" required placeholder="e.g., Ongoing, Completed (2024)">
+                    </div>
+                    <div class="form-group">
+                        <label>Responsible Party *</label>
+                        <input type="text" name="responsible" required placeholder="e.g., Iowa DOT Systems Planning Bureau">
+                    </div>
+                    <div class="form-group">
+                        <label>URL (Optional)</label>
+                        <input type="url" name="url">
+                    </div>
+                    <div class="form-group">
+                        <label>Reference (Optional)</label>
+                        <input type="text" name="reference" placeholder="e.g., Appendix 4, Section 3.2">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-tertiary" onclick="closeNewProjectModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Submit Project</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Project Button -->
+    <button class="add-project-btn" onclick="openNewProjectModal()" title="Add New Project">+</button>
+
+    <!-- Load Interactive Tracker API -->
+    <script src="/interactive-tracker.js"></script>
+
+    <script>
+        async function handleLogin() {
+            const form = document.getElementById('loginForm');
+            const formData = new FormData(form);
+
+            const success = await window.IowaDOTTracker.loginUser(
+                formData.get('username'),
+                formData.get('displayName'),
+                formData.get('email')
+            );
+
+            if (success) {
+                form.reset();
+            }
         }
     </script>
 </body>
