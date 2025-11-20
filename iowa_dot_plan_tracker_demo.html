@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Iowa DOT Long-Term Plan Tracker</title>
+  <!-- Leaflet for maps -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <style>
+    :root{
+      /* Iowa DOT-styled palette (accessible contrast, adaptable to official brand guide) */
+      --dot-red: #B51E23;      /* accessible red accent (adjust to official if needed) */
+      --dot-dark: #1a1a1a;
+      --dot-gray: #f2f2f2;
+      --dot-mid: #6b7280;
+      --dot-blue: #1f4e79;     /* secondary accent */
+      --focus: #0ea5e9;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+      color: var(--dot-dark);
+      background: white;
+      line-height: 1.45;
+    }
+    header {
+      border-top: 6px solid var(--dot-red);
+      background: white;
+      position: sticky; top: 0; z-index: 50;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+    .brand {
+      display: flex; align-items: center; gap: .75rem;
+    }
+    .brand .logo {
+      width: 40px; height: 40px; border-radius: 6px; background: var(--dot-red);
+      display: inline-flex; align-items: center; justify-content: center; color: white; font-weight: 800;
+    }
+    .brand h1 { margin: 0; font-size: clamp(1.15rem, 1.5vw, 1.4rem); }
+    .brand small { color: var(--dot-mid); display:block; margin-top: .125rem;}
+    .credit { font-size: .9rem; color: var(--dot-mid); margin-top:.25rem }
+    .topbar {
+      display:flex; align-items:center; justify-content:space-between; gap: 1rem; flex-wrap: wrap;
+    }
+    .searchbar {
+      flex: 1 1 320px; display:flex; gap:.5rem;
+    }
+    .searchbar input {
+      flex: 1 1 auto; padding:.6rem .75rem; border:1px solid #e5e7eb; border-radius:8px;
+    }
+    .searchbar input:focus { outline: 3px solid #bae6fd; border-color: var(--focus); }
+    .searchbar button, .btn {
+      background: var(--dot-red); color: white; border: none; padding:.6rem .9rem; border-radius:8px; cursor:pointer; font-weight:600;
+    }
+    .btn.secondary { background: var(--dot-blue); }
+    .btn.ghost { background: transparent; color: var(--dot-dark); border:1px solid #e5e7eb; }
+    main {
+      display: grid; grid-template-columns: 310px 1fr; gap: 1rem; max-width: 1200px; margin: 1rem auto; padding: 0 1rem 1.5rem;
+    }
+    aside {
+      border:1px solid #e5e7eb; border-radius: 12px; padding: .75rem; background: #fff; position: sticky; top: 84px; height: fit-content;
+    }
+    aside h3 { margin: .25rem 0 .5rem; font-size: 1.05rem; }
+    .filter {
+      display: grid; gap:.5rem; margin-bottom: .75rem;
+    }
+    label { font-weight: 600; font-size:.9rem; }
+    select, input[type="date"], input[type="text"] {
+      width: 100%; padding:.5rem .6rem; border:1px solid #e5e7eb; border-radius:8px;
+    }
+    .chip { display:inline-flex; align-items:center; gap:.4rem; font-size:.8rem; background:var(--dot-gray); padding:.25rem .5rem; border-radius:999px; margin-right:.25rem; margin-top:.25rem}
+    #map { height: 420px; border-radius:12px; border:1px solid #e5e7eb; }
+    .cards { display:grid; grid-template-columns: repeat(12, 1fr); gap: .75rem; }
+    .card {
+      grid-column: span 12;
+      border:1px solid #e5e7eb; border-radius: 12px; padding: .9rem; background: white;
+    }
+    @media (min-width: 680px){
+      .card { grid-column: span 6; }
+    }
+    @media (min-width: 1000px){
+      .card { grid-column: span 4; }
+    }
+    .card h4 { margin: 0 0 .3rem; }
+    .meta { font-size:.85rem; color: var(--dot-mid); display:flex; flex-wrap:wrap; gap:.5rem; }
+    .meta a { color: var(--dot-blue); text-decoration: underline; }
+    .progress { height: 8px; background:#f3f4f6; border-radius:9px; overflow:hidden; margin:.5rem 0 .25rem; }
+    .progress > i { display:block; height:100%; background: linear-gradient(90deg, var(--dot-red), #F97316); width: 0%; transition: width .4s ease; }
+    .status { font-size:.8rem; font-weight:700; }
+    .status[data-status="Planned"] { color:#7c3aed; }
+    .status[data-status="In design"] { color:#0ea5e9; }
+    .status[data-status="Under construction"] { color:#f59e0b; }
+    .status[data-status="Completed"] { color:#10b981; }
+    .table-wrap { overflow: auto; border:1px solid #e5e7eb; border-radius:12px; }
+    table { border-collapse: collapse; width:100%; font-size:.92rem; }
+    th, td { padding:.6rem .5rem; border-bottom:1px solid #e5e7eb; text-align:left; }
+    th { background:#fafafa; position: sticky; top: 0; }
+    /* Chatbot */
+    .chatbot { position: fixed; right: 18px; bottom: 18px; width: 320px; max-width: min(92vw, 420px); z-index: 99; }
+    .chat-window { display:none; border:1px solid #e5e7eb; border-radius:12px; background:white; box-shadow: 0 14px 38px rgba(0,0,0,.15); overflow:hidden; }
+    .chat-head { background: var(--dot-red); color: white; padding:.6rem .75rem; display:flex; align-items:center; justify-content:space-between; }
+    .chat-log { max-height: 320px; overflow:auto; padding:.75rem; display:flex; flex-direction:column; gap:.5rem; }
+    .bubble { padding:.5rem .6rem; border-radius:12px; max-width:85%; }
+    .bubble.user { background: var(--dot-blue); color:white; align-self:flex-end; border-bottom-right-radius: 4px;}
+    .bubble.bot { background:#f3f4f6; color:var(--dot-dark); align-self:flex-start; border-bottom-left-radius: 4px;}
+    .chat-input { display:flex; gap:.5rem; padding:.5rem; border-top:1px solid #e5e7eb; }
+    .chat-input input { flex:1; padding:.5rem .6rem; border:1px solid #e5e7eb; border-radius:8px; }
+    .chat-toggle { display:inline-flex; align-items:center; gap:.5rem; padding:.6rem .8rem; border-radius:999px; background:var(--dot-red); color:white; border:none; cursor:pointer; font-weight:700; }
+    .pill { font-size:.75rem; padding:.1rem .45rem; border-radius:999px; border:1px solid #e5e7eb; color: var(--dot-mid); background:#fafafa; }
+    footer { margin: 2rem 0; padding: 1rem; border-top: 1px solid #e5e7eb; color: var(--dot-mid); font-size:.9rem }
+    a { color: var(--dot-blue); }
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+  </style>
+</head>
+<body>
+  <header role="banner">
+    <div class="wrap topbar" aria-label="site header">
+      <div class="brand" aria-label="Iowa DOT brand">
+        <div class="logo" aria-hidden="true">IA</div>
+        <div>
+          <h1>Iowa DOT Long‑Term Plan Tracker <span class="pill" title="Demo prototype">Demo</span></h1>
+          <small>Modeled after public policy tracker layouts with status filters, news, map, and feedback.</small>
+          <div class="credit">Brought to you by the Director of New and Emerging Transportation Technologies</div>
+        </div>
+      </div>
+      <form class="searchbar" onsubmit="event.preventDefault();applyFilters();">
+        <label class="sr-only" for="q">Search projects</label>
+        <input id="q" type="text" placeholder="Search projects, locations, divisions…" />
+        <button type="submit" class="btn">Search</button>
+        <button type="button" class="btn ghost" onclick="resetFilters()">Reset</button>
+      </form>
+    </div>
+  </header>
+
+  <main id="content" role="main">
+    <aside aria-label="Filters">
+      <h3>Filters</h3>
+      <div class="filter">
+        <label for="status">Status</label>
+        <select id="status" onchange="applyFilters()">
+          <option value="">All</option>
+          <option>Planned</option>
+          <option>In design</option>
+          <option>Under construction</option>
+          <option>Completed</option>
+        </select>
+      </div>
+      <div class="filter">
+        <label for="mode">Mode</label>
+        <select id="mode" onchange="applyFilters()">
+          <option value="">All</option>
+          <option>Highway</option>
+          <option>Bridge</option>
+          <option>Freight</option>
+          <option>Transit</option>
+          <option>Active Transportation</option>
+          <option>Aviation</option>
+          <option>Rail</option>
+        </select>
+      </div>
+      <div class="filter">
+        <label for="division">Division/Bureau</label>
+        <select id="division" onchange="applyFilters()">
+          <option value="">All</option>
+          <option>Systems Planning</option>
+          <option>TSMO</option>
+          <option>Highway Division</option>
+          <option>Bridge & Structures</option>
+          <option>Location & Environment</option>
+          <option>Public Transit</option>
+          <option>Rail</option>
+        </select>
+      </div>
+
+      <h3>Live Map</h3>
+      <div id="map" role="region" aria-label="Project map"></div>
+      <div style="margin-top:.5rem; font-size:.85rem; color:var(--dot-mid)">
+        Tip: Click markers to open the project card and related links.
+      </div>
+    </aside>
+
+    <section aria-label="Project cards">
+      <div class="cards" id="cards"></div>
+
+      <h3 style="margin-top:1rem">Project Lookup Table</h3>
+      <div class="table-wrap" role="region" aria-label="Project lookup table">
+        <table id="lookup">
+          <thead>
+            <tr>
+              <th>Project</th>
+              <th>Mode</th>
+              <th>Status</th>
+              <th>Plan Ref</th>
+              <th>Division(s)</th>
+              <th>Location</th>
+              <th>Est. Completion</th>
+              <th>Links</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <details style="margin-top:1rem">
+        <summary><strong>Branding & Accessibility (for review)</strong></summary>
+        <ul>
+          <li>Color palette and logo usage align to Iowa DOT published brand guidance (update tokens to official HEX as needed).</li>
+          <li>High contrast text, keyboard focus outlines, semantic headings, and ARIA landmarks included.</li>
+          <li>No Iowa DOT logo file embedded here; insert official SVG per brand policy before launch.</li>
+        </ul>
+      </details>
+    </section>
+  </main>
+
+  <!-- Chatbot (demo, pre-canned Q&A) -->
+  <div class="chatbot" aria-live="polite">
+    <button class="chat-toggle" onclick="toggleChat()" aria-expanded="false" aria-controls="chatwin">💬 Ask about the plan</button>
+    <div id="chatwin" class="chat-window" role="dialog" aria-label="AI Q&A demo">
+      <div class="chat-head">
+        <strong>Iowa DOT Plan Assistant (Demo)</strong>
+        <button class="btn ghost" onclick="toggleChat()">Close</button>
+      </div>
+      <div id="chatlog" class="chat-log" aria-live="polite"></div>
+      <div class="chat-input">
+        <input id="chatq" type="text" placeholder="Try: What’s the I‑80/380 status?" onkeydown="if(event.key==='Enter'){sendChat()}" />
+        <button class="btn secondary" onclick="sendChat()">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="wrap">
+    <div>
+      <strong>Sources & Notes (demo):</strong>
+      <ul>
+        <li>Iowa DOT statewide plan (“Iowa in Motion 2050”) – link provided by owner. Use to validate plan page references before launch.</li>
+        <li>Brand guidance: see Iowa DOT Logos & Brand Guidelines.</li>
+      </ul>
+      <div>© Iowa Department of Transportation — Prototype tracker.</div>
+    </div>
+  </footer>
+
+  <script>
+    // ---- Data (editable) ----
+    // NOTE: Plan page numbers are placeholders; verify exact pages in Iowa in Motion 2050 PDF before launch.
+    const PROJECTS = [
+      {
+        id: "i80380",
+        title: "I‑80/I‑380 Systems Interchange (Iowa City/Coralville)",
+        mode: "Highway",
+        status: "Completed",
+        percent: 100,
+        planRef: "Highway System Modernization — verify page in plan (e.g., System Management/Highway chapter)",
+        planPage: "TBD",
+        divisions: ["Highway Division", "Bridge & Structures", "TSMO"],
+        bureaus: ["Construction & Materials", "Office of Location & Environment"],
+        location: "Iowa City / Coralville",
+        coords: [41.6899, -91.6025],
+        completion: "2023-08",
+        description: "Major systems interchange replacement improving safety and capacity at I‑80/I‑380/U.S. 218.",
+        links: [
+          {label: "Completion News (KGAN)", url: "https://cbs2iowa.com/news/local/i-80380-systems-interchange-project-in-iowa-citycoralville-is-complete"},
+          {label: "Project Page (Design firm)", url: "https://www.hdrinc.com/portfolio/i-80i-380-system-interchange-reconstruction"}
+        ]
+      },
+      {
+        id: "i74bridge",
+        title: "I‑74 Mississippi River Bridge (Davenport–Moline)",
+        mode: "Bridge",
+        status: "Completed",
+        percent: 100,
+        planRef: "Mississippi River Crossings & Major Bridge Investment — verify page",
+        planPage: "TBD",
+        divisions: ["Bridge & Structures", "Highway Division"],
+        bureaus: ["Construction & Materials"],
+        location: "Davenport / Bettendorf & Moline, IL",
+        coords: [41.5185, -90.5133],
+        completion: "2021-12",
+        description: "Twin basket‑handle arch bridges replacing obsolete structures; added multi‑use path.",
+        links: [
+          {label: "Ribbon Cutting (KWQC)", url: "https://www.kwqc.com/2021/12/01/live-ribbon-cutting-held-wednesday-new-i-74-bridge/"},
+          {label: "City Page (Moline)", url: "https://www.moline.il.us/1365/I-74-Bridge-Project"}
+        ]
+      },
+      {
+        id: "i35-ankeny-huxley",
+        title: "I‑35 Reconstruction (Ankeny → Huxley)",
+        mode: "Highway",
+        status: "Under construction",
+        percent: 55,
+        planRef: "Interstate Corridor Modernization — verify page",
+        planPage: "TBD",
+        divisions: ["Highway Division"],
+        bureaus: ["Construction & Materials"],
+        location: "Polk & Story Counties",
+        coords: [41.8426, -93.6205],
+        completion: "2026-12",
+        description: "Full reconstruction and bridge replacements from 36th St (Ankeny) to 315th St (near Huxley).",
+        links: [
+          {label: "DOT Project Brief", url: "https://iowadot.gov/modes-travel/roads-highways/major-construction-projects/des-moines-area-interstate-projects/i-35-ankeny-huxley-construction"},
+          {label: "Design Use of 3D Modeling (Snyder Assoc.)", url: "https://www.snyder-associates.com/projects/3-d-modeling-design-technology-increases-efficiencies-for-roadway-reconstruction-interstate-35/"}
+        ]
+      },
+      {
+        id: "west-mixmaster",
+        title: "I‑35/I‑80/I‑235 (Southwest/West Mixmaster) Modernization",
+        mode: "Highway",
+        status: "Planned",
+        percent: 10,
+        planRef: "Major Interchange Safety & Capacity — verify page",
+        planPage: "TBD",
+        divisions: ["Highway Division", "TSMO"],
+        bureaus: ["Traffic & Safety"],
+        location: "West Des Moines",
+        coords: [41.6148, -93.7579],
+        completion: "TBD",
+        description: "Replace cloverleaf movements with flyovers to reduce crashes and delays.",
+        links: [
+          {label: "Coverage (Axios Des Moines)", url: "https://www.axios.com/local/des-moines/2024/07/30/mixmaster-renovation-west-desmoines-russ-trimble"}
+        ]
+      },
+      {
+        id: "i380-wright-brothers",
+        title: "I‑380 Widening & Wright Brothers Blvd Interchange",
+        mode: "Highway",
+        status: "In design",
+        percent: 35,
+        planRef: "Corridor Widening — verify page",
+        planPage: "TBD",
+        divisions: ["Highway Division"],
+        bureaus: ["Construction & Materials"],
+        location: "Cedar Rapids",
+        coords: [41.8835, -91.6697],
+        completion: "TBD",
+        description: "Reconstruction/widening of I‑380 and interchange improvements near US‑30.",
+        links: [
+          {label: "City Project Page", url: "https://www.cedar-rapids.org/local_government/departments_g_-_v/public_works/projects/i-380_and_wright_brothers_boulevard.php"}
+        ]
+      }
+    ];
+
+    // Example curated & live news feeds (per project). For “live” demo, we provide helper to fetch RSS if CORS permits.
+    const NEWS_FEEDS = [
+      { projectId: "i80380", type: "curated", label: "KGAN: I‑80/380 complete", url: "https://cbs2iowa.com/news/local/i-80380-systems-interchange-project-in-iowa-citycoralville-is-complete" },
+      { projectId: "i74bridge", type: "curated", label: "KWQC: Ribbon cutting", url: "https://www.kwqc.com/2021/12/01/live-ribbon-cutting-held-wednesday-new-i-74-bridge/" },
+      { projectId: "west-mixmaster", type: "curated", label: "Axios: Funding gap", url: "https://www.axios.com/local/des-moines/2024/07/30/mixmaster-renovation-west-desmoines-russ-trimble" },
+      // Live example: Iowa DOT newsroom item (CORS may block; left as demo link)
+      { projectId: "i35-ankeny-huxley", type: "live", label: "Iowa DOT Newsroom: Hickman overnight closure", url: "https://iowadot.gov/news/2025-10-09/temporary-overnight-closure-us-6hickman-road-i-35i-80-scheduled-friday-night-oct-10" }
+    ];
+
+    // ---- Map ----
+    const map = L.map('map', { scrollWheelZoom: true, attributionControl: true }).setView([42.0, -93.5], 7);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    const markers = {};
+    function addMarkers(){
+      PROJECTS.forEach(p => {
+        const m = L.marker(p.coords).addTo(map).bindPopup(`<strong>${p.title}</strong><br>${p.location}<br><em>Status:</em> ${p.status}`);
+        m.on('click', () => {
+          const el = document.querySelector(`[data-id="${p.id}"]`);
+          if(el){ el.scrollIntoView({behavior:'smooth', block:'center'}); el.classList.add('pulse');
+            setTimeout(()=>el.classList.remove('pulse'), 1200);
+          }
+        });
+        markers[p.id] = m;
+      });
+    }
+    addMarkers();
+
+    // ---- Cards + Table render ----
+    function cardHTML(p){
+      const newsLinks = (p.links||[]).map(l => `<a href="${l.url}" target="_blank" rel="noopener">${l.label}</a>`).join(' &middot; ');
+      const chips = p.divisions.map(d=>`<span class="chip" title="Division/Bureau">${d}</span>`).join('') + 
+                    (p.bureaus||[]).map(b=>`<span class="chip">${b}</span>`).join('');
+      return `
+        <article class="card" data-id="${p.id}" data-mode="${p.mode}" data-status="${p.status}" data-division="${p.divisions.join(',')}">
+          <h4>${p.title}</h4>
+          <div class="meta">
+            <span class="status" data-status="${p.status}">${p.status}</span>
+            <span aria-label="mode" class="pill">${p.mode}</span>
+            <span>Plan ref: ${p.planRef} <em>(p. ${p.planPage})</em></span>
+          </div>
+          <div class="progress" aria-label="approximate completion"><i style="width:${p.percent}%"></i></div>
+          <div class="meta" style="margin:.25rem 0 0">${chips}</div>
+          <p>${p.description}</p>
+          <div class="meta"><strong>Location:</strong>&nbsp;${p.location}</div>
+          <div class="meta"><strong>Est. completion:</strong>&nbsp;${p.completion || "TBD"}</div>
+          <div class="meta"><strong>News & resources:</strong> ${newsLinks || "–"}</div>
+
+          <details style="margin-top:.5rem">
+            <summary><strong>Feedback</strong> (internal & external)</summary>
+            <form onsubmit="event.preventDefault(); submitFeedback('${p.id}', this)">
+              <label>Your name<br><input name="name" required></label><br>
+              <label>Email (optional)<br><input type="email" name="email" placeholder="you@example.com"></label><br>
+              <label>Comment<br><textarea name="comment" rows="3" required style="width:100%"></textarea></label><br>
+              <label>Audience<br>
+                <select name="aud">
+                  <option value="external">External (public)</option>
+                  <option value="internal">Internal (DOT)</option>
+                </select>
+              </label><br>
+              <button class="btn" type="submit">Submit feedback</button>
+              <a class="btn ghost" target="_blank" rel="noopener" href="mailto:dot.customercomments@iowadot.us?subject=${encodeURIComponent('Feedback: '+p.title)}">Email instead</a>
+            </form>
+            <div id="fbk-${p.id}" style="margin-top:.5rem; font-size:.9rem; color:var(--dot-mid)"></div>
+          </details>
+        </article>
+      `;
+    }
+
+    function render(){
+      const wrap = document.getElementById('cards');
+      wrap.innerHTML = PROJECTS.map(cardHTML).join('');
+      // Table
+      const tbody = document.querySelector('#lookup tbody');
+      tbody.innerHTML = PROJECTS.map(p => `
+        <tr>
+          <td><a href="#${p.id}" onclick="focusCard('${p.id}')">${p.title}</a></td>
+          <td>${p.mode}</td>
+          <td>${p.status}</td>
+          <td>${p.planRef} (p. ${p.planPage})</td>
+          <td>${p.divisions.join(', ')}</td>
+          <td>${p.location}</td>
+          <td>${p.completion || 'TBD'}</td>
+          <td>${(p.links||[]).map(l=>`<a href="${l.url}" target="_blank" rel="noopener">Link</a>`).join(' ')}</td>
+        </tr>
+      `).join('');
+    }
+    render();
+
+    function focusCard(id){
+      const el = document.querySelector(`[data-id="${id}"]`);
+      if(el){ el.scrollIntoView({behavior:'smooth', block:'center'}); el.classList.add('pulse'); setTimeout(()=>el.classList.remove('pulse'), 1200); }
+    }
+
+    function applyFilters(){
+      const q = (document.getElementById('q').value||'').toLowerCase();
+      const status = document.getElementById('status').value;
+      const mode = document.getElementById('mode').value;
+      const division = document.getElementById('division').value;
+      document.querySelectorAll('.card').forEach(el => {
+        const hay = el.textContent.toLowerCase();
+        const visible = (!q || hay.includes(q))
+          && (!status || el.dataset.status === status)
+          && (!mode || el.dataset.mode === mode)
+          && (!division || el.dataset.division.includes(division));
+        el.style.display = visible ? '' : 'none';
+        const id = el.getAttribute('data-id');
+        if(markers[id]){
+          if(visible) markers[id].addTo(map);
+          else map.removeLayer(markers[id]);
+        }
+      });
+    }
+    function resetFilters(){
+      document.getElementById('q').value = '';
+      document.getElementById('status').value = '';
+      document.getElementById('mode').value = '';
+      document.getElementById('division').value = '';
+      applyFilters();
+    }
+
+    // ---- Feedback handling (demo: localStorage) ----
+    function submitFeedback(pid, form){
+      const data = Object.fromEntries(new FormData(form).entries());
+      const key = 'feedback:' + pid;
+      const list = JSON.parse(localStorage.getItem(key) || '[]');
+      list.push({ ...data, ts: new Date().toISOString() });
+      localStorage.setItem(key, JSON.stringify(list));
+      document.getElementById('fbk-'+pid).textContent = 'Thanks! Saved locally for demo. Wire this form to your chosen endpoint for production.';
+      form.reset();
+    }
+
+    // ---- Chat demo ----
+    const QA = [
+      { q: /i-?80\/?380|i 80.?380|380/i, a: "The I‑80/I‑380 Systems Interchange was substantially completed in 2023, delivering safer movements and capacity. See the KGAN coverage linked on the project card."},
+      { q: /i-?74|mississippi river bridge/i, a: "The new I‑74 Mississippi River Bridge opened in 2020/2021 with modern basket‑handle arches and a multi‑use path. Explore the Moline and KWQC links on the card."},
+      { q: /mixmaster|i-235|flyover/i, a: "The West/Southwest Mixmaster modernization is planned to replace cloverleaf loops with flyovers to improve safety. Funding strategy is in progress."},
+      { q: /where do these page numbers/i, a: "Plan page references are derived from Iowa in Motion 2050. This demo uses placeholders—verify the exact pages in the PDF and update the dataset."},
+      { q: /how can i send feedback|feedback/i, a: "Open a project card and expand the Feedback section. For the demo, submissions save locally; in production, connect to your API, SharePoint, or an email workflow."},
+      { q: /map|filters/i, a: "Use the sidebar to filter by status, mode, or division. Click map markers to jump to the project card."}
+    ];
+    function toggleChat(){
+      const win = document.getElementById('chatwin');
+      const btn = document.querySelector('.chat-toggle');
+      const open = win.style.display === 'block';
+      win.style.display = open ? 'none' : 'block';
+      btn.setAttribute('aria-expanded', String(!open));
+      if(!open && document.getElementById('chatlog').children.length===0){
+        addBot("Hi! Ask about a project status, plan pages, or how to send feedback. (Demo responses)");
+      }
+    }
+    function addUser(text){ const b = document.createElement('div'); b.className='bubble user'; b.textContent = text; document.getElementById('chatlog').appendChild(b); b.scrollIntoView(); }
+    function addBot(text){ const b = document.createElement('div'); b.className='bubble bot'; b.textContent = text; document.getElementById('chatlog').appendChild(b); b.scrollIntoView(); }
+    function sendChat(){
+      const input = document.getElementById('chatq');
+      const txt = input.value.trim(); if(!txt) return;
+      addUser(txt); input.value='';
+      const hit = QA.find(x => x.q.test(txt));
+      addBot(hit ? hit.a : "This is a demo. For detailed answers, connect a live chatbot or expand the QA set.");
+    }
+
+    // ---- Utility: highlight pulse ----
+    const style = document.createElement('style');
+    style.textContent = `.pulse{box-shadow:0 0 0 3px #bae6fd; transition: box-shadow .8s ease}`;
+    document.head.appendChild(style);
+
+    // ---- Hook up News Feeds (placeholder for live RSS) ----
+    // For production, fetch RSS/JSON and attach items to each project's card.
+    // Example pseudo-code:
+    // fetch('https://YOUR_FEED_URL').then(...)
+  </script>
+</body>
+</html>

@@ -1,0 +1,2149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iowa DOT 2050 Transportation Plan Tracker</title>
+    <!-- Google Fonts for improved typography -->
+    <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=Roboto+Slab:wght@400;700&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* Iowa DOT Brand Guidelines Applied
+         * Following official brand standards from iowadot.gov/policies-statements/logos-brand-guidelines
+         * Colors: Primary (#19405B, #03617A), Accent (#E0A624), Secondary palette
+         * Typography: Work Sans (body), PT Sans (headlines), Roboto Slab (display)
+         * Note: Using web-safe font substitutes. Licensed fonts available through Iowa DOT.
+         */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Work Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Calibri, sans-serif;
+            background: #f5f5f5;
+            color: #53565A;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #19405B 0%, #03617A 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            border-bottom: 4px solid #E0A624;
+        }
+
+        .header h1 {
+            font-family: 'PT Sans', 'Roboto Slab', Georgia, serif;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+
+        .header p {
+            font-family: 'Work Sans', Calibri, sans-serif;
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 12px rgba(3, 97, 122, 0.2);
+        }
+
+        .stat-card:hover .source-indicator {
+            color: #03617A;
+            font-weight: 600;
+        }
+
+        .stat-card a {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .clickable-stat {
+            cursor: pointer;
+            text-decoration: underline;
+            text-decoration-style: dotted;
+            text-decoration-color: #B1B3B3;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .clickable-stat:hover {
+            color: #03617A;
+            text-decoration-color: #03617A;
+            font-weight: 600;
+        }
+
+        .clickable-stat::after {
+            content: " 🔗";
+            opacity: 0;
+            transition: opacity 0.2s;
+            font-size: 0.8em;
+        }
+
+        .clickable-stat:hover::after {
+            opacity: 1;
+        }
+
+        .source-indicator {
+            font-size: 0.7rem;
+            color: #B1B3B3;
+            margin-top: 0.3rem;
+            font-style: italic;
+        }
+
+        .source-indicator:hover {
+            color: #03617A;
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #3b82f6;
+            display: block;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .filters {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            border: 2px solid #e5e7eb;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-btn:hover {
+            border-color: #3b82f6;
+            background: #eff6ff;
+        }
+
+        .filter-btn.active {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        .mode-section {
+            background: white;
+            margin-bottom: 1.5rem;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .mode-header {
+            background: #f9fafb;
+            padding: 1rem 1.5rem;
+            border-left: 4px solid #3b82f6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .mode-header:hover {
+            background: #f3f4f6;
+        }
+
+        .mode-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .mode-progress {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .progress-bar {
+            width: 150px;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #22c55e 0%, #16a34a 100%);
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            font-weight: 600;
+            color: #16a34a;
+        }
+
+        .objectives {
+            padding: 1rem 1.5rem;
+        }
+
+        .objective {
+            padding: 1rem;
+            border-left: 3px solid #e5e7eb;
+            margin-bottom: 1rem;
+            transition: all 0.2s;
+        }
+
+        .objective:hover {
+            background: #f9fafb;
+            border-left-color: #3b82f6;
+        }
+
+        .objective-title {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .objective-status {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-top: 0.5rem;
+        }
+
+        .progress-percentage {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: #dbeafe;
+            color: #1e40af;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+
+        .news-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.8rem;
+            color: #dc2626;
+            text-decoration: none;
+            padding: 0.3rem 0.6rem;
+            background: #fee2e2;
+            border-radius: 4px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .news-link:hover {
+            background: #fecaca;
+        }
+
+        .status-complete {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-progress {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .status-planned {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-not-started {
+            background: #f3f4f6;
+            color: #4b5563;
+        }
+
+        .objective-note {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 0.5rem;
+            font-style: italic;
+        }
+
+        .objective-bureau {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+            color: #1e40af;
+            font-weight: 500;
+        }
+
+        .bureau-icon {
+            font-size: 0.9rem;
+        }
+
+        .objective-meta {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 0.75rem;
+            align-items: center;
+        }
+
+        .plan-reference {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.8rem;
+            color: #059669;
+            background: #d1fae5;
+            padding: 0.25rem 0.6rem;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .new-endeavor {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.8rem;
+            color: #7c3aed;
+            background: #ede9fe;
+            padding: 0.25rem 0.6rem;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .collaborators {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-top: 0.5rem;
+        }
+
+        .collaborator-tag {
+            font-size: 0.75rem;
+            padding: 0.2rem 0.5rem;
+            background: #fef3c7;
+            color: #92400e;
+            border-radius: 4px;
+            border: 1px solid #fde68a;
+        }
+
+        .objective-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
+
+        .action-btn {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+            border: 1px solid #d1d5db;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .action-btn:hover {
+            background: #f3f4f6;
+            border-color: #3b82f6;
+        }
+
+        .five-year-link {
+            background: #dbeafe;
+            color: #1e40af;
+            text-decoration: none;
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            transition: all 0.2s;
+        }
+
+        .five-year-link:hover {
+            background: #bfdbfe;
+        }
+
+        .feedback-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .feedback-modal.active {
+            display: flex;
+        }
+
+        .feedback-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .feedback-header {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .feedback-form label {
+            display: block;
+            margin-top: 1rem;
+            font-weight: 500;
+            margin-bottom: 0.3rem;
+        }
+
+        .feedback-form input,
+        .feedback-form textarea,
+        .feedback-form select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-family: inherit;
+        }
+
+        .feedback-form textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .feedback-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+            justify-content: flex-end;
+        }
+
+        .btn-primary {
+            padding: 0.6rem 1.2rem;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+
+        .btn-secondary {
+            padding: 0.6rem 1.2rem;
+            background: white;
+            color: #4b5563;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .btn-secondary:hover {
+            background: #f3f4f6;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: #53565A;
+            font-size: 0.9rem;
+            background: #f9fafb;
+            border-top: 4px solid #E0A624;
+            margin-top: 3rem;
+        }
+
+        .footer strong {
+            color: #19405B;
+        }
+
+        .footer a {
+            color: #03617A;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer a:hover {
+            color: #19405B;
+            text-decoration: underline;
+        }
+
+        /* AI Chatbot Styles */
+        .chatbot-button {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #03617A 0%, #19405B 100%);
+            color: white;
+            border: none;
+            font-size: 1.8rem;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(3, 97, 122, 0.4);
+            z-index: 1000;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chatbot-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(3, 97, 122, 0.6);
+        }
+
+        .chatbot-button .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #E23E2D;
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .chatbot-container {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 400px;
+            height: 600px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            z-index: 1001;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chatbot-container.active {
+            display: flex;
+        }
+
+        .chatbot-header {
+            background: linear-gradient(135deg, #19405B 0%, #03617A 100%);
+            color: white;
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid #E0A624;
+        }
+
+        .chatbot-header-content {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .chatbot-avatar {
+            width: 40px;
+            height: 40px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+        }
+
+        .chatbot-title h3 {
+            font-family: 'PT Sans', 'Roboto Slab', Georgia, serif;
+            margin: 0;
+            font-size: 1.1rem;
+        }
+
+        .chatbot-title p {
+            margin: 0;
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+
+        .chatbot-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.25rem;
+            line-height: 1;
+        }
+
+        .chatbot-close:hover {
+            opacity: 0.8;
+        }
+
+        .chatbot-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            background: #f9fafb;
+        }
+
+        .chat-message {
+            margin-bottom: 1rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .chat-message.bot {
+            align-items: flex-start;
+        }
+
+        .chat-message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .message-avatar.bot {
+            background: linear-gradient(135deg, #03617A 0%, #19405B 100%);
+            color: white;
+        }
+
+        .message-avatar.user {
+            background: #E0A624;
+            color: white;
+        }
+
+        .message-content {
+            max-width: 75%;
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .message-content.bot {
+            background: white;
+            color: #53565A;
+            border: 1px solid #B1B3B3;
+        }
+
+        .message-content.user {
+            background: #03617A;
+            color: white;
+        }
+
+        .message-time {
+            font-size: 0.7rem;
+            color: #B1B3B3;
+            margin-top: 0.25rem;
+        }
+
+        .suggested-questions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .suggested-question {
+            background: white;
+            border: 1px solid #03617A;
+            color: #03617A;
+            padding: 0.5rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .suggested-question:hover {
+            background: #03617A;
+            color: white;
+        }
+
+        .chatbot-input-container {
+            padding: 1rem;
+            background: white;
+            border-top: 1px solid #B1B3B3;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .chatbot-input {
+            flex: 1;
+            padding: 0.75rem;
+            border: 1px solid #B1B3B3;
+            border-radius: 24px;
+            font-family: 'Work Sans', Calibri, sans-serif;
+            font-size: 0.9rem;
+        }
+
+        .chatbot-input:focus {
+            outline: none;
+            border-color: #03617A;
+        }
+
+        .chatbot-send {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #03617A;
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.2s;
+        }
+
+        .chatbot-send:hover {
+            background: #19405B;
+            transform: scale(1.05);
+        }
+
+        .chatbot-send:disabled {
+            background: #B1B3B3;
+            cursor: not-allowed;
+        }
+
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 1rem;
+        }
+
+        .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #03617A;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
+        }
+
+        @media (max-width: 768px) {
+            .chatbot-container {
+                width: 100%;
+                height: 100%;
+                bottom: 0;
+                right: 0;
+                border-radius: 0;
+            }
+        }
+
+        .brand-tagline {
+            font-family: 'PT Sans', 'Roboto Slab', Georgia, serif;
+            font-size: 0.95rem;
+            color: #E0A624;
+            margin-top: 0.5rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Iowa DOT 2050 Transportation Plan Tracker</h1>
+        <p>Tracking implementation of Iowa's Long-Range Transportation Plan through 2050</p>
+        <div class="brand-tagline">MAKING LIVES BETTER THROUGH TRANSPORTATION</div>
+    </div>
+
+    <div class="container">
+        <div style="background: linear-gradient(135deg, #BBE2DA 0%, #70C8B8 100%); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid #03617A; display: flex; align-items: center; gap: 1rem;">
+            <div style="font-size: 2rem;">📊</div>
+            <div style="flex: 1;">
+                <strong style="color: #19405B;">Transparency & Verification:</strong>
+                <span style="color: #53565A;"> All statistics and numbers are clickable to view their sources. Hover over underlined numbers to see tooltips, then click to verify the data.</span>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card" style="border-top: 3px solid #E23E2D;">
+                <a href="https://iowadot.gov/policies-statements/business-plan" target="_blank">
+                    <span class="stat-number" style="color: #E23E2D;">🛡️ #1</span>
+                    <div class="stat-label">Safety is Our Top Priority</div>
+                    <div class="source-indicator">Click to view Business Plan</div>
+                </a>
+            </div>
+            <div class="stat-card">
+                <a href="https://iowadot.gov/news/2024-12-10/iowa-transportation-commission-approves-fy-2026-traffic-safety-improvement-program-projects" target="_blank">
+                    <span class="stat-number">$8.6M</span>
+                    <div class="stat-label">FY2026 Safety Program Funding</div>
+                    <div class="source-indicator">Click for details</div>
+                </a>
+            </div>
+            <div class="stat-card">
+                <a href="https://iowadot.gov/transportation-development/systems-planning/areas-planning/transportation-plans/state-transportation-plan" target="_blank">
+                    <span class="stat-number">142</span>
+                    <div class="stat-label">Total Plan Objectives</div>
+                    <div class="source-indicator">Click to view full plan</div>
+                </a>
+            </div>
+            <div class="stat-card">
+                <a href="https://iowadot.gov/transportation-development/systems-planning/areas-planning/transportation-plans/state-transportation-plan" target="_blank">
+                    <span class="stat-number">34%</span>
+                    <div class="stat-label">Overall Progress to 2050</div>
+                    <div class="source-indicator">Click to view plan</div>
+                </a>
+            </div>
+        </div>
+
+        <div class="filters">
+            <div class="filter-group">
+                <button class="filter-btn active">All Objectives</button>
+                <button class="filter-btn" style="border-color: #E23E2D; color: #E23E2D; font-weight: 600;">🛡️ Safety First</button>
+                <button class="filter-btn">🗺️ View Map</button>
+                <button class="filter-btn">Highways</button>
+                <button class="filter-btn">Bridges</button>
+                <button class="filter-btn">Public Transit</button>
+                <button class="filter-btn">Rail</button>
+                <button class="filter-btn">Maintenance</button>
+                <button class="filter-btn">Innovation</button>
+            </div>
+        </div>
+
+        <!-- Highways Section -->
+        <div class="mode-section" style="border-left: 6px solid #E23E2D;">
+            <div class="mode-header" onclick="toggleSection(this)">
+                <div class="mode-title">🛡️ Safety First - Our Top Priority</div>
+                <div class="mode-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 58%; background: linear-gradient(90deg, #E23E2D 0%, #B86125 100%);"></div>
+                    </div>
+                    <span class="progress-text" style="color: #E23E2D;">58%</span>
+                </div>
+            </div>
+            <div class="objectives">
+                <div style="background: linear-gradient(135deg, #E23E2D 0%, #F68842 100%); padding: 1.5rem; border-radius: 6px; margin-bottom: 1.5rem; color: white;">
+                    <h3 style="margin-bottom: 0.75rem; font-family: 'PT Sans', 'Roboto Slab', Georgia, serif; font-size: 1.3rem;">🛡️ Safety is Our #1 Core Value</h3>
+                    <p style="font-size: 0.95rem; line-height: 1.6; margin-bottom: 0.75rem;">
+                        "The safety, security, and wellbeing of staff, travelers, and customers is of utmost importance. We're committed to continuous feedback and learning to be safer, proactive, more resilient, and highly prepared."
+                    </p>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                        <a href="https://iowadot.gov/news/2024-12-10/iowa-transportation-commission-approves-fy-2026-traffic-safety-improvement-program-projects" target="_blank" style="text-decoration: none; color: inherit;">
+                            <div style="background: rgba(255,255,255,0.2); padding: 1rem; border-radius: 4px; backdrop-filter: blur(10px); transition: all 0.3s; cursor: pointer;" onmouseover="this.style.transform='translateY(-4px) scale(1.05)'; this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.transform='translateY(0) scale(1)'; this.style.background='rgba(255,255,255,0.2)'">
+                                <div style="font-size: 2rem; font-weight: bold;">$8.6M</div>
+                                <div style="font-size: 0.9rem;">FY2026 Safety Program</div>
+                                <div style="font-size: 0.7rem; margin-top: 0.3rem; opacity: 0.8;">📊 Click for source</div>
+                            </div>
+                        </a>
+                        <a href="https://iowadot.gov/news/2024-12-10/iowa-transportation-commission-approves-fy-2026-traffic-safety-improvement-program-projects" target="_blank" style="text-decoration: none; color: inherit;">
+                            <div style="background: rgba(255,255,255,0.2); padding: 1rem; border-radius: 4px; backdrop-filter: blur(10px); transition: all 0.3s; cursor: pointer;" onmouseover="this.style.transform='translateY(-4px) scale(1.05)'; this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.transform='translateY(0) scale(1)'; this.style.background='rgba(255,255,255,0.2)'">
+                                <div style="font-size: 2rem; font-weight: bold;">35</div>
+                                <div style="font-size: 0.9rem;">Safety Projects Funded</div>
+                                <div style="font-size: 0.7rem; margin-top: 0.3rem; opacity: 0.8;">📊 Click for source</div>
+                            </div>
+                        </a>
+                        <a href="https://iowadot.gov/news/2025-06-10/fy-2026-2030-iowa-transportation-improvement-program-presented-iowa-transportation-commission" target="_blank" style="text-decoration: none; color: inherit;">
+                            <div style="background: rgba(255,255,255,0.2); padding: 1rem; border-radius: 4px; backdrop-filter: blur(10px); transition: all 0.3s; cursor: pointer;" onmouseover="this.style.transform='translateY(-4px) scale(1.05)'; this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.transform='translateY(0) scale(1)'; this.style.background='rgba(255,255,255,0.2)'">
+                                <div style="font-size: 2rem; font-weight: bold;">90%</div>
+                                <div style="font-size: 0.9rem;">Bridge Safety Improved</div>
+                                <div style="font-size: 0.7rem; margin-top: 0.3rem; opacity: 0.8;">📊 Click for source</div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="objective">
+                    <div class="objective-title">Traffic Safety Improvement Program (TSIP)</div>
+                    <span class="objective-status status-progress">In Progress</span>
+                    <span class="progress-percentage">FY2026 Cycle Active</span>
+                    <div class="objective-bureau">
+                        <span class="bureau-icon">🏢</span>
+                        <span>Traffic & Safety Bureau</span>
+                    </div>
+                    <div class="collaborators">
+                        <span class="collaborator-tag">All Districts</span>
+                        <span class="collaborator-tag">Cities & Counties</span>
+                        <span class="collaborator-tag">Iowa LTAP</span>
+                        <span class="collaborator-tag">Finance Division</span>
+                    </div>
+                    <div class="objective-meta">
+                        <span class="plan-reference">📄 Plan Section 4.1, Pages 63-65</span>
+                        <a href="https://iowadot.gov/news/2024-12-10/iowa-transportation-commission-approves-fy-2026-traffic-safety-improvement-program-projects" target="_blank" class="news-link">📰 FY2026 Projects Approved</a>
+                    </div>
+                    <div class="objective-note">
+                        <a href="https://iowadot.gov/news/2024-12-10/iowa-transportation-commission-approves-fy-2026-traffic-safety-improvement-program-projects" target="_blank" class="clickable-stat" title="Click to verify source">$8.6M</a> funding 
+                        <a href="https://iowadot.gov/news/2024-12-10/iowa-transportation-commission-approves-fy-2026-traffic-safety-improvement-program-projects" target="_blank" class="clickable-stat" title="Click to verify source">35 safety projects</a> statewide. Program provides funding for roadway safety improvements, traffic control devices, studies, and outreach. Applications open annually in August.
+                    </div>
+                    <div class="objective-actions">
+                        <button class="action-btn" onclick="openFeedback('TSIP Program')">💬 Feedback</button>
+                        <a href="https://iowadot.gov/consultants-contractors/traffic-safety/programs/traffic-safety-improvement-program-tsip" target="_blank" class="action-btn" style="text-decoration: none; color: inherit;">📋 Program Info</a>
+                    </div>
+                </div>
+
+                <div class="objective">
+                    <div class="objective-title">Work Zone Safety Program</div>
+                    <span class="objective-status status-progress">In Progress</span>
+                    <span class="progress-percentage">Annual Training Cycle</span>
+                    <div class="objective-bureau">
+                        <span class="bureau-icon">🏢</span>
+                        <span>Traffic & Safety Bureau</span>
+                    </div>
+                    <div class="collaborators">
+                        <span class="collaborator-tag">Iowa LTAP (ISU)</span>
+                        <span class="collaborator-tag">Maintenance Division</span>
+                        <span class="collaborator-tag">All Districts</span>
+                        <span class="collaborator-tag">Local Agencies</span>
+                    </div>
+                    <div class="objective-meta">
+                        <span class="plan-reference">📄 Plan Section 5.4, Page 94</span>
+                    </div>
+                    <div class="objective-note">Annual statewide work zone safety workshops covering MUTCD Part 6. Training provided to reduce crashes at work sites and protect highway workers and travelers. Workshops held Feb-March annually at multiple Iowa locations.</div>
+                    <div class="objective-actions">
+                        <button class="action-btn" onclick="openFeedback('Work Zone Safety')">💬 Feedback</button>
+                        <a href="https://iowaltap.iastate.edu/iowa-work-zone-safety-workshops/" target="_blank" class="action-btn" style="text-decoration: none; color: inherit;">📅 Workshop Info</a>
+                    </div>
+                </div>
+
+                <div class="objective">
+                    <div class="objective-title">Railroad Crossing Safety Initiative (See Tracks? Think Train)</div>
+                    <span class="objective-status status-progress">In Progress</span>
+                    <span class="progress-percentage">Annual Campaign</span>
+                    <div class="objective-bureau">
+                        <span class="bureau-icon">🏢</span>
+                        <span>Modal Transportation Bureau (Rail Division)</span>
+                    </div>
+                    <div class="collaborators">
+                        <span class="collaborator-tag">Operation Lifesaver</span>
+                        <span class="collaborator-tag">Traffic & Safety Bureau</span>
+                        <span class="collaborator-tag">Communications Bureau</span>
+                        <span class="collaborator-tag">Agricultural Partners</span>
+                    </div>
+                    <div class="objective-meta">
+                        <span class="plan-reference">📄 Plan Section 2.3.4, Page 36</span>
+                        <a href="https://iowadot.gov/news/2025-09-09/iowa-dot-urging-agribusinesses-and-public-be-safe-railroad-crossings-during-see-tracks-think-trainr" target="_blank" class="news-link">📰 2025 Campaign</a>
+                    </div>
+                    <div class="objective-note">National rail safety awareness campaign (Sept 15-21 annually) focusing on agricultural operations during harvest. Education on Emergency Notification System (ENS) signs at crossings and safe crossing procedures.</div>
+                    <div class="objective-actions">
+                        <button class="action-btn" onclick="openFeedback('Rail Safety Initiative')">💬 Feedback</button>
+                        <a href="https://oli.org" target="_blank" class="action-btn" style="text-decoration: none; color: inherit;">🚂 Operation Lifesaver</a>
+                    </div>
+                </div>
+
+                <div class="objective">
+                    <div class="objective-title">Aviation Safety Program</div>
+                    <span class="objective-status status-progress">In Progress</span>
+                    <span class="progress-percentage">FY2026 - $9.6M Approved</span>
+                    <div class="objective-bureau">
+                        <span class="bureau-icon">🏢</span>
+                        <span>Modal Transportation Bureau (Aviation)</span>
+                    </div>
+                    <div class="collaborators">
+                        <span class="collaborator-tag">FAA</span>
+                        <span class="collaborator-tag">25 Iowa Airports</span>
+                        <span class="collaborator-tag">Finance Division</span>
+                    </div>
+                    <div class="objective-meta">
+                        <span class="plan-reference">📄 Plan Section 2.1, Pages 28-30</span>
+                        <a href="https://iowadot.gov/news/2025-08-12/iowa-transportation-commission-approves-fy2026-aviation-program" target="_blank" class="news-link">📰 FY2026 Funding Approved</a>
+                    </div>
+                    <div class="objective-note">
+                        <a href="https://iowadot.gov/news/2025-08-12/iowa-transportation-commission-approves-fy2026-aviation-program" target="_blank" class="clickable-stat" title="Click to verify source">$9.6M FY2026</a> program prioritizing airport safety initiatives including runway approaches, navigational aids, and facility maintenance. 
+                        <a href="https://iowadot.gov/news/2025-08-12/iowa-transportation-commission-approves-fy2026-aviation-program" target="_blank" class="clickable-stat" title="Click to verify source">$6.7M</a> Airport Improvement Program funding safety and development projects.
+                    </div>
+                    <div class="objective-actions">
+                        <button class="action-btn" onclick="openFeedback('Aviation Safety')">💬 Feedback</button>
+                        <a href="https://iowadot.gov/aviation" target="_blank" class="action-btn" style="text-decoration: none; color: inherit;">✈️ Aviation Programs</a>
+                    </div>
+                </div>
+
+                <div class="objective">
+                    <div class="objective-title">Slow Moving Vehicle Alert System (Safety Innovation)</div>
+                    <span class="objective-status status-progress">In Progress</span>
+                    <span class="progress-percentage">85% Complete</span>
+                    <div class="objective-bureau">
+                        <span class="bureau-icon">🏢</span>
+                        <span>New & Emerging Transportation Technologies Office</span>
+                    </div>
+                    <div class="collaborators">
+                        <span class="collaborator-tag">Traffic & Safety Bureau</span>
+                        <span class="collaborator-tag">Traffic Management Systems</span>
+                        <span class="collaborator-tag">CTRE Iowa State</span>
+                    </div>
+                    <div class="objective-meta">
+                        <span class="new-endeavor">✨ New Safety Innovation</span>
+                    </div>
+                    <div class="objective-note">Real-time safety alert system reducing crash risk on IA-5/US-65. Pilot successful - evaluating permanent implementation. Represents Iowa DOT's commitment to innovative safety solutions.</div>
+                    <div class="objective-actions">
+                        <button class="action-btn" onclick="openFeedback('SMV Safety System')">💬 Feedback</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Project Map Section -->
+        <div class="mode-section" style="border-left: 6px solid #1C5DBA;">
+            <div class="mode-header" onclick="toggleSection(this)">
+                <div class="mode-title">🗺️ Interactive Project Map</div>
+                <div style="font-size: 0.9rem; color: #53565A; font-weight: normal;">View all projects across Iowa</div>
+            </div>
+            <div class="objectives">
+                <div style="background: #f9fafb; padding: 1rem; border-radius: 6px; margin-bottom: 1rem;">
+                    <p style="font-size: 0.95rem; color: #53565A; margin-bottom: 1rem;">
+                        Explore Iowa DOT's major construction projects across all six districts. The interactive map shows current and planned projects including highways, bridges, interchanges, and safety improvements.
+                    </p>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.75rem; margin-bottom: 1rem;">
+                        <div style="background: white; padding: 0.75rem; border-radius: 4px; border-left: 3px solid #03617A; text-align: center;">
+                            <div style="font-size: 1.5rem; font-weight: bold; color: #03617A;">District 1</div>
+                            <div style="font-size: 0.8rem; color: #53565A;">Southeast Iowa</div>
+                        </div>
+                        <div style="background: white; padding: 0.75rem; border-radius: 4px; border-left: 3px solid #1C5DBA; text-align: center;">
+                            <div style="font-size: 1.5rem; font-weight: bold; color: #1C5DBA;">District 2</div>
+                            <div style="font-size: 0.8rem; color: #53565A;">Northeast Iowa</div>
+                        </div>
+                        <div style="background: white; padding: 0.75rem; border-radius: 4px; border-left: 3px solid #2A6357; text-align: center;">
+                            <div style="font-size: 1.5rem; font-weight: bold; color: #2A6357;">District 3</div>
+                            <div style="font-size: 0.8rem; color: #53565A;">Northwest Iowa</div>
+                        </div>
+                        <div style="background: white; padding: 0.75rem; border-radius: 4px; border-left: 3px solid #E0A624; text-align: center;">
+                            <div style="font-size: 1.5rem; font-weight: bold; color: #B86125;">District 4</div>
+                            <div style="font-size: 0.8rem; color: #53565A;">Southwest Iowa</div>
+                        </div>
+                        <div style="background: white; padding: 0.75rem; border-radius: 4px; border-left: 3px solid #8E9A36; text-align: center;">
+                            <div style="font-size: 1.5rem; font-weight: bold; color: #8E9A36;">District 5</div>
+                            <div style="font-size: 0.8rem; color: #53565A;">North Central</div>
+                        </div>
+                        <div style="background: white; padding: 0.75rem; border-radius: 4px; border-left: 3px solid #F68842; text-align: center;">
+                            <div style="font-size: 1.5rem; font-weight: bold; color: #F68842;">District 6</div>
+                            <div style="font-size: 0.8rem; color: #53565A;">Central Iowa</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="border: 2px solid #B1B3B3; border-radius: 8px; overflow: hidden; margin-bottom: 1rem;">
+                    <iframe 
+                        src="https://majorprojects.iowadot.gov/" 
+                        width="100%" 
+                        height="600" 
+                        style="border: none; display: block;"
+                        title="Iowa DOT Major Projects Interactive Map"
+                        loading="lazy">
+                    </iframe>
+                </div>
+
+                <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: center;">
+                    <a href="https://majorprojects.iowadot.gov/" target="_blank" class="action-btn" style="text-decoration: none; color: inherit; background: #03617A; color: white; border-color: #03617A;">
+                        🗺️ Open Full Map
+                    </a>
+                    <a href="https://511ia.org" target="_blank" class="action-btn" style="text-decoration: none; color: inherit; background: #1C5DBA; color: white; border-color: #1C5DBA;">
+                        🚗 Current Road Conditions
+                    </a>
+                    <a href="https://iowadot.gov/program_management/Five-Year-Program" target="_blank" class="action-btn" style="text-decoration: none; color: inherit;">
+                        📋 Five-Year Program
+                    </a>
+                    <button class="action-btn" onclick="openFeedback('Project Map')">💬 Feedback on Projects</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Highways Section -->
+        <div class="mode-section">
+            <div class="mode-header" onclick="toggleSection(this)">
+                <div class="mode-title">🛣️ Highway System</div>
+                <div class="mode-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 45%"></div>
+                    </div>
+                    <span class="progress-text">45%</span>
+                </div>
+            </div>
+            <div class="objectives">
+                <div class="objective">
+                    <div class="objective-title">Complete U.S. 30 Missouri Valley Bypass construction</div>
+                    <span class="objective-status status-progress">In Progress</span>
+                    <span class="progress-percentage">65% Complete</span>
+                    <div class="objective-bureau">
+                        <span class="bureau-icon">🏢</span>
+                        <span>Program Management Bureau</span>
+                    </div>
+                    <div class="collaborators">
+                        <span class="collaborator-tag">District 4</span>
+                        <span class="collaborator-tag">Right of Way Bureau</span>
+                        <span class="collaborator-tag">Location & Environment Bureau</span>
+                        <span class="collaborator-tag">Communications Bureau</span>
+                    </div>
+                    <div class="objective-meta">
+                        <span class="plan-reference">📄 Plan Section 4.2.1, Page 67</span>
+                        <a href="https://iowadot.gov/program_management/Five-Year-Program" target="_blank" class="five-year-link">🔗 View in 5-Year Plan</a>
+                        <a href="https://iowadot.gov/news/2025-06-10/fy-2026-2030-iowa-transportation-improvement-program-presented-iowa-transportation-commission" target="_blank" class="news-link">📰 Read News Story</a>
+                    </div>
+                    <div class="objective-note">Construction ongoing in Harrison County. Expected completion 2027. Part of FY 2026-2030 program.</div>
+                    <div class="objective-actions">
+                        <button class="action-btn" onclick="openFeedback('US 30 Missouri Valley Bypass')">💬 Feedback</button>
+                        <a href="https://majorprojects.iowadot.gov/" target="_blank" class="action-btn" style="text-decoration: none; color: inherit;">📊 Project Map</a>
+                    </div>
+                </div>
+                <div class="objective">
+                    <div class="objective-title">Implement rightsizing policy for state highway system</div>
+                    <span class="objective-status status-complete">Completed</span>
+                    <div class="objective-bureau">
+                        <span class="bureau-icon">🏢</span>
+                        <span>Systems Planning Bureau</span>
+                    </div>
+                    <div class="collaborators">
+                        <span class="collaborator-tag">Program Management Bureau</span>
+                        <span class="collaborator-tag">Transportation Development Division (TDD)</span>
+                        <span class="collaborator-tag">All 6 Districts</span>
+                    </div>
+                    <div class="objective-meta">
+                        <span class="plan-reference">📄 Plan Section 5.3, Pages 89-92</span>
+                    </div>
+                    <div class="objective-note">Policy adopted and integrated into 2024 plan modification. Strategic approach to system management.</div>
+                    <div class="objective-actions">
+                        <button class="action-btn" onclick="openFeedback('Rightsizing Policy')">💬 Feedback</button>
+                    </div>
+                </div>
+                <div class="objective">
+                    <div class="objective-title">U.S. 63 Oskaloosa Bypass construction</div>
+                    <span class="objective-status status-progress">In Progress</span>
+                    <span class="progress-percentage">80% Complete</span>
+                    <div class="objective-bureau">
+                        <span class="bureau-icon">🏢</span>
+                        <span>Program Management Bureau</span>
+                    </div>
+                    <div class="collaborators">
+                        <span class="collaborator-tag">District 1</span>
+                        <span class="collaborator-tag">Bridge Management Bureau</span>
+                        <span class="collaborator-tag">City of Oskaloosa</span>
+                        <span class="collaborator-tag">Mahaska County</span>
+                    </div>
+                    <div class="objective-meta">
+                        <span class="plan-reference">📄 Plan Section 4.2.3, Page 71</span>
+                        <a href="https://iowadot.gov/program_management/Five-Year-Program" target="_blank" class="five-year-link">🔗 View in 5-Year Plan</a>
+                        <a href="https://iowadot.gov/news/2025-06-10/fy-2026-2030-iowa-transportation-improvement-program-presented-iowa-transportation-commission" target="_blank" class="news-link">📰 Read News Story</a>
+                    </div>
+                    <div class="objective-note">Mahaska County project included in FY 2026-2030 program. Expected completion 2027.</div>
+                    <div class="objective-actions">
+                        <button class="action-btn" onclick="openFeedback('US 63 Oskaloosa Bypass')">💬 Feedback</button>
+                        <a href="https://majorprojects.iowadot.gov/" target="_blank" class="action-btn" style="text-decoration: none; color: inherit;">📊 Project Map</a>
+                    </div>
+                </div>
+                <div class="objective">
+                    <div class="objective-title">Add 45 truck parking spots at interstate rest areas</div>
+                    <span class="objective-status status-planned">Planned</span>
+                    <div class="objective-bureau">
+                        <span class="bureau-icon">🏢</span>
+                        <span>Maintenance Division</span>
+                    </div>
+                    <div class="collaborators">
+                        <span class="collaborator-tag">Program Management Bureau</span>
+                        <span class="collaborator-tag">Traffic & Safety Bureau</span>
+                        <span class="collaborator-tag">Systems Operations Division</span>
+                    </div>
+                    <div class="objective-meta">
+                        <span class="plan-reference">📄 Plan Section 4.5, Page 78</span>
+                        <a href="https://iowadot.gov/program_management/Five-Year-Program" target="_blank" class="five-year-link">🔗 View in 5-Year Plan</a>
+                        <a href="https://iowadot.gov/news/2025-06-10/fy-2026-2030-iowa-transportation-improvement-program-presented-iowa-transportation-commission" target="_blank" class="news-link">📰 Read News Story</a>
+                    </div>
+                    <div class="objective-note">Included in current five-year program. Critical for freight movement and driver safety.</div>
+                    <div class="objective-actions">
+                        <button class="action-btn" onclick="openFeedback('Truck Parking Expansion')">💬 Feedback</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bridges Section -->
+        <div class="mode-section">
+            <div class="mode-header" onclick="toggleSection(this)">
+                <div class="mode-title">🌉 Bridge Infrastructure</div>
+                <div class="mode-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 62%"></div>
+                    </div>
+                    <span class="progress-text">62%</span>
+                </div>
+            </div>
+            <div class="objectives">
+                <div class="objective">
+                    <div class="objective-title">Reduce poor condition bridges from 256 (2006) to under 30</div>
+                    <span class="objective-status status-complete">Completed</span>
+                    <div class="objective-bureau">
+                        <span class="bureau-icon">🏢</span>
+                        <span>Bridge Management Bureau</span>
+                    </div>
+                    <div class="collaborators">
+                        <span class="collaborator-tag">All 6 Districts</span>
+                        <span class="collaborator-tag">Program Management Bureau</span>
+                        <span class="collaborator-tag">Maintenance Division</span>
+                        <span class="collaborator-tag">Finance Division</span>
+                    </div>
+                    <div class="objective-meta">
+                        <span class="plan-reference">📄 Plan Section 3.3, Pages 54-56</span>
+                        <a href="https://iowadot.gov/news/2025-06-10/fy-2026-2030-iowa-transportation-improvement-program-presented-iowa-transportation-commission" target="_blank" class="news-link">📰 Read Success Story</a>
+                    </div>
+                    <div class="objective-note">
+                        Achieved in 2025 with only <a href="https://iowadot.gov/news/2025-06-10/fy-2026-2030-iowa-transportation-improvement-program-presented-iowa-transportation-commission" target="_blank" class="clickable-stat" title="Click to verify source">26 poor condition bridges</a> remaining. Major milestone after 19 years of focused investment (<a href="https://iowadot.gov/news/2025-06-10/fy-2026-2030-iowa-transportation-improvement-program-presented-iowa-transportation-commission" target="_blank" class="clickable-stat" title="Click to verify source">$3B+</a>).
+                    </div>
+                    <div class="objective-actions">
+                        <button class="action-btn" onclick="openFeedback('Bridge Condition Improvement')">💬 Feedback</button>
+                    </div>
+                </div>
+                <div class="objective">
+                    <div class="objective-title">Invest $1.6 billion in bridge improvements (FY 2026-2030)</div>
+                    <span class="objective-status status-progress">In Progress</span>
+                    <span class="progress-percentage">15% Complete</span>
+                    <div class="objective-bureau">
+                        <span class="bureau-icon">🏢</span>
+                        <span>Program Management Bureau & Bridge Management Bureau</span>
+                    </div>
+                    <div class="collaborators">
+                        <span class="collaborator-tag">All 6 Districts</span>
+                        <span class="collaborator-tag">Federal Highway Administration</span>
+                        <span class="collaborator-tag">Finance Division</span>
+                    </div>
+                    <div class="objective-meta">
+                        <span class="plan-reference">📄 Plan Section 3.3, Page 55</span>
+                        <a href="https://iowadot.gov/program_management/Five-Year-Program" target="_blank" class="five-year-link">🔗 View in 5-Year Plan</a>
+                        <a href="https://iowadot.gov/news/2025-06-10/fy-2026-2030-iowa-transportation-improvement-program-presented-iowa-transportation-commission" target="_blank" class="news-link">📰 Read News Story</a>
+                    </div>
+                    <div class="objective-note">
+                        Multi-year funding commitment approved by Transportation Commission. Includes major river crossings. 
+                        <a href="https://iowadot.gov/news/2025-06-10/fy-2026-2030-iowa-transportation-improvement-program-presented-iowa-transportation-commission" target="_blank" class="clickable-stat" title="Click to verify $1.6B figure">View detailed breakdown</a>.
+                    </div>
+                    <div class="objective-actions">
+                        <button class="action-btn" onclick="openFeedback('Bridge Investment Program')">💬 Feedback</button>
+                        <a href="https://iowadot.gov/modes-travel/roads-highways/major-construction-projects" target="_blank" class="action-btn" style="text-decoration: none; color: inherit;">📊 Major Projects</a>
+                    </div>
+                </div>
+                <div class="objective">
+                    <div class="objective-title">Iowa 12 Gordon Drive Bridge replacement in Sioux City</div>
+                    <span class="objective-status status-planned">Planned</span>
+                    <div class="objective-bureau">
+                        <span class="bureau-icon">🏢</span>
+                        <span>District 3 & Bridge Management Bureau</span>
+                    </div>
+                    <div class="collaborators">
+                        <span class="collaborator-tag">City of Sioux City</span>
+                        <span class="collaborator-tag">Woodbury County</span>
+                        <span class="collaborator-tag">Communications Bureau</span>
+                    </div>
+                    <div class="objective-meta">
+                        <span class="plan-reference">📄 Plan Section 4.2, Page 68</span>
+                        <a href="https://iowadot.gov/program_management/Five-Year-Program" target="_blank" class="five-year-link">🔗 View in 5-Year Plan</a>
+                        <a href="https://iowadot.gov/news/2025-06-10/fy-2026-2030-iowa-transportation-improvement-program-presented-iowa-transportation-commission" target="_blank" class="news-link">📰 Read News Story</a>
+                    </div>
+                    <div class="objective-note">Included in current transportation improvement program. Design phase underway.</div>
+                    <div class="objective-actions">
+                        <button class="action-btn" onclick="openFeedback('Gordon Drive Bridge')">💬 Feedback</button>
+                    </div>
+                </div>
+                <div class="objective">
+                    <div class="objective-title">Mississippi River Bridge at Lansing replacement</div>
+                    <span class="objective-status status-progress">In Progress</span>
+                    <span class="progress-percentage">55% Complete</span>
+                    <div class="objective-bureau">
+                        <span class="bureau-icon">🏢</span>
+                        <span>District 2 & Bridge Management Bureau</span>
+                    </div>
+                    <div class="collaborators">
+                        <span class="collaborator-tag">Wisconsin DOT</span>
+                        <span class="collaborator-tag">Communications Bureau</span>
+                        <span class="collaborator-tag">Systems Operations Division</span>
+                    </div>
+                    <div class="objective-meta">
+                        <span class="new-endeavor">✨ Added to 2024 Plan Update</span>
+                        <a href="https://iowadot.gov/modes-travel/roads-highways/major-construction-projects/mississippi-river-bridge-lansing" target="_blank" class="five-year-link">🔗 Project Website</a>
+                        <a href="https://iowadot.gov/news/2025-07-14/iowa-and-wisconsin-plan-existing-lansing-bridge-demolition-fall-2025" target="_blank" class="news-link">📰 Latest Update</a>
+                    </div>
+                    <div class="objective-note">Existing Black Hawk Bridge closed Oct 2025 for demolition. Free ferry service operating until new bridge opens Spring 2027.</div>
+                    <div class="objective-actions">
+                        <button class="action-btn" onclick="openFeedback('Lansing Bridge')">💬 Feedback</button>
+                        <a href="https://www.facebook.com/LansingBridge/" target="_blank" class="action-btn" style="text-decoration: none; color: inherit;">📱 Project Facebook</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Public Transit Section -->
+        <div class="mode-section">
+            <div class="mode-header" onclick="toggleSection(this)">
+                <div class="mode-title">🚌 Public Transit</div>
+                <div class="mode-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 28%"></div>
+                    </div>
+                    <span class="progress-text">28%</span>
+                </div>
+            </div>
+            <div class="objectives">
+                <div class="objective">
+                    <div class="objective-title">Complete Public Transit Plan development</div>
+                    <span class="objective-status status-complete">Completed</span>
+                    <div class="objective-bureau">
+                        <span class="bureau-icon">🏢</span>
+                        <span>Modal Transportation Bureau & Systems Planning Bureau</span>
+                    </div>
+                    <div class="collaborators">
+                        <span class="collaborator-tag">35 Transit Systems</span>
+                        <span class="collaborator-tag">Regional Planning Affiliations</span>
+                    </div>
+                    <div class="objective-meta">
+                        <span class="plan-reference">📄 Plan Section 2.4, Pages 38-42</span>
+                    </div>
+                    <div class="objective-note">Plan finalized and in implementation phase. Addresses rural population decline and urban growth challenges.</div>
+                    <div class="objective-actions">
+                        <button class="action-btn" onclick="openFeedback('Public Transit Plan')">💬 Feedback</button>
+                    </div>
+                </div>
+                <div class="objective">
+                    <div class="objective-title">Support all 35 public transit systems statewide</div>
+                    <span class="objective-status status-progress">In Progress</span>
+                    <span class="progress-percentage">Ongoing - FY26 Funding Cycle</span>
+                    <div class="objective-bureau">
+                        <span class="bureau-icon">🏢</span>
+                        <span>Modal Transportation Bureau</span>
+                    </div>
+                    <div class="collaborators">
+                        <span class="collaborator-tag">Federal Transit Administration</span>
+                        <span class="collaborator-tag">Local Transit Agencies</span>
+                        <span class="collaborator-tag">Finance Division</span>
+                    </div>
+                    <div class="objective-meta">
+                        <span class="plan-reference">📄 Plan Section 2.4, Page 40</span>
+                    </div>
+                    <div class="objective-note">
+                        Ongoing partnerships and resource allocation. <a href="https://iowadot.gov/transit" target="_blank" class="clickable-stat" title="Click to verify">~$65M annual</a> state and federal funding supporting urban and rural transit.
+                    </div>
+                    <div class="objective-actions">
+                        <button class="action-btn" onclick="openFeedback('Transit System Support')">💬 Feedback</button>
+                        <a href="https://iowadot.gov/transit" target="_blank" class="action-btn" style="text-decoration: none; color: inherit;">🚌 Transit Info</a>
+                    </div>
+                </div>
+                <div class="objective">
+                    <div class="objective-title">Improve accessibility for all riders</div>
+                    <span class="objective-status status-planned">Planned</span>
+                    <div class="objective-bureau">
+                        <span class="bureau-icon">🏢</span>
+                        <span>Modal Transportation Bureau & Civil Rights Bureau</span>
+                    </div>
+                    <div class="collaborators">
+                        <span class="collaborator-tag">Disability Rights Organizations</span>
+                        <span class="collaborator-tag">Senior Services</span>
+                    </div>
+                    <div class="objective-meta">
+                        <span class="plan-reference">📄 Public Transit Plan, Pages 22-25</span>
+                    </div>
+                    <div class="objective-note">Addressing needs identified in transit plan including ADA compliance and service availability.</div>
+                    <div class="objective-actions">
+                        <button class="action-btn" onclick="openFeedback('Transit Accessibility')">💬 Feedback</button>
+                    </div>
+                </div>
+                <div class="objective">
+                    <div class="objective-title">Connect workforce with employment opportunities</div>
+                    <span class="objective-status status-planned">Planned</span>
+                    <div class="objective-bureau">
+                        <span class="bureau-icon">🏢</span>
+                        <span>Modal Transportation Bureau</span>
+                    </div>
+                    <div class="collaborators">
+                        <span class="collaborator-tag">Iowa Workforce Development</span>
+                        <span class="collaborator-tag">Economic Development Authority</span>
+                        <span class="collaborator-tag">Chambers of Commerce</span>
+                    </div>
+                    <div class="objective-meta">
+                        <span class="plan-reference">📄 Public Transit Plan, Pages 18-20</span>
+                    </div>
+                    <div class="objective-note">Supporting economic development through reliable transit. Critical for workforce retention.</div>
+                    <div class="objective-actions">
+                        <button class="action-btn" onclick="openFeedback('Workforce Transportation')">💬 Feedback</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resilience Section -->
+        <div class="mode-section">
+            <div class="mode-header" onclick="toggleSection(this)">
+                <div class="mode-title">🛡️ System Resilience</div>
+                <div class="mode-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 35%"></div>
+                    </div>
+                    <span class="progress-text">35%</span>
+                </div>
+            </div>
+            <div class="objectives">
+                <div class="objective">
+                    <div class="objective-title">Develop Resilience Improvement Plan</div>
+                    <span class="objective-status status-complete">Completed</span>
+                    <div class="objective-bureau">
+                        <span class="bureau-icon">🏢</span>
+                        <span>Transportation Development Division & Systems Planning Bureau</span>
+                    </div>
+                    <div class="collaborators">
+                        <span class="collaborator-tag">Iowa Homeland Security</span>
+                        <span class="collaborator-tag">FHWA</span>
+                    </div>
+                    <div class="objective-meta">
+                        <span class="plan-reference">📄 2024 Plan Modification, Appendix B</span>
+                    </div>
+                    <div class="objective-note">Incorporated into 2024 plan modification. Addresses climate adaptation and extreme weather events.</div>
+                    <div class="objective-actions">
+                        <button class="action-btn" onclick="openFeedback('Resilience Plan')">💬 Feedback</button>
+                    </div>
+                </div>
+                <div class="objective">
+                    <div class="objective-title">Iowa 21 resiliency improvements near Belle Plaine</div>
+                    <span class="objective-status status-progress">In Progress</span>
+                    <span class="progress-percentage">30% Complete</span>
+                    <div class="objective-bureau">
+                        <span class="bureau-icon">🏢</span>
+                        <span>District 6 & Program Management Bureau</span>
+                    </div>
+                    <div class="collaborators">
+                        <span class="collaborator-tag">Benton County</span>
+                        <span class="collaborator-tag">Location & Environment Bureau</span>
+                        <span class="collaborator-tag">FHWA</span>
+                    </div>
+                    <div class="objective-meta">
+                        <span class="plan-reference">📄 Resilience Plan, Page 15</span>
+                        <a href="https://iowadot.gov/program_management/Five-Year-Program" target="_blank" class="five-year-link">🔗 View in 5-Year Plan</a>
+                    </div>
+                    <div class="objective-note">Project addressing system vulnerability to flooding and extreme weather. Design phase completed 2025.</div>
+                    <div class="objective-actions">
+                        <button class="action-btn" onclick="openFeedback('Iowa 21 Resiliency')">💬 Feedback</button>
+                        <a href="https://majorprojects.iowadot.gov/" target="_blank" class="action-btn" style="text-decoration: none; color: inherit;">📊 Project Status</a>
+                    </div>
+                </div>
+                <div class="objective">
+                    <div class="objective-title">I-29 resilience improvements in Pottawattamie County</div>
+                    <span class="objective-status status-progress">In Progress</span>
+                    <span class="progress-percentage">50% Complete</span>
+                    <div class="objective-bureau">
+                        <span class="bureau-icon">🏢</span>
+                        <span>District 4 & Program Management Bureau</span>
+                    </div>
+                    <div class="collaborators">
+                        <span class="collaborator-tag">Pottawattamie County</span>
+                        <span class="collaborator-tag">Missouri River Basin Commission</span>
+                        <span class="collaborator-tag">Systems Operations Division</span>
+                    </div>
+                    <div class="objective-meta">
+                        <span class="plan-reference">📄 Resilience Plan, Page 18</span>
+                        <a href="https://iowadot.gov/program_management/Five-Year-Program" target="_blank" class="five-year-link">🔗 View in 5-Year Plan</a>
+                    </div>
+                    <div class="objective-note">Critical corridor protection project following 2019 Missouri River flooding. Multiple phases addressing infrastructure vulnerabilities.</div>
+                    <div class="objective-actions">
+                        <button class="action-btn" onclick="openFeedback('I-29 Resiliency')">💬 Feedback</button>
+                        <a href="https://majorprojects.iowadot.gov/" target="_blank" class="action-btn" style="text-decoration: none; color: inherit;">📊 Project Status</a>
+                    </div>
+                </div>
+                <div class="objective">
+                    <div class="objective-title">U.S. 6 resilience improvements in Jasper County</div>
+                    <span class="objective-status status-planned">Planned</span>
+                    <div class="objective-bureau">
+                        <span class="bureau-icon">🏢</span>
+                        <span>District 1 & Program Management Bureau</span>
+                    </div>
+                    <div class="collaborators">
+                        <span class="collaborator-tag">Jasper County</span>
+                    </div>
+                    <div class="objective-meta">
+                        <span class="plan-reference">📄 Resilience Plan, Page 21</span>
+                    </div>
+                    <div class="objective-note">Included in transportation improvement program. Addresses flooding vulnerability.</div>
+                    <div class="objective-actions">
+                        <button class="action-btn" onclick="openFeedback('US 6 Resiliency')">💬 Feedback</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Innovation Section -->
+        <div class="mode-section">
+            <div class="mode-header" onclick="toggleSection(this)">
+                <div class="mode-title">🚀 Innovation & Technology</div>
+                <div class="mode-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 18%"></div>
+                    </div>
+                    <span class="progress-text">18%</span>
+                </div>
+            </div>
+            <div class="objectives">
+                <div class="objective">
+                    <div class="objective-title">Transportation 4.0: Innovative strategies plan</div>
+                    <span class="objective-status status-complete">Completed</span>
+                    <div class="objective-bureau">
+                        <span class="bureau-icon">🏢</span>
+                        <span>Transportation Development Division (TDD)</span>
+                    </div>
+                    <div class="collaborators">
+                        <span class="collaborator-tag">Systems Planning Bureau</span>
+                        <span class="collaborator-tag">All Divisions</span>
+                        <span class="collaborator-tag">Communications Bureau</span>
+                    </div>
+                    <div class="objective-meta">
+                        <span class="plan-reference">📄 2024 Plan Modification, Appendix C</span>
+                    </div>
+                    <div class="objective-note">Plan adopted and integrated into 2024 modification. Addresses autonomous vehicles, connected infrastructure, and mobility innovations.</div>
+                    <div class="objective-actions">
+                        <button class="action-btn" onclick="openFeedback('Transportation 4.0')">💬 Feedback</button>
+                        <a href="https://iowadot.gov/transportation-development" target="_blank" class="action-btn" style="text-decoration: none; color: inherit;">📄 TDD Website</a>
+                    </div>
+                </div>
+                <div class="objective">
+                    <div class="objective-title">IA-5/US-65 Slow Moving Vehicle Alert System pilot</div>
+                    <span class="objective-status status-progress">In Progress</span>
+                    <span class="progress-percentage">85% Complete</span>
+                    <div class="objective-bureau">
+                        <span class="bureau-icon">🏢</span>
+                        <span>New & Emerging Transportation Technologies Office (TDD)</span>
+                    </div>
+                    <div class="collaborators">
+                        <span class="collaborator-tag">Traffic Management Systems (Systems Operations)</span>
+                        <span class="collaborator-tag">CTRE Iowa State University</span>
+                        <span class="collaborator-tag">District 1</span>
+                        <span class="collaborator-tag">John Deere Partnership</span>
+                        <span class="collaborator-tag">Communications Bureau</span>
+                        <span class="collaborator-tag">Des Moines MPO</span>
+                    </div>
+                    <div class="objective-meta">
+                        <span class="new-endeavor">✨ New Endeavor - For 2027 Plan Update</span>
+                    </div>
+                    <div class="objective-note">Pilot testing completed Sept-Nov 2025. Field evaluation successful with ~1-2 minute message latency. Three implementation alternatives being evaluated. Recommendation to Executive Leadership due February 2026.</div>
+                    <div class="objective-actions">
+                        <button class="action-btn" onclick="openFeedback('SMV Alert System')">💬 Feedback</button>
+                        <a href="https://iowadot.gov/transportation-development" target="_blank" class="action-btn" style="text-decoration: none; color: inherit;">📊 Project Info</a>
+                    </div>
+                </div>
+                <div class="objective">
+                    <div class="objective-title">Deploy connected vehicle technology on state highways</div>
+                    <span class="objective-status status-planned">Planned</span>
+                    <div class="objective-bureau">
+                        <span class="bureau-icon">🏢</span>
+                        <span>Traffic Management Systems & New Technologies Office</span>
+                    </div>
+                    <div class="collaborators">
+                        <span class="collaborator-tag">Systems Planning Bureau</span>
+                        <span class="collaborator-tag">IT Services Division</span>
+                        <span class="collaborator-tag">Systems Operations Division</span>
+                    </div>
+                    <div class="objective-meta">
+                        <span class="plan-reference">📄 Plan Section 6.4, Pages 112-115</span>
+                    </div>
+                    <div class="objective-note">Long-term implementation strategy in development. Building on SMV pilot lessons learned.</div>
+                    <div class="objective-actions">
+                        <button class="action-btn" onclick="openFeedback('Connected Vehicle Technology')">💬 Feedback</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Environmental Section -->
+        <div class="mode-section">
+            <div class="mode-header" onclick="toggleSection(this)">
+                <div class="mode-title">🌱 Environmental & Sustainability</div>
+                <div class="mode-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 22%"></div>
+                    </div>
+                    <span class="progress-text">22%</span>
+                </div>
+            </div>
+            <div class="objectives">
+                <div class="objective">
+                    <div class="objective-title">Develop Carbon Reduction Strategy</div>
+                    <span class="objective-status status-complete">Completed</span>
+                    <div class="objective-bureau">
+                        <span class="bureau-icon">🏢</span>
+                        <span>Systems Planning Bureau & Transportation Development Division</span>
+                    </div>
+                    <div class="collaborators">
+                        <span class="collaborator-tag">Iowa DNR</span>
+                        <span class="collaborator-tag">FHWA</span>
+                        <span class="collaborator-tag">MPOs</span>
+                    </div>
+                    <div class="objective-meta">
+                        <span class="plan-reference">📄 2024 Plan Modification, Appendix A</span>
+                    </div>
+                    <div class="objective-note">Strategy completed and incorporated into 2024 plan modification. Aligns with federal requirements.</div>
+                    <div class="objective-actions">
+                        <button class="action-btn" onclick="openFeedback('Carbon Reduction Strategy')">💬 Feedback</button>
+                    </div>
+                </div>
+                <div class="objective">
+                    <div class="objective-title">Implement sustainable transportation practices</div>
+                    <span class="objective-status status-progress">In Progress</span>
+                    <span class="progress-percentage">25% Complete</span>
+                    <div class="objective-bureau">
+                        <span class="bureau-icon">🏢</span>
+                        <span>All Divisions & Bureaus</span>
+                    </div>
+                    <div class="collaborators">
+                        <span class="collaborator-tag">Materials Bureau</span>
+                        <span class="collaborator-tag">Modal Transportation Bureau</span>
+                        <span class="collaborator-tag">Motor Vehicle Division</span>
+                    </div>
+                    <div class="objective-meta">
+                        <span class="plan-reference">📄 Plan Section 7.1, Pages 125-128</span>
+                    </div>
+                    <div class="objective-note">Ongoing integration across all transportation modes including alternative fuels, electric vehicle infrastructure, and sustainable materials. Motor Vehicle Division supporting EV registration and infrastructure planning.</div>
+                    <div class="objective-actions">
+                        <button class="action-btn" onclick="openFeedback('Sustainable Practices')">💬 Feedback</button>
+                        <a href="https://iowadot.gov/mvd" target="_blank" class="action-btn" style="text-decoration: none; color: inherit;">🚗 MVD Info</a>
+                    </div>
+                </div>
+                <div class="objective">
+                    <div class="objective-title">Protect air quality, water, and wildlife</div>
+                    <span class="objective-status status-planned">Planned</span>
+                    <div class="objective-bureau">
+                        <span class="bureau-icon">🏢</span>
+                        <span>Location & Environment Bureau</span>
+                    </div>
+                    <div class="collaborators">
+                        <span class="collaborator-tag">Iowa DNR</span>
+                        <span class="collaborator-tag">Living Roadway Trust Fund</span>
+                        <span class="collaborator-tag">Conservation Groups</span>
+                    </div>
+                    <div class="objective-meta">
+                        <span class="plan-reference">📄 Plan Section 7.2, Pages 129-131</span>
+                    </div>
+                    <div class="objective-note">Environmental considerations in all project planning including NEPA compliance.</div>
+                    <div class="objective-actions">
+                        <button class="action-btn" onclick="openFeedback('Environmental Protection')">💬 Feedback</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rail Section -->
+        <div class="mode-section">
+            <div class="mode-header" onclick="toggleSection(this)">
+                <div class="mode-title">🚂 Rail Transportation</div>
+                <div class="mode-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 30%"></div>
+                    </div>
+                    <span class="progress-text">30%</span>
+                </div>
+            </div>
+            <div class="objectives">
+                <div class="objective">
+                    <div class="objective-title">Complete State Rail Plan update</div>
+                    <span class="objective-status status-progress">In Progress</span>
+                    <span class="progress-percentage">90% Complete</span>
+                    <div class="objective-bureau">
+                        <span class="bureau-icon">🏢</span>
+                        <span>Modal Transportation Bureau & Systems Planning Bureau</span>
+                    </div>
+                    <div class="collaborators">
+                        <span class="collaborator-tag">Class I Railroads (UP, BNSF, CN, CP)</span>
+                        <span class="collaborator-tag">Short Line Railroads</span>
+                        <span class="collaborator-tag">Freight Shippers</span>
+                        <span class="collaborator-tag">Communications Bureau</span>
+                    </div>
+                    <div class="objective-meta">
+                        <span class="plan-reference">📄 Plan Section 2.3, Pages 33-37</span>
+                    </div>
+                    <div class="objective-note">Draft plan public comment period ended August 2025. Final plan expected late 2025. Federal compliance requirements met.</div>
+                    <div class="objective-actions">
+                        <button class="action-btn" onclick="openFeedback('State Rail Plan')">💬 Feedback</button>
+                        <a href="https://iowadot.gov/transportation-development/systems-planning/areas-planning/transportation-plans/rail-plan" target="_blank" class="action-btn" style="text-decoration: none; color: inherit;">📄 Review Draft Plan</a>
+                    </div>
+                </div>
+                <div class="objective">
+                    <div class="objective-title">Support robust rail transportation system</div>
+                    <span class="objective-status status-progress">In Progress</span>
+                    <span class="progress-percentage">Ongoing Operations</span>
+                    <div class="objective-bureau">
+                        <span class="bureau-icon">🏢</span>
+                        <span>Modal Transportation Bureau</span>
+                    </div>
+                    <div class="collaborators">
+                        <span class="collaborator-tag">Iowa Rail Association</span>
+                        <span class="collaborator-tag">Agricultural Shippers</span>
+                        <span class="collaborator-tag">Finance Division</span>
+                    </div>
+                    <div class="objective-meta">
+                        <span class="plan-reference">📄 Plan Section 2.3, Page 34</span>
+                    </div>
+                    <div class="objective-note">
+                        Critical component of state's economy - <a href="https://iowadot.gov/transportation-development/systems-planning/areas-planning/transportation-plans/rail-plan" target="_blank" class="clickable-stat" title="Click to verify">3,800+ miles of track</a> serving agriculture, manufacturing. 
+                        <a href="https://iowadot.gov/transit/rail-program" target="_blank" class="clickable-stat" title="Click to verify">$10M+ annual</a> rail assistance program funding.
+                    </div>
+                    <div class="objective-actions">
+                        <button class="action-btn" onclick="openFeedback('Rail System Support')">💬 Feedback</button>
+                        <a href="https://iowadot.gov/transit/rail-program" target="_blank" class="action-btn" style="text-decoration: none; color: inherit;">🚂 Rail Programs</a>
+                    </div>
+                </div>
+                <div class="objective">
+                    <div class="objective-title">Examine rail infrastructure development</div>
+                    <span class="objective-status status-planned">Planned</span>
+                    <div class="objective-bureau">
+                        <span class="bureau-icon">🏢</span>
+                        <span>Modal Transportation Bureau & Program Management Bureau</span>
+                    </div>
+                    <div class="collaborators">
+                        <span class="collaborator-tag">Federal Railroad Administration</span>
+                        <span class="collaborator-tag">Private Rail Operators</span>
+                    </div>
+                    <div class="objective-meta">
+                        <span class="plan-reference">📄 Rail Plan (Draft), Pages 45-52</span>
+                    </div>
+                    <div class="objective-note">Pathways for future rail system identified in plan including grade crossing improvements.</div>
+                    <div class="objective-actions">
+                        <button class="action-btn" onclick="openFeedback('Rail Infrastructure')">💬 Feedback</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Maintenance Division Detailed Section -->
+        <div class="mode-section">
+            <div class="mode-header" onclick="toggleSection(this)">
+                <div class="mode-title">🔧 Maintenance Operations & Asset Management</div>
+                <div class="mode-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 52%"></div>
+                    </div>
+                    <span class="progress-text">52%</span>
+                </div>
+            </div>
+            <div class="objectives">
+                <div style="background: #BBE2DA; padding: 1rem; border-radius: 6px; margin-bottom: 1rem; border-left: 4px solid #03617A;">
+                    <h3 style="margin-bottom: 0.5rem; color: #19405B; font-family: 'PT Sans', 'Roboto Slab', Georgia, serif;">About the Maintenance Division</h3>
+                    <p style="font-size: 0.9rem; color: #53565A; line-height: 1.6; font-family: 'Work Sans', Calibri, sans-serif;">
+                        The Maintenance Division is responsible for preserving and maintaining Iowa's <a href="https://iowadot.gov/maintenance" target="_blank" class="clickable-stat" style="color: #19405B;" title="Click to verify">9,300 miles</a> of primary road system, 
+                        <a href="https://iowadot.gov/maintenance" target="_blank" class="clickable-stat" style="color: #19405B;" title="Click to verify">4,100 bridges</a>, rest areas, welcome centers, and other transportation infrastructure. Operating through <a href="https://iowadot.gov/maintenance" target="_blank" class="clickable-stat" style="color: #19405B;" title="Click to verify">6 districts 
+                        and 100+ maintenance garages</a> statewide, the division ensures safe, reliable travel for all Iowans year-round.
+                    </p>
+                    <div style="margin-top: 0.75rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+                        <a href="https://iowadot.gov/maintenance" target="_blank" style="text-decoration: none; color: inherit; flex: 1; min-width: 200px;">
+                            <div style="background: white; padding: 0.75rem; border-radius: 4px; border-top: 2px solid #E0A624; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 4px 8px rgba(3,97,122,0.2)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                                <div style="font-size: 1.5rem; font-weight: bold; color: #03617A;">9,300+</div>
+                                <div style="font-size: 0.85rem; color: #53565A;">Miles of Primary Roads</div>
+                                <div style="font-size: 0.7rem; color: #B1B3B3; margin-top: 0.3rem;">📊 Click for source</div>
+                            </div>
+                        </a>
+                        <a href="https://iowadot.gov/maintenance" target="_blank" style="text-decoration: none; color: inherit; flex: 1; min-width: 200px;">
+                            <div style="background: white; padding: 0.75rem; border-radius: 4px; border-top: 2px solid #E0A624; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 4px 8px rgba(3,97,122,0.2)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                                <div style="font-size: 1.5rem; font-weight: bold; color: #03617A;">4,100+</div>
+                                <div style="font-size: 0.85rem; color: #53565A;">Bridges Maintained</div>
+                                <div style="font-size: 0.7rem; color: #B1B3B3; margin-top: 0.3rem;">📊 Click for source</div>
+                            </div>
+                        </a>
+                        <a href="https://iowadot.gov/maintenance" target="_blank" style="text-decoration: none; color: inherit; flex: 1; min-width: 200px;">
+                            <div style="background: white; padding: 0.75rem; border-radius: 4px; border-top: 2px solid #E0A624; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 4px 8px rgba(3,97,122,0.2)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                                <div style="font-size: 1.5rem; font-weight: bold; color: #03617A;">100+</div>
+                                <div style="font-size: 0.85rem; color: #53565A;">Maintenance Facilities</div>
+                                <div style="font-size: 0.7rem; color: #B1B3B3; margin-top: 0.3rem;">📊 Click for source</div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="objective">
+                    <div class="objective-title">Winter operations and snow/ice removal</div>
+                    <span class="objective-status status-progress">Ongoing</span>
+                    <span class="progress-percentage">Year-Round Operations</span>
+                    <div class="objective-bureau">
+                        <span class="bureau-icon">🏢</span>
+                        <span>Maintenance Division - All Districts</span>
+                    </div>
+                    <div class="collaborators">
+                        <span class="collaborator-tag">Traffic & Safety Bureau</span>
+                        <span class="collaborator-tag">511 Travel Info System (Systems Operations)</span>
+                        <span class="collaborator-tag">Communications Bureau</span>
+                    </div>
+                    <div class="objective-meta">
+                        <span class="plan-reference">📄 Plan Section 5.1, Pages 83-86</span>
+                    </div>
+                    <div class="objective-note">
+                        Year-round preparation and winter response maintaining <a href="https://iowadot.gov/maintenance" target="_blank" class="clickable-stat" title="Click to verify">9,300 miles</a> of roadway. 
+                        <a href="https://iowadot.gov/maintenance" target="_blank" class="clickable-stat" title="Click to verify">~$80M annual</a> winter operations budget. 24/7 operations during winter weather events.
+                    </div>
+                    <div class="objective-actions">
+                        <button class="action-btn" onclick="openFeedback('Winter Operations')">💬 Feedback</button>
+                        <a href="https://511ia.org" target="_blank" class="action-btn" style="text-decoration: none; color: inherit;">🌨️ View 511 Conditions</a>
+                    </div>
+                </div>
+
+                <div class="objective">
+                    <div class="objective-title">Pavement preservation and resurfacing program</div>
+                    <span class="objective-status status-progress">In Progress</span>
+                    <span class="progress-percentage">Annual Cycle - 20% Complete FY26</span>
+                    <div class="objective-bureau">
+                        <span class="bureau-icon">🏢</span>
+                        <span>Maintenance Division & Program Management Bureau</span>
+                    </div>
+                    <div class="collaborators">
+                        <span class="collaborator-tag">Materials Bureau</span>
+                        <span class="collaborator-tag">District Engineers</span>
+                        <span class="collaborator-tag">Finance Division</span>
+                    </div>
+                    <div class="objective-meta">
+                        <span class="plan-reference">📄 Plan Section 4.3, Pages 72-75</span>
+                        <a href="https://iowadot.gov/program_management/Five-Year-Program" target="_blank" class="five-year-link">🔗 View in 5-Year Plan</a>
+                    </div>
+                    <div class="objective-note">
+                        Systematic pavement preservation extends infrastructure life. FY 2026-2030: <a href="https://iowadot.gov/program_management/Five-Year-Program" target="_blank" class="clickable-stat" title="Click to verify">1,200+ lane miles</a> planned for resurfacing.
+                    </div>
+                    <div class="objective-actions">
+                        <button class="action-btn" onclick="openFeedback('Pavement Preservation')">💬 Feedback</button>
+                        <a href="https://majorprojects.iowadot.gov/" target="_blank" class="action-btn" style="text-decoration: none; color: inherit;">📊 Active Projects</a>
+                    </div>
+                </div>
+
+                <div class="objective">
+                    <div class="objective-title">Rest area and welcome center improvements</div>
+                    <span class="objective-status status-progress">In Progress</span>
+                    <span class="progress-percentage">35% Complete</span>
+                    <div class="objective-bureau">
+                        <span class="bureau-icon">🏢</span>
+                        <span>Maintenance Division</span>
+                    </div>
+                    <div class="collaborators">
+                        <span class="collaborator-tag">Program Management Bureau</span>
+                        <span class="collaborator-tag">Facilities Support Services</span>
+                        <span class="collaborator-tag">Systems Operations Division</span>
+                    </div>
+                    <div class="objective-meta">
+                        <span class="plan-reference">📄 Plan Section 4.5, Page 78</span>
+                    </div>
+                    <div class="objective-note">
+                        <a href="https://iowadot.gov/maintenance" target="_blank" class="clickable-stat" title="Click to verify">38 interstate rest areas</a> and <a href="https://iowadot.gov/maintenance" target="_blank" class="clickable-stat" title="Click to verify">8 welcome centers</a> serving travelers. Ongoing facility improvements and truck parking expansion. First rest area replacement completed 2025.
+                    </div>
+                    <div class="objective-actions">
+                        <button class="action-btn" onclick="openFeedback('Rest Area Improvements')">💬 Feedback</button>
+                    </div>
+                </div>
+
+                <div class="objective">
+                    <div class="objective-title">Roadside vegetation and mowing operations</div>
+                    <span class="objective-status status-progress">Ongoing</span>
+                    <span class="progress-percentage">Seasonal Operations</span>
+                    <div class="objective-bureau">
+                        <span class="bureau-icon">🏢</span>
+                        <span>Maintenance Division - All Districts</span>
+                    </div>
+                    <div class="collaborators">
+                        <span class="collaborator-tag">Location & Environment Bureau</span>
+                        <span class="collaborator-tag">Living Roadway Trust Fund</span>
+                        <span class="collaborator-tag">Iowa DNR</span>
+                    </div>
+                    <div class="objective-meta">
+                        <span class="plan-reference">📄 Plan Section 5.2, Page 87</span>
+                    </div>
+                    <div class="objective-note">Maintaining sight distances and safety while supporting native vegetation and pollinator habitat. Balance between safety and environmental stewardship.</div>
+                    <div class="objective-actions">
+                        <button class="action-btn" onclick="openFeedback('Vegetation Management')">💬 Feedback</button>
+                    </div>
+                </div>
+
+                <div class="objective">
+                    <div class="objective-title">Traffic control device maintenance and upgrades</div>
+                    <span class="objective-status status-progress">In Progress</span>
+                    <span class="progress-percentage">40% Annual Cycle</span>
+                    <div class="objective-bureau">
+                        <span class="bureau-icon">🏢</span>
+                        <span>Maintenance Division</span>
+                    </div>
+                    <div class="collaborators">
+                        <span class="collaborator-tag">Traffic & Safety Bureau</span>
+                        <span class="collaborator-tag">Traffic Management Systems (Systems Operations)</span>
+                    </div>
+                    <div class="objective-meta">
+                        <span class="plan-reference">📄 Plan Section 4.4, Pages 76-77</span>
+                    </div>
+                    <div class="objective-note">
+                        Maintaining <a href="https://iowadot.gov/maintenance" target="_blank" class="clickable-stat" title="Click to verify">180,000+ traffic signs</a>, 
+                        <a href="https://iowadot.gov/maintenance" target="_blank" class="clickable-stat" title="Click to verify">3,500+ miles of pavement markings</a>, and highway lighting systems. Upgrading to LED technology and retroreflective materials.
+                    </div>
+                    <div class="objective-actions">
+                        <button class="action-btn" onclick="openFeedback('Traffic Device Maintenance')">💬 Feedback</button>
+                    </div>
+                </div>
+
+                <div class="objective">
+                    <div class="objective-title">Asset management system implementation</div>
+                    <span class="objective-status status-progress">In Progress</span>
+                    <span class="progress-percentage">45% Complete</span>
+                    <div class="objective-bureau">
+                        <span class="bureau-icon">🏢</span>
+                        <span>Maintenance Division & Systems Planning Bureau</span>
+                    </div>
+                    <div class="collaborators">
+                        <span class="collaborator-tag">IT Services Division</span>
+                        <span class="collaborator-tag">Program Management Bureau</span>
+                        <span class="collaborator-tag">Finance Division</span>
+                    </div>
+                    <div class="objective-meta">
+                        <span class="new-endeavor">✨ New Endeavor - For 2027 Plan Update</span>
+                    </div>
+                    <div class="objective-note">Data-driven decision making for maintenance activities. Implementation of predictive maintenance technologies and mobile data collection systems.</div>
+                    <div class="objective-actions">
+                        <button class="action-btn" onclick="openFeedback('Asset Management System')">💬 Feedback</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feedback Modal -->
+    <div id="feedbackModal" class="feedback-modal">
+        <div class="feedback-content">
+            <div class="feedback-header">Submit Feedback</div>
+            <form class="feedback-form" onsubmit="submitFeedback(event)">
+                <label>Feedback Type</label>
+                <select id="feedbackType" required>
+                    <option value="">Select type...</option>
+                    <option value="public">Public Comment</option>
+                    <option value="internal">Internal (Iowa DOT Staff)</option>
+                    <option value="partner">Partner Agency</option>
+                    <option value="stakeholder">Stakeholder Organization</option>
+                </select>
+
+                <label>Project/Objective</label>
+                <input type="text" id="feedbackProject" readonly required>
+
+                <label>Your Name</label>
+                <input type="text" id="feedbackName" required>
+
+                <label>Email</label>
+                <input type="email" id="feedbackEmail" required>
+
+                <label>Organization (Optional)</label>
+                <input type="text" id="feedbackOrg">
+
+                <label>Comment Category</label>
+                <select id="feedbackCategory" required>
+                    <option value="">Select category...</option>
+                    <option value="support">General Support</option>
+                    <option value="concern">Concern/Question</option>
+                    <option value="suggestion">Suggestion for Improvement</option>
+                    <option value="timeline">Timeline/Schedule Inquiry</option>
+                    <option value="collaboration">Collaboration Opportunity</option>
+                    <option value="impact">Community Impact</option>
+                    <option value="other">Other</option>
+                </select>
+
+                <label>Your Feedback</label>
+                <textarea id="feedbackComment" required placeholder="Please provide your feedback or comment..."></textarea>
+
+                <div class="feedback-actions">
+                    <button type="button" class="btn-secondary" onclick="closeFeedback()">Cancel</button>
+                    <button type="submit" class="btn-primary">Submit Feedback</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p><strong>Iowa Department of Transportation</strong></p>
+        <div class="brand-tagline">MAKING LIVES BETTER THROUGH TRANSPORTATION</div>
+        <p style="margin-top: 1rem;">Last Updated: October 2025</p>
+        <p>This tracker monitors implementation of the 2022 Iowa State Transportation Plan (modified 2024) through 2050</p>
+        <p style="margin-top: 0.75rem; font-size: 0.9rem;">
+            <strong>Key Iowa DOT Divisions & Bureaus:</strong> Transportation Development Division (TDD) • Systems Operations Division • Maintenance Division • 
+            Finance Division • Motor Vehicle Division • IT Services Division • Communications Bureau • 
+            Program Management Bureau • Systems Planning Bureau • Bridge Management Bureau • Modal Transportation Bureau • 
+            Traffic & Safety Bureau • Location & Environment Bureau • Materials Bureau • Right of Way Bureau • Civil Rights Bureau
+        </p>
+        <p style="margin-top: 0.75rem;">
+            <a href="https://iowadot.gov/program_management/Five-Year-Program" target="_blank">📋 FY 2026-2030 Five-Year Program</a>
+            <span style="margin: 0 0.5rem; color: #B1B3B3;">|</span>
+            <a href="https://iowadot.gov/transportation-development/systems-planning/areas-planning/transportation-plans/state-transportation-plan" target="_blank">📖 Complete 2022 State Plan</a>
+            <span style="margin: 0 0.5rem; color: #B1B3B3;">|</span>
+            <a href="https://iowadot.gov/news" target="_blank">📰 Iowa DOT News</a>
+            <span style="margin: 0 0.5rem; color: #B1B3B3;">|</span>
+            <a href="https://majorprojects.iowadot.gov/" target="_blank">🗺️ Major Projects Map</a>
+            <span style="margin: 0 0.5rem; color: #B1B3B3;">|</span>
+            <a href="https://511ia.org" target="_blank">🚗 511 Travel Info</a>
+        </p>
+        <p style="margin-top: 0.75rem; font-size: 0.85rem;">
+            🏢 Responsible bureaus and offices listed for each objective | 💬 Public and internal feedback welcomed | 
+            ✨ New endeavors tracked for 2027 plan update | 📄 Direct references to plan sections provided | 
+            <span style="text-decoration: underline; text-decoration-style: dotted; color: #03617A;">📊 Underlined numbers are clickable</span> to verify sources
+        </p>
+        <p style="margin-top: 1rem; font-size: 0.8rem; color: #B1B3B3;">
+            Design follows <a href="https://iowadot.gov/policies-statements/logos-brand-guidelines" target="_blank" style="color: #B1B3B3;">Iowa DOT Brand Guidelines</a> | 
+            Questions: <a href="mailto:DOT-ODB@iowadot.us" style="color: #03617A;">DOT-ODB@iowadot.us</a>
+        </p>
+    </div>
+
+    <script>
+        function toggleSection(header) {
+            const objectives = header.nextElementSibling;
+            if (objectives.style.display === 'none') {
+                objectives.style.display = 'block';
+            } else {
+                objectives.style.display = 'none';
+            }
+        }
+
+        // Filter buttons functionality
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const filterText = this.textContent.trim();
+                
+                // Handle special filter buttons
+                if (filterText.includes('View Map')) {
+                    // Scroll to map section
+                    const mapSection = document.querySelector('.mode-section[style*="border-left: 6px solid #1C5DBA"]');
+                    if (mapSection) {
+                        mapSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        // Open the section if closed
+                        const objectives = mapSection.querySelector('.objectives');
+                        if (objectives.style.display === 'none') {
+                            objectives.style.display = 'block';
+                        }
+                    }
+                    return;
+                }
+                
+                if (filterText.includes('Safety First')) {
+                    // Scroll to safety section
+                    const safetySection = document.querySelector('.mode-section[style*="border-left: 6px solid #E23E2D"]');
+                    if (safetySection) {
+                        safetySection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        // Open the section if closed
+                        const objectives = safetySection.querySelector('.objectives');
+                        if (objectives.style.display === 'none') {
+                            objectives.style.display = 'block';
+                        }
+                    }
+                    return;
+                }
+                
+                // Normal filter behavior
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                // In a real implementation, this would filter the sections
+            });
+        });
+
+        // Feedback modal functions
+        function openFeedback(projectName) {
+            document.getElementById('feedbackProject').value = projectName;
+            document.getElementById('feedbackModal').classList.add('active');
+        }
+
+        function closeFeedback() {
+            document.getElementById('feedbackModal').classList.remove('active');
+            document.querySelector('.feedback-form').reset();
+        }
+
+        function submitFeedback(event) {
+            event.preventDefault();
+            
+            const feedbackData = {
+                type: document.getElementById('feedbackType').value,
+                project: document.getElementById('feedbackProject').value,
+                name: document.getElementById('feedbackName').value,
+                email: document.getElementById('feedbackEmail').value,
+                organization: document.getElementById('feedbackOrg').value,
+                category: document.getElementById('feedbackCategory').value,
+                comment: document.getElementById('feedbackComment').value,
+                timestamp: new Date().toISOString()
+            };
+
+            // In production, this would send to a backend API
+            console.log('Feedback submitted:', feedbackData);
+            
+            alert('Thank you for your feedback! Your comment has been submitted to the Iowa DOT planning team for review. You will receive a confirmation email at ' + feedbackData.email);
+            
+            closeFeedback();
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('feedbackModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeFeedback();
+            }
+        });
+    </script>
+</body>
+</html>
