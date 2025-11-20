@@ -417,6 +417,126 @@ function setupApiRoutes(app) {
             res.status(500).json({ success: false, error: 'Failed to process user session' });
         }
     });
+
+    // ============================================
+    // AI CHAT ASSISTANT
+    // ============================================
+
+    app.post('/api/chat', async (req, res) => {
+        const { message } = req.body;
+
+        if (!message) {
+            return res.status(400).json({ success: false, error: 'Message is required' });
+        }
+
+        try {
+            // Search for relevant projects based on the message
+            const searchTerms = message.toLowerCase();
+            const projects = await dbAll(`
+                SELECT * FROM projects
+                WHERE LOWER(name) LIKE ?
+                   OR LOWER(description) LIKE ?
+                   OR LOWER(category) LIKE ?
+                   OR LOWER(status) LIKE ?
+                LIMIT 5
+            `, [`%${searchTerms}%`, `%${searchTerms}%`, `%${searchTerms}%`, `%${searchTerms}%`]);
+
+            // Get overall statistics
+            const stats = await dbGet(`
+                SELECT
+                    COUNT(*) as total,
+                    AVG(completion_percentage) as avg_completion,
+                    COUNT(CASE WHEN LOWER(status) LIKE '%completed%' THEN 1 END) as completed,
+                    COUNT(CASE WHEN LOWER(status) LIKE '%progress%' OR LOWER(status) LIKE '%ongoing%' THEN 1 END) as in_progress
+                FROM projects
+            `);
+
+            // Generate intelligent response
+            const response = generateIntelligentResponse(message, projects, stats);
+
+            res.json({
+                success: true,
+                data: {
+                    message: response,
+                    projects: projects.slice(0, 3), // Return top 3 relevant projects
+                    timestamp: new Date().toISOString()
+                }
+            });
+        } catch (err) {
+            console.error('Error processing chat:', err);
+            res.status(500).json({ success: false, error: 'Failed to process chat message' });
+        }
+    });
+}
+
+// ============================================
+// AI RESPONSE GENERATOR
+// ============================================
+
+function generateIntelligentResponse(message, projects, stats) {
+    const msg = message.toLowerCase();
+
+    // Greeting responses
+    if (msg.match(/^(hi|hello|hey|greetings)/)) {
+        return `Hello! I'm the Iowa DOT AI Assistant. I can help you with information about our ${stats.total} transportation projects. What would you like to know?`;
+    }
+
+    // Statistics queries
+    if (msg.includes('how many') || msg.includes('total') || msg.includes('count')) {
+        if (msg.includes('project')) {
+            return `Iowa DOT is currently tracking **${stats.total} projects** across various categories. Of these, **${stats.completed} are completed** and **${stats.in_progress} are in progress or ongoing**. The average completion across all projects is **${Math.round(stats.avg_completion)}%**.`;
+        }
+        if (msg.includes('completed')) {
+            return `We have **${stats.completed} completed projects** out of ${stats.total} total projects. That's approximately **${Math.round((stats.completed / stats.total) * 100)}%** of our project portfolio.`;
+        }
+    }
+
+    // Progress/status queries
+    if (msg.includes('progress') || msg.includes('status')) {
+        if (projects.length > 0) {
+            const project = projects[0];
+            return `**${project.name}** (${project.category}) is currently at **${project.completion_percentage}% completion** with status: "${project.status}". ${project.description}`;
+        } else {
+            return `Overall, Iowa DOT projects are at an average of **${Math.round(stats.avg_completion)}% completion**. We have ${stats.in_progress} projects actively in progress.`;
+        }
+    }
+
+    // Category queries
+    if (msg.includes('modal') || msg.includes('plan') || msg.includes('funding')) {
+        const relevantProjects = projects.filter(p =>
+            p.category.toLowerCase().includes(msg.includes('modal') ? 'modal' : msg.includes('plan') ? 'plan' : 'funding')
+        );
+        if (relevantProjects.length > 0) {
+            return `I found ${relevantProjects.length} relevant project(s):\n\n${relevantProjects.map(p =>
+                `• **${p.name}** - ${p.completion_percentage}% complete\n  ${p.description.substring(0, 150)}...`
+            ).join('\n\n')}`;
+        }
+    }
+
+    // Specific project search
+    if (projects.length > 0) {
+        const topProject = projects[0];
+        const otherProjects = projects.slice(1, 3);
+
+        let response = `I found **${projects.length}** project(s) related to your question:\n\n`;
+        response += `**${topProject.name}**\n`;
+        response += `• Category: ${topProject.category}\n`;
+        response += `• Status: ${topProject.status}\n`;
+        response += `• Completion: ${topProject.completion_percentage}%\n`;
+        response += `• ${topProject.description}\n`;
+
+        if (otherProjects.length > 0) {
+            response += `\n**Other related projects:**\n`;
+            otherProjects.forEach(p => {
+                response += `• ${p.name} (${p.completion_percentage}% complete)\n`;
+            });
+        }
+
+        return response;
+    }
+
+    // Default helpful response
+    return `I searched our database of ${stats.total} Iowa DOT projects but couldn't find a specific match for "${message}". Here's what I can help with:\n\n• Ask about specific projects (e.g., "aviation plan", "bridge program")\n• Check project status and progress\n• Get statistics about completed projects\n• Learn about different project categories\n\nTry asking: "What projects are in progress?" or "Tell me about modal plans"`;
 }
 
 module.exports = { setupApiRoutes };

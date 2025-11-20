@@ -590,6 +590,29 @@
             30% { transform: translateY(-10px); }
         }
 
+        /* Typing dots alias */
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+            padding: 0.5rem 0;
+        }
+
+        .typing-dots span {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #03617A;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dots span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dots span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
         @media (max-width: 768px) {
             .chatbot-container {
                 width: 100%;
@@ -3428,8 +3451,8 @@
             <div class="chatbot-header-content">
                 <div class="chatbot-avatar">🤖</div>
                 <div class="chatbot-title">
-                    <h3>DOT Assistant <span class="demo-badge">DEMO</span></h3>
-                    <p>Ask me anything about the 2050 Plan!</p>
+                    <h3>DOT AI Assistant</h3>
+                    <p>Ask me anything about Iowa DOT projects!</p>
                 </div>
             </div>
             <div style="display: flex; align-items: center; gap: 0.5rem;">
@@ -3446,33 +3469,21 @@
                 <div class="message-avatar bot">🤖</div>
                 <div>
                     <div class="message-content bot">
-                        <strong>Welcome to the DOT Assistant!</strong> I have pre-programmed answers to help you navigate the 2050 Transportation Plan Tracker.
-                        
-                        <div style="margin-top: 0.5rem; padding: 0.5rem; background: #fef3c7; border-radius: 6px; font-size: 0.85rem; color: #92400e;">
-                            ℹ️ <strong>Pre-Canned Responses:</strong> I can answer these specific questions exactly. Type or click any question below.
-                        </div>
-                        
-                        <div style="margin-top: 0.75rem; padding: 0.75rem; background: #f0f9ff; border-radius: 6px; border: 1px solid #03617A;">
-                            <strong style="color: #03617A;">Ask me exactly:</strong>
-                            <ul style="margin: 0.5rem 0 0 1.2rem; padding: 0; font-size: 0.9rem; line-height: 1.8;">
-                                <li>"What is the status of the US 30 bypass?"</li>
-                                <li>"How many poor bridges are left?"</li>
-                                <li>"What is the TSIP budget?"</li>
-                                <li>"Show me winter operations status"</li>
-                                <li>"What is the Lansing Bridge status?"</li>
-                                <li>"Tell me about the SMV Alert System"</li>
-                                <li>"What are the bureau updates?"</li>
-                                <li>"How do I contact DOT?"</li>
-                                <li>"What is new?"</li>
-                                <li>"help" - See all questions</li>
-                            </ul>
-                        </div>
+                        <strong>👋 Welcome to the Iowa DOT AI Assistant!</strong><br><br>
+
+                        I'm powered by intelligent search and can answer questions about:<br>
+                        • Project status and completion<br>
+                        • Categories and funding programs<br>
+                        • Overall statistics and progress<br>
+                        • Specific project details<br><br>
+
+                        Try asking something like "How many projects are completed?" or "Tell me about the aviation plan"
                     </div>
                     <div class="suggested-questions">
-                        <button class="suggested-question" onclick="askQuestion('What is the status of the US 30 bypass?')">US 30 Status</button>
-                        <button class="suggested-question" onclick="askQuestion('How many poor bridges are left?')">Bridge Progress</button>
-                        <button class="suggested-question" onclick="askQuestion('What is the TSIP budget?')">Safety Funding</button>
-                        <button class="suggested-question" onclick="askQuestion('help')">Show All Questions</button>
+                        <button class="suggested-question" onclick="askQuestion('How many projects do we have?')">📊 Total Projects</button>
+                        <button class="suggested-question" onclick="askQuestion('Tell me about the aviation plan')">✈️ Aviation Plan</button>
+                        <button class="suggested-question" onclick="askQuestion('What is the completion status?')">📈 Progress</button>
+                        <button class="suggested-question" onclick="askQuestion('Show me modal plans')">🚇 Modal Plans</button>
                     </div>
                     <div class="message-time">10:15 AM</div>
                 </div>
@@ -5212,6 +5223,168 @@
             document.addEventListener('DOMContentLoaded', initializeEnhancedTracker);
         } else {
             initializeEnhancedTracker();
+        }
+
+        // ===================================
+        // AI CHATBOT FUNCTIONS
+        // ===================================
+
+        function toggleChatbot() {
+            const chatbot = document.getElementById('chatbotContainer');
+            chatbot.classList.toggle('active');
+        }
+
+        function askQuestion(question) {
+            document.getElementById('chatInput').value = question;
+            sendMessage();
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+
+            if (!message) return;
+
+            // Add user message to chat
+            addUserMessage(message);
+            input.value = '';
+
+            // Show typing indicator
+            showTypingIndicator();
+
+            try {
+                // Call AI endpoint
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message })
+                });
+
+                const result = await response.json();
+
+                // Remove typing indicator
+                hideTypingIndicator();
+
+                if (result.success) {
+                    addBotMessage(result.data.message, result.data.projects);
+                } else {
+                    addBotMessage('Sorry, I encountered an error. Please try again.', []);
+                }
+            } catch (error) {
+                console.error('Chat error:', error);
+                hideTypingIndicator();
+                addBotMessage('Sorry, I\'m having trouble connecting. Please check your internet connection and try again.', []);
+            }
+        }
+
+        function addUserMessage(message) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'chat-message user';
+            messageDiv.innerHTML = `
+                <div class="message-content user">${escapeHtml(message)}</div>
+            `;
+            messagesContainer.appendChild(messageDiv);
+            scrollToBottom();
+        }
+
+        function addBotMessage(message, projects = []) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'chat-message bot';
+
+            // Convert markdown-style bold to HTML
+            const formattedMessage = message
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\n/g, '<br>');
+
+            let projectsHtml = '';
+            if (projects && projects.length > 0) {
+                projectsHtml = '<div style="margin-top: 1rem;">';
+                projects.forEach(p => {
+                    projectsHtml += `
+                        <div style="background: #f0f9ff; padding: 0.75rem; border-radius: 6px; margin-top: 0.5rem; border-left: 3px solid #03617A; cursor: pointer;"
+                             onclick="openProjectDetail(${p.id})">
+                            <strong>${p.name}</strong><br>
+                            <small style="color: #6b7280;">${p.category} • ${p.completion_percentage}% complete</small>
+                        </div>
+                    `;
+                });
+                projectsHtml += '</div>';
+            }
+
+            messageDiv.innerHTML = `
+                <div class="message-avatar bot">🤖</div>
+                <div>
+                    <div class="message-content bot">
+                        ${formattedMessage}
+                        ${projectsHtml}
+                    </div>
+                    <div class="message-time">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+                </div>
+            `;
+            messagesContainer.appendChild(messageDiv);
+            scrollToBottom();
+        }
+
+        function showTypingIndicator() {
+            const messagesContainer = document.getElementById('chatMessages');
+            const typingDiv = document.createElement('div');
+            typingDiv.id = 'typingIndicator';
+            typingDiv.className = 'chat-message bot';
+            typingDiv.innerHTML = `
+                <div class="message-avatar bot">🤖</div>
+                <div>
+                    <div class="message-content bot">
+                        <div class="typing-dots">
+                            <span></span><span></span><span></span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            messagesContainer.appendChild(typingDiv);
+            scrollToBottom();
+        }
+
+        function hideTypingIndicator() {
+            const typingIndicator = document.getElementById('typingIndicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
+
+        function scrollToBottom() {
+            const messagesContainer = document.getElementById('chatMessages');
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function handleChatKeypress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Demo conversation function
+        function startDemoConversation() {
+            const demoQuestions = [
+                "How many projects do we have?",
+                "Tell me about the aviation plan",
+                "What's the completion status?"
+            ];
+
+            let delay = 500;
+            demoQuestions.forEach((question, index) => {
+                setTimeout(() => {
+                    askQuestion(question);
+                }, delay);
+                delay += 3000;
+            });
         }
 
         // ===================================
