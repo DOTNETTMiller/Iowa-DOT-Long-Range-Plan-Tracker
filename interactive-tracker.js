@@ -160,6 +160,34 @@ async function updateProjectStatus(projectId, status, completion, note) {
     return false;
 }
 
+async function updateProjectWeight(projectId, weight) {
+    if (!currentUser) {
+        showNotification('Please login to update weight', 'error');
+        return false;
+    }
+
+    try {
+        const response = await fetch(`${API_BASE}/projects/${projectId}/weight`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                weight,
+                user_id: currentUser.id
+            })
+        });
+
+        const result = await response.json();
+        if (result.success) {
+            showNotification('Project weight updated!', 'success');
+            return true;
+        }
+    } catch (error) {
+        console.error('Error updating weight:', error);
+        showNotification('Failed to update weight', 'error');
+    }
+    return false;
+}
+
 // ============================================
 // COMMENTS API CALLS
 // ============================================
@@ -442,6 +470,7 @@ window.IowaDOTTracker = {
     fetchProjectDetails,
     submitNewProject,
     updateProjectStatus,
+    updateProjectWeight,
 
     // Comment functions
     fetchComments,

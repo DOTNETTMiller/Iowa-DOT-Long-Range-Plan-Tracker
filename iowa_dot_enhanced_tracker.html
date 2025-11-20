@@ -4311,6 +4311,10 @@
             document.getElementById('projectDetailProgress').textContent = `${project.completion_percentage || 0}%`;
             document.getElementById('projectDetailLikeCount').textContent = project.like_count || 0;
 
+            // Set weight slider
+            document.getElementById('projectWeightSlider').value = project.weight || 1.0;
+            document.getElementById('projectWeightValue').textContent = (project.weight || 1.0).toFixed(1);
+
             // Store project ID
             modal.dataset.projectId = projectId;
 
@@ -4565,6 +4569,25 @@
             }
         }
 
+        // Update weight display as slider moves
+        function updateWeightDisplay(value) {
+            document.getElementById('projectWeightValue').textContent = parseFloat(value).toFixed(1);
+        }
+
+        // Save project weight when slider changes
+        async function saveProjectWeight(weight) {
+            const projectId = document.getElementById('projectDetailModal').dataset.projectId;
+            const weightValue = parseFloat(weight);
+
+            const success = await window.IowaDOTTracker.updateProjectWeight(projectId, weightValue);
+            if (success) {
+                // Refresh metrics to show new weighted completion
+                loadMetricsDashboard();
+                // Refresh project list
+                loadProjectsFromAPI();
+            }
+        }
+
         // Load and render metrics dashboard
         async function loadMetricsDashboard() {
             const metrics = await window.IowaDOTTracker.fetchMetrics();
@@ -4755,6 +4778,27 @@
 
                 <div class="progress-bar-container">
                     <div id="projectDetailProgress" class="progress-bar"></div>
+                </div>
+
+                <!-- Project Weight Slider -->
+                <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin: 1rem 0; border: 1px solid #e5e7eb;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <strong style="color: #19405B;">Project Weight (Importance to Long-Range Plan):</strong>
+                        <span id="projectWeightValue" style="font-size: 1.2rem; font-weight: bold; color: #03617A;">1.0</span>
+                    </div>
+                    <input type="range" id="projectWeightSlider" min="0.1" max="10" step="0.1" value="1.0"
+                           style="width: 100%; height: 8px; border-radius: 5px; background: #d3d3d3; outline: none; cursor: pointer;"
+                           oninput="updateWeightDisplay(this.value)"
+                           onchange="saveProjectWeight(this.value)">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #6b7280; margin-top: 0.25rem;">
+                        <span>0.1 (Minor)</span>
+                        <span>1.0 (Standard)</span>
+                        <span>5.0 (Major)</span>
+                        <span>10.0 (Critical)</span>
+                    </div>
+                    <p style="font-size: 0.85rem; color: #6b7280; margin-top: 0.5rem; margin-bottom: 0;">
+                        💡 Adjust this project's weight to reflect its importance. Higher weights contribute more to the overall Long-Range Plan completion percentage.
+                    </p>
                 </div>
 
                 <div style="display: flex; gap: 1rem; margin: 1rem 0;">

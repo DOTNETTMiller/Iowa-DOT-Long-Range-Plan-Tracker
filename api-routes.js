@@ -159,6 +159,35 @@ function setupApiRoutes(app) {
         }
     });
 
+    // PATCH - Update project weight
+    app.patch('/api/projects/:id/weight', async (req, res) => {
+        const { weight, user_id } = req.body;
+        const project_id = req.params.id;
+
+        if (weight === undefined || weight < 0) {
+            return res.status(400).json({ success: false, error: 'Valid weight is required (must be >= 0)' });
+        }
+
+        try {
+            await dbRun(`
+                UPDATE projects
+                SET weight = ?, updated_at = CURRENT_TIMESTAMP
+                WHERE id = ?
+            `, [weight, project_id]);
+
+            // Log activity
+            await dbRun(`
+                INSERT INTO activity_log (user_id, project_id, activity_type, activity_data)
+                VALUES (?, ?, 'weight_updated', ?)
+            `, [user_id || 1, project_id, JSON.stringify({ weight })]);
+
+            res.json({ success: true, message: 'Project weight updated' });
+        } catch (err) {
+            console.error('Error updating weight:', err);
+            res.status(500).json({ success: false, error: 'Failed to update weight' });
+        }
+    });
+
     // ============================================
     // COMMENTS ENDPOINTS
     // ============================================
