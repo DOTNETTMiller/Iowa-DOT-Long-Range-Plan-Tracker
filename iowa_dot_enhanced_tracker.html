@@ -1399,6 +1399,26 @@
         .project-card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid #e5e7eb; font-size: 0.85rem; color: #6b7280; }
         .add-project-btn { position: fixed; bottom: 2rem; right: 2rem; width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #03617A 0%, #19405B 100%); color: white; border: none; font-size: 2rem; cursor: pointer; box-shadow: 0 4px 12px rgba(3, 97, 122, 0.3); transition: all 0.3s; display: flex; align-items: center; justify-content: center; z-index: 1000; }
         .add-project-btn:hover { transform: scale(1.1); box-shadow: 0 6px 20px rgba(3, 97, 122, 0.4); }
+
+        /* History Timeline Styles */
+        .history-timeline { position: relative; padding-left: 2rem; }
+        .history-item { position: relative; padding-bottom: 1.5rem; }
+        .history-item:last-child { padding-bottom: 0; }
+        .history-dot { position: absolute; left: -2rem; width: 12px; height: 12px; background: #03617A; border-radius: 50%; border: 3px solid #BBE2DA; }
+        .history-item::before { content: ''; position: absolute; left: -1.5rem; top: 12px; bottom: -1.5rem; width: 2px; background: #e5e7eb; }
+        .history-item:last-child::before { display: none; }
+        .history-content { background: #f9fafb; padding: 1rem; border-radius: 8px; border-left: 3px solid #03617A; }
+        .history-header { display: flex; justify-content: space-between; margin-bottom: 0.5rem; }
+        .history-author { font-weight: 600; color: #19405B; }
+        .history-date { font-size: 0.85rem; color: #6b7280; }
+        .history-details { font-size: 0.9rem; color: #374151; line-height: 1.6; }
+
+        /* Link Items Styles */
+        .link-item { background: #f9fafb; padding: 1rem; border-radius: 8px; border-left: 4px solid #03617A; margin-bottom: 1rem; display: flex; align-items: start; gap: 0.75rem; }
+        .link-item span { font-size: 1.25rem; }
+        .link-item a { color: #03617A; text-decoration: none; font-weight: 600; }
+        .link-item a:hover { text-decoration: underline; }
+        .link-description { font-size: 0.85rem; color: #6b7280; margin-top: 0.25rem; }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
@@ -2875,6 +2895,61 @@
         </div>
     </div>
 
+    <!-- Metrics Dashboard Section -->
+    <div class="container">
+        <div class="projects-section">
+            <div class="projects-header">
+                <h2>📊 Project Metrics & Analytics</h2>
+            </div>
+
+            <div class="metrics-dashboard" id="metricsDashboard">
+                <div class="metric-card">
+                    <div class="metric-label">Total Projects</div>
+                    <div class="metric-value" id="totalProjects">--</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Avg Completion</div>
+                    <div class="metric-value" id="avgCompletion">--%</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Active Users</div>
+                    <div class="metric-value" id="weeklyActivity">--</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Comments This Week</div>
+                    <div class="metric-value" id="weeklyComments">--</div>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 1.5rem; margin-top: 2rem;">
+                <div class="chart-container">
+                    <h3 style="margin-bottom: 1rem; color: #19405B;">Projects by Category</h3>
+                    <canvas id="categoryChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3 style="margin-bottom: 1rem; color: #19405B;">Projects by Status</h3>
+                    <canvas id="statusChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Activity Feed Section -->
+    <div class="container">
+        <div class="projects-section">
+            <div class="projects-header">
+                <h2>🔔 Recent Activity</h2>
+                <button onclick="refreshActivityFeed()" class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.9rem;">Refresh</button>
+            </div>
+
+            <div class="activity-feed" id="activityFeed">
+                <div style="text-align: center; padding: 2rem; color: #6b7280;">
+                    Loading activity...
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Iowa DOT Projects & Programs Section -->
     <div class="container">
         <div class="projects-section">
@@ -3952,17 +4027,261 @@
             }
         }
 
-        function switchTab(tabName) {
+        async function switchTab(tabName) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
 
             event.target.classList.add('active');
             document.getElementById(tabName + 'Tab').classList.add('active');
+
+            const projectId = document.getElementById('projectDetailModal').dataset.projectId;
+
+            // Load tab content on demand
+            if (tabName === 'links') {
+                await loadProjectLinks(projectId);
+            } else if (tabName === 'history') {
+                await loadProjectHistory(projectId);
+            }
+        }
+
+        // Load and render project links
+        async function loadProjectLinks(projectId) {
+            const links = await window.IowaDOTTracker.fetchProjectLinks(projectId);
+            const container = document.getElementById('linksContainer');
+
+            if (links.length === 0) {
+                container.innerHTML = '<p style="color: #6b7280;">No resource links yet. Add one below!</p>';
+            } else {
+                container.innerHTML = links.map(link => `
+                    <div class="link-item">
+                        <span style="font-size: 1.5rem;">🔗</span>
+                        <div style="flex: 1;">
+                            <a href="${link.link_url}" target="_blank">${link.link_title}</a>
+                            ${link.link_description ? `<div class="link-description">${link.link_description}</div>` : ''}
+                            <div style="font-size: 0.75rem; color: #9ca3af; margin-top: 0.25rem;">
+                                Added by ${link.display_name} • ${window.IowaDOTTracker.formatDate(link.created_at)}
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // Submit new link
+        async function submitLink() {
+            const projectId = document.getElementById('projectDetailModal').dataset.projectId;
+            const url = document.getElementById('linkUrl').value.trim();
+            const title = document.getElementById('linkTitle').value.trim();
+            const description = document.getElementById('linkDescription').value.trim();
+
+            if (!url || !title) {
+                window.IowaDOTTracker.showNotification('URL and title are required', 'error');
+                return;
+            }
+
+            const success = await window.IowaDOTTracker.addProjectLink(projectId, url, title, description);
+            if (success) {
+                document.getElementById('linkUrl').value = '';
+                document.getElementById('linkTitle').value = '';
+                document.getElementById('linkDescription').value = '';
+                await loadProjectLinks(projectId);
+            }
+        }
+
+        // Load and render project history
+        async function loadProjectHistory(projectId) {
+            const history = await window.IowaDOTTracker.fetchProjectHistory(projectId);
+            const container = document.getElementById('historyContainer');
+
+            if (history.length === 0) {
+                container.innerHTML = '<p style="color: #6b7280;">No status updates yet.</p>';
+            } else {
+                container.innerHTML = '<div class="history-timeline">' + history.map(h => `
+                    <div class="history-item">
+                        <div class="history-dot"></div>
+                        <div class="history-content">
+                            <div class="history-header">
+                                <span class="history-author">${h.display_name}</span>
+                                <span class="history-date">${window.IowaDOTTracker.formatDate(h.created_at)}</span>
+                            </div>
+                            <div class="history-details">
+                                <strong>Status:</strong> ${h.old_status} → ${h.new_status}<br>
+                                <strong>Completion:</strong> ${h.old_completion}% → ${h.new_completion}%
+                                ${h.update_note ? `<br><strong>Note:</strong> ${h.update_note}` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `).join('') + '</div>';
+            }
+        }
+
+        // Show status update form
+        function showStatusUpdateForm() {
+            document.getElementById('statusUpdateSection').style.display = 'block';
+            const projectId = document.getElementById('projectDetailModal').dataset.projectId;
+            const currentStatus = document.getElementById('projectDetailStatus').textContent;
+            const currentCompletion = parseInt(document.getElementById('projectDetailProgress').textContent) || 0;
+
+            document.getElementById('updateStatus').value = currentStatus;
+            document.getElementById('updateCompletion').value = currentCompletion;
+        }
+
+        // Submit status update
+        async function submitStatusUpdate() {
+            const projectId = document.getElementById('projectDetailModal').dataset.projectId;
+            const status = document.getElementById('updateStatus').value;
+            const completion = parseInt(document.getElementById('updateCompletion').value);
+            const note = document.getElementById('updateNote').value.trim();
+
+            const success = await window.IowaDOTTracker.updateProjectStatus(projectId, status, completion, note);
+            if (success) {
+                document.getElementById('statusUpdateSection').style.display = 'none';
+                document.getElementById('updateNote').value = '';
+
+                // Refresh project details
+                const project = await window.IowaDOTTracker.fetchProjectDetails(projectId);
+                document.getElementById('projectDetailStatus').textContent = project.status;
+                document.getElementById('projectDetailProgress').style.width = `${project.completion_percentage}%`;
+                document.getElementById('projectDetailProgress').textContent = `${project.completion_percentage}%`;
+
+                // Refresh main project list
+                loadProjectsFromAPI();
+            }
+        }
+
+        // Load and render metrics dashboard
+        async function loadMetricsDashboard() {
+            const metrics = await window.IowaDOTTracker.fetchMetrics();
+            if (!metrics) return;
+
+            // Update metric cards
+            document.getElementById('totalProjects').textContent = metrics.total_projects;
+            document.getElementById('avgCompletion').textContent = metrics.avg_completion + '%';
+            document.getElementById('weeklyActivity').textContent = metrics.weekly_activity;
+
+            // Create category chart
+            const categoryCtx = document.getElementById('categoryChart');
+            if (categoryCtx && metrics.category_breakdown) {
+                new Chart(categoryCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: metrics.category_breakdown.slice(0, 8).map(c => c.category),
+                        datasets: [{
+                            data: metrics.category_breakdown.slice(0, 8).map(c => c.count),
+                            backgroundColor: [
+                                '#03617A', '#19405B', '#E0A624', '#BBE2DA',
+                                '#70C8B8', '#53565A', '#F5B935', '#0369a1'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { position: 'bottom' }
+                        }
+                    }
+                });
+            }
+
+            // Create status chart
+            const statusCtx = document.getElementById('statusChart');
+            if (statusCtx && metrics.status_breakdown) {
+                const statusData = {};
+                metrics.status_breakdown.forEach(s => {
+                    const key = s.status.includes('Completed') ? 'Completed' :
+                                s.status.includes('Ongoing') ? 'Ongoing' :
+                                s.status.includes('Draft') ? 'Draft' : 'Other';
+                    statusData[key] = (statusData[key] || 0) + s.count;
+                });
+
+                new Chart(statusCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(statusData),
+                        datasets: [{
+                            label: 'Projects',
+                            data: Object.values(statusData),
+                            backgroundColor: '#03617A'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            y: { beginAtZero: true }
+                        }
+                    }
+                });
+            }
+        }
+
+        // Load and render activity feed
+        async function loadActivityFeed() {
+            const activities = await window.IowaDOTTracker.fetchActivityFeed(20);
+            const container = document.getElementById('activityFeed');
+
+            if (activities.length === 0) {
+                container.innerHTML = '<p style="color: #6b7280; text-align: center; padding: 2rem;">No recent activity</p>';
+                return;
+            }
+
+            container.innerHTML = activities.map(a => {
+                let icon = '📝';
+                let text = '';
+
+                switch(a.activity_type) {
+                    case 'comment':
+                        icon = '💬';
+                        text = `<strong>${a.display_name}</strong> commented on <strong>${a.project_name}</strong>`;
+                        break;
+                    case 'like':
+                        icon = '❤️';
+                        text = `<strong>${a.display_name}</strong> liked <strong>${a.project_name}</strong>`;
+                        break;
+                    case 'status_update':
+                        icon = '📊';
+                        text = `<strong>${a.display_name}</strong> updated status of <strong>${a.project_name}</strong>`;
+                        break;
+                    case 'new_project':
+                        icon = '✨';
+                        text = `<strong>${a.display_name}</strong> submitted a new project`;
+                        break;
+                    case 'link_added':
+                        icon = '🔗';
+                        text = `<strong>${a.display_name}</strong> added a resource link to <strong>${a.project_name}</strong>`;
+                        break;
+                    default:
+                        text = `<strong>${a.display_name}</strong> performed an action on <strong>${a.project_name}</strong>`;
+                }
+
+                return `
+                    <div class="activity-item">
+                        <div class="activity-icon">${icon}</div>
+                        <div class="activity-content">
+                            <div class="activity-text">${text}</div>
+                            <div class="activity-time">${window.IowaDOTTracker.formatDate(a.created_at)}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Refresh activity feed
+        async function refreshActivityFeed() {
+            await loadActivityFeed();
+            window.IowaDOTTracker.showNotification('Activity feed refreshed', 'success');
         }
 
         // Initialize when API client is ready
         if (window.IowaDOTTracker) {
             loadProjectsFromAPI();
+            loadMetricsDashboard();
+            loadActivityFeed();
+
+            // Refresh activity feed every 30 seconds
+            setInterval(loadActivityFeed, 30000);
         }
     </script>
 
@@ -4044,11 +4363,57 @@
                 </div>
 
                 <div id="linksTab" class="tab-content">
-                    <p style="color: #6b7280;">Resource links coming soon...</p>
+                    <div id="linksContainer">
+                        <p style="color: #6b7280;">Loading resource links...</p>
+                    </div>
+                    <div class="comment-form" style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #e5e7eb;">
+                        <h4 style="margin-bottom: 1rem; color: #19405B;">Add Resource Link</h4>
+                        <input type="url" id="linkUrl" placeholder="Resource URL (e.g., https://example.com/document.pdf)"
+                               style="width: 100%; padding: 0.75rem; margin-bottom: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.95rem;">
+                        <input type="text" id="linkTitle" placeholder="Link Title (e.g., Environmental Impact Study)"
+                               style="width: 100%; padding: 0.75rem; margin-bottom: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.95rem;">
+                        <textarea id="linkDescription" placeholder="Description (optional)" rows="2"
+                                  style="width: 100%; padding: 0.75rem; margin-bottom: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.95rem; resize: vertical;"></textarea>
+                        <button class="btn btn-primary" onclick="submitLink()" style="padding: 0.75rem 1.5rem;">
+                            Add Resource Link
+                        </button>
+                    </div>
                 </div>
 
                 <div id="historyTab" class="tab-content">
-                    <p style="color: #6b7280;">Status history coming soon...</p>
+                    <div style="margin-bottom: 1.5rem;">
+                        <button class="btn btn-secondary" onclick="showStatusUpdateForm()" style="padding: 0.75rem 1.5rem;">
+                            📊 Update Project Status
+                        </button>
+                    </div>
+
+                    <div id="statusUpdateSection" style="display: none; margin-bottom: 2rem; padding: 1.5rem; background: #f9fafb; border-radius: 8px; border: 1px solid #e5e7eb;">
+                        <h4 style="margin-bottom: 1rem; color: #19405B;">Update Project Status</h4>
+                        <input type="text" id="updateStatus" placeholder="Status (e.g., In Progress, Completed)"
+                               style="width: 100%; padding: 0.75rem; margin-bottom: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.95rem;">
+                        <div style="margin-bottom: 0.75rem;">
+                            <label for="updateCompletion" style="display: block; margin-bottom: 0.5rem; color: #374151; font-weight: 500;">
+                                Completion Percentage: <span id="completionValue">0</span>%
+                            </label>
+                            <input type="range" id="updateCompletion" min="0" max="100" value="0"
+                                   oninput="document.getElementById('completionValue').textContent = this.value"
+                                   style="width: 100%; height: 8px; border-radius: 5px; background: #d1d5db; outline: none; opacity: 0.9;">
+                        </div>
+                        <textarea id="updateNote" placeholder="Update note (optional - describe what changed)" rows="3"
+                                  style="width: 100%; padding: 0.75rem; margin-bottom: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.95rem; resize: vertical;"></textarea>
+                        <div style="display: flex; gap: 0.75rem;">
+                            <button class="btn btn-primary" onclick="submitStatusUpdate()" style="padding: 0.75rem 1.5rem;">
+                                Submit Update
+                            </button>
+                            <button class="btn btn-secondary" onclick="document.getElementById('statusUpdateSection').style.display='none'" style="padding: 0.75rem 1.5rem;">
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="historyContainer">
+                        <p style="color: #6b7280;">Loading status history...</p>
+                    </div>
                 </div>
             </div>
         </div>
