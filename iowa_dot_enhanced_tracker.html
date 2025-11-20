@@ -5155,29 +5155,73 @@
                 return;
             }
 
-            const visibleProjects = projects.slice(0, visibleProjectsCount);
+            // Group projects by category
+            const projectsByCategory = {};
+            projects.forEach(project => {
+                const category = project.category || 'Uncategorized';
+                if (!projectsByCategory[category]) {
+                    projectsByCategory[category] = [];
+                }
+                projectsByCategory[category].push(project);
+            });
 
-            grid.innerHTML = visibleProjects.map(project => `
-                <div class="project-card" onclick="openProjectDetail(${project.id})">
-                    <div class="project-name">${project.name}</div>
-                    <span class="project-category">${project.category}</span>
-                    <div class="project-description">${project.description}</div>
-                    <div class="progress-bar-container">
-                        <div class="progress-bar" style="width: ${project.completion_percentage || 0}%">
-                            ${project.completion_percentage || 0}%
+            // Sort categories alphabetically
+            const sortedCategories = Object.keys(projectsByCategory).sort();
+
+            // Build HTML with category sections
+            let html = '';
+            let visibleProjectCount = 0;
+
+            for (const category of sortedCategories) {
+                const categoryProjects = projectsByCategory[category];
+
+                // Calculate category completion average
+                const categoryAvg = Math.round(
+                    categoryProjects.reduce((sum, p) => sum + (p.completion_percentage || 0), 0) / categoryProjects.length
+                );
+
+                html += `
+                    <div style="grid-column: 1 / -1; margin-top: 2rem; margin-bottom: 1rem;">
+                        <div style="display: flex; align-items: center; gap: 1rem; padding-bottom: 0.75rem; border-bottom: 3px solid #03617A;">
+                            <h2 style="margin: 0; font-size: 1.5rem; color: #19405B;">${category}</h2>
+                            <span style="background: #BBE2DA; color: #19405B; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.9rem; font-weight: 600;">
+                                ${categoryProjects.length} project${categoryProjects.length !== 1 ? 's' : ''} • ${categoryAvg}% avg
+                            </span>
                         </div>
                     </div>
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
-                        <span class="status-badge ${getStatusBadgeClass(project.status)}">
-                            ${project.status}
-                        </span>
-                        <div style="display: flex; gap: 1rem; font-size: 0.85rem; color: #6b7280;">
-                            <span>💬 ${project.comment_count || 0}</span>
-                            <span>❤️ ${project.like_count || 0}</span>
+                `;
+
+                // Add projects for this category
+                for (const project of categoryProjects) {
+                    if (visibleProjectCount >= visibleProjectsCount) break;
+
+                    html += `
+                        <div class="project-card" onclick="openProjectDetail(${project.id})">
+                            <div class="project-name">${project.name}</div>
+                            <div class="project-description">${project.description}</div>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" style="width: ${project.completion_percentage || 0}%">
+                                    ${project.completion_percentage || 0}%
+                                </div>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
+                                <span class="status-badge ${getStatusBadgeClass(project.status)}">
+                                    ${project.status}
+                                </span>
+                                <div style="display: flex; gap: 1rem; font-size: 0.85rem; color: #6b7280;">
+                                    <span>💬 ${project.comment_count || 0}</span>
+                                    <span>❤️ ${project.like_count || 0}</span>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
-            `).join('');
+                    `;
+                    visibleProjectCount++;
+                }
+
+                if (visibleProjectCount >= visibleProjectsCount) break;
+            }
+
+            grid.innerHTML = html;
 
             // Show/hide load more button
             if (visibleProjectsCount < projects.length) {
