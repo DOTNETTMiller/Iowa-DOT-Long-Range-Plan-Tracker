@@ -4426,7 +4426,7 @@
                 container.innerHTML = '<p style="color: #6b7280;">No resource links yet. Add one below!</p>';
             } else {
                 container.innerHTML = links.map(link => `
-                    <div class="link-item">
+                    <div class="link-item" id="link-${link.id}">
                         <span style="font-size: 1.5rem;">🔗</span>
                         <div style="flex: 1;">
                             <a href="${link.link_url}" target="_blank">${link.link_title}</a>
@@ -4435,8 +4435,51 @@
                                 Added by ${link.display_name} • ${window.IowaDOTTracker.formatDate(link.created_at)}
                             </div>
                         </div>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button onclick="editLink(${projectId}, ${link.id}, '${link.link_url.replace(/'/g, "\\'")}', '${link.link_title.replace(/'/g, "\\'")}', '${(link.link_description || '').replace(/'/g, "\\'")}')"
+                                    style="padding: 0.4rem 0.8rem; background: #03617A; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">
+                                ✏️ Edit
+                            </button>
+                            <button onclick="deleteLink(${projectId}, ${link.id})"
+                                    style="padding: 0.4rem 0.8rem; background: #dc2626; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">
+                                🗑️ Delete
+                            </button>
+                        </div>
                     </div>
                 `).join('');
+            }
+        }
+
+        // Edit link
+        async function editLink(projectId, linkId, currentUrl, currentTitle, currentDescription) {
+            const newUrl = prompt('Edit URL:', currentUrl);
+            if (!newUrl || newUrl === currentUrl) {
+                if (!newUrl) return; // User cancelled
+            }
+
+            const newTitle = prompt('Edit Title:', currentTitle);
+            if (!newTitle) return; // User cancelled
+
+            const newDescription = prompt('Edit Description (optional):', currentDescription);
+
+            const success = await window.IowaDOTTracker.updateProjectLink(
+                projectId,
+                linkId,
+                newUrl || currentUrl,
+                newTitle,
+                newDescription === null ? currentDescription : newDescription
+            );
+
+            if (success) {
+                await loadProjectLinks(projectId);
+            }
+        }
+
+        // Delete link
+        async function deleteLink(projectId, linkId) {
+            const success = await window.IowaDOTTracker.deleteProjectLink(projectId, linkId);
+            if (success) {
+                await loadProjectLinks(projectId);
             }
         }
 

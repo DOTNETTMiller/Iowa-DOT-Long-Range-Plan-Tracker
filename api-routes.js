@@ -1,5 +1,6 @@
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
+const { OpenAI } = require('openai');
 
 // Database connection
 const DB_PATH = path.join(__dirname, 'iowa-dot-tracker.db');
@@ -298,6 +299,63 @@ function setupApiRoutes(app) {
         }
     });
 
+    // PATCH - Update a project link
+    app.patch('/api/projects/:projectId/links/:linkId', async (req, res) => {
+        const { projectId, linkId } = req.params;
+        const { link_url, link_title, link_description, user_id } = req.body;
+
+        if (!link_url || !link_title) {
+            return res.status(400).json({ success: false, error: 'URL and title are required' });
+        }
+
+        try {
+            await dbRun(`
+                UPDATE project_links
+                SET link_url = ?, link_title = ?, link_description = ?
+                WHERE id = ? AND project_id = ?
+            `, [link_url, link_title, link_description || null, linkId, projectId]);
+
+            // Log activity
+            await dbRun(`
+                INSERT INTO activity_log (user_id, project_id, activity_type, activity_data)
+                VALUES (?, ?, 'link_updated', ?)
+            `, [user_id || 1, projectId, JSON.stringify({ link_id: linkId, link_title })]);
+
+            res.json({ success: true, message: 'Link updated' });
+        } catch (err) {
+            console.error('Error updating link:', err);
+            res.status(500).json({ success: false, error: 'Failed to update link' });
+        }
+    });
+
+    // DELETE - Remove a project link
+    app.delete('/api/projects/:projectId/links/:linkId', async (req, res) => {
+        const { projectId, linkId } = req.params;
+        const { user_id } = req.body;
+
+        try {
+            // Get link info before deleting for logging
+            const link = await dbGet('SELECT link_title FROM project_links WHERE id = ? AND project_id = ?', [linkId, projectId]);
+
+            if (!link) {
+                return res.status(404).json({ success: false, error: 'Link not found' });
+            }
+
+            await dbRun('DELETE FROM project_links WHERE id = ? AND project_id = ?', [linkId, projectId]);
+
+            // Log activity
+            await dbRun(`
+                INSERT INTO activity_log (user_id, project_id, activity_type, activity_data)
+                VALUES (?, ?, 'link_deleted', ?)
+            `, [user_id || 1, projectId, JSON.stringify({ link_id: linkId, link_title: link.link_title })]);
+
+            res.json({ success: true, message: 'Link deleted' });
+        } catch (err) {
+            console.error('Error deleting link:', err);
+            res.status(500).json({ success: false, error: 'Failed to delete link' });
+        }
+    });
+
     // ============================================
     // STATUS UPDATES ENDPOINTS
     // ============================================
@@ -419,7 +477,7 @@ function setupApiRoutes(app) {
     });
 
     // ============================================
-    // AI CHAT ASSISTANT
+    // AI CHAT ASSISTANT (GPT-POWERED)
     // ============================================
 
     app.post('/api/chat', async (req, res) => {
@@ -427,6 +485,14 @@ function setupApiRoutes(app) {
 
         if (!message) {
             return res.status(400).json({ success: false, error: 'Message is required' });
+        }
+
+        // Check if OpenAI API key is configured
+        if (!process.env.OPENAI_API_KEY) {
+            return res.status(503).json({
+                success: false,
+                error: 'AI chat is not configured. Please add OPENAI_API_KEY to .env file.'
+            });
         }
 
         try {
@@ -451,92 +517,114 @@ function setupApiRoutes(app) {
                 FROM projects
             `);
 
-            // Generate intelligent response
-            const response = generateIntelligentResponse(message, projects, stats);
+            // Get all project categories for context
+            const categories = await dbAll(`
+                SELECT DISTINCT category FROM projects ORDER BY category
+            `);
+
+            // Initialize OpenAI
+            const openai = new OpenAI({
+                apiKey: process.env.OPENAI_API_KEY
+            });
+
+            // Build context for GPT
+            const context = buildContextForGPT(projects, stats, categories.map(c => c.category));
+
+            // Call GPT-4
+            const completion = await openai.chat.completions.create({
+                model: "gpt-4-turbo-preview",
+                messages: [
+                    {
+                        role: "system",
+                        content: `You are an AI assistant for the Iowa Department of Transportation (Iowa DOT). You help citizens and stakeholders learn about Iowa's Long-Range Transportation Plan projects through 2050.
+
+Your role:
+- Provide accurate, helpful information about Iowa DOT projects
+- Be conversational and friendly
+- Use the project data provided to answer questions
+- When relevant, mention specific projects with their completion percentages
+- Format project names in **bold** using markdown
+- Keep responses concise but informative (2-4 paragraphs max)
+
+Available data:
+${context}
+
+When listing projects, include:
+- Project name in bold
+- Category
+- Status
+- Completion percentage
+- Brief description
+
+Remember: You're representing Iowa DOT, so be professional, accurate, and helpful.`
+                    },
+                    {
+                        role: "user",
+                        content: message
+                    }
+                ],
+                temperature: 0.7,
+                max_tokens: 800
+            });
+
+            const gptResponse = completion.choices[0].message.content;
 
             res.json({
                 success: true,
                 data: {
-                    message: response,
+                    message: gptResponse,
                     projects: projects.slice(0, 3), // Return top 3 relevant projects
                     timestamp: new Date().toISOString()
                 }
             });
         } catch (err) {
             console.error('Error processing chat:', err);
-            res.status(500).json({ success: false, error: 'Failed to process chat message' });
+
+            // If OpenAI error, provide helpful message
+            if (err.response?.status === 401) {
+                return res.status(503).json({
+                    success: false,
+                    error: 'Invalid OpenAI API key. Please check your .env configuration.'
+                });
+            }
+
+            res.status(500).json({
+                success: false,
+                error: 'Failed to process chat message. Please try again.'
+            });
         }
     });
 }
 
 // ============================================
-// AI RESPONSE GENERATOR
+// GPT CONTEXT BUILDER
 // ============================================
 
-function generateIntelligentResponse(message, projects, stats) {
-    const msg = message.toLowerCase();
+function buildContextForGPT(projects, stats, categories) {
+    let context = `\n**Overall Statistics:**
+- Total Projects: ${stats.total}
+- Completed: ${stats.completed}
+- In Progress: ${stats.in_progress}
+- Average Completion: ${Math.round(stats.avg_completion)}%
 
-    // Greeting responses
-    if (msg.match(/^(hi|hello|hey|greetings)/)) {
-        return `Hello! I'm the Iowa DOT AI Assistant. I can help you with information about our ${stats.total} transportation projects. What would you like to know?`;
-    }
+**Project Categories Available:**
+${categories.join(', ')}
+`;
 
-    // Statistics queries
-    if (msg.includes('how many') || msg.includes('total') || msg.includes('count')) {
-        if (msg.includes('project')) {
-            return `Iowa DOT is currently tracking **${stats.total} projects** across various categories. Of these, **${stats.completed} are completed** and **${stats.in_progress} are in progress or ongoing**. The average completion across all projects is **${Math.round(stats.avg_completion)}%**.`;
-        }
-        if (msg.includes('completed')) {
-            return `We have **${stats.completed} completed projects** out of ${stats.total} total projects. That's approximately **${Math.round((stats.completed / stats.total) * 100)}%** of our project portfolio.`;
-        }
-    }
-
-    // Progress/status queries
-    if (msg.includes('progress') || msg.includes('status')) {
-        if (projects.length > 0) {
-            const project = projects[0];
-            return `**${project.name}** (${project.category}) is currently at **${project.completion_percentage}% completion** with status: "${project.status}". ${project.description}`;
-        } else {
-            return `Overall, Iowa DOT projects are at an average of **${Math.round(stats.avg_completion)}% completion**. We have ${stats.in_progress} projects actively in progress.`;
-        }
-    }
-
-    // Category queries
-    if (msg.includes('modal') || msg.includes('plan') || msg.includes('funding')) {
-        const relevantProjects = projects.filter(p =>
-            p.category.toLowerCase().includes(msg.includes('modal') ? 'modal' : msg.includes('plan') ? 'plan' : 'funding')
-        );
-        if (relevantProjects.length > 0) {
-            return `I found ${relevantProjects.length} relevant project(s):\n\n${relevantProjects.map(p =>
-                `• **${p.name}** - ${p.completion_percentage}% complete\n  ${p.description.substring(0, 150)}...`
-            ).join('\n\n')}`;
-        }
-    }
-
-    // Specific project search
     if (projects.length > 0) {
-        const topProject = projects[0];
-        const otherProjects = projects.slice(1, 3);
-
-        let response = `I found **${projects.length}** project(s) related to your question:\n\n`;
-        response += `**${topProject.name}**\n`;
-        response += `• Category: ${topProject.category}\n`;
-        response += `• Status: ${topProject.status}\n`;
-        response += `• Completion: ${topProject.completion_percentage}%\n`;
-        response += `• ${topProject.description}\n`;
-
-        if (otherProjects.length > 0) {
-            response += `\n**Other related projects:**\n`;
-            otherProjects.forEach(p => {
-                response += `• ${p.name} (${p.completion_percentage}% complete)\n`;
-            });
-        }
-
-        return response;
+        context += `\n**Relevant Projects for this query:**\n`;
+        projects.forEach(p => {
+            context += `
+${p.name}
+- Category: ${p.category}
+- Status: ${p.status}
+- Completion: ${p.completion_percentage}%
+- Description: ${p.description}
+`;
+        });
     }
 
-    // Default helpful response
-    return `I searched our database of ${stats.total} Iowa DOT projects but couldn't find a specific match for "${message}". Here's what I can help with:\n\n• Ask about specific projects (e.g., "aviation plan", "bridge program")\n• Check project status and progress\n• Get statistics about completed projects\n• Learn about different project categories\n\nTry asking: "What projects are in progress?" or "Tell me about modal plans"`;
+    return context;
 }
 
 module.exports = { setupApiRoutes };

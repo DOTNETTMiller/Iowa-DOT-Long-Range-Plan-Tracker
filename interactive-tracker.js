@@ -275,6 +275,67 @@ async function addProjectLink(projectId, linkUrl, linkTitle, linkDescription) {
     return false;
 }
 
+async function updateProjectLink(projectId, linkId, linkUrl, linkTitle, linkDescription) {
+    if (!currentUser) {
+        showNotification('Please login to edit links', 'error');
+        return false;
+    }
+
+    try {
+        const response = await fetch(`${API_BASE}/projects/${projectId}/links/${linkId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                link_url: linkUrl,
+                link_title: linkTitle,
+                link_description: linkDescription,
+                user_id: currentUser.id
+            })
+        });
+
+        const result = await response.json();
+        if (result.success) {
+            showNotification('Link updated!', 'success');
+            return true;
+        }
+    } catch (error) {
+        console.error('Error updating link:', error);
+        showNotification('Failed to update link', 'error');
+    }
+    return false;
+}
+
+async function deleteProjectLink(projectId, linkId) {
+    if (!currentUser) {
+        showNotification('Please login to delete links', 'error');
+        return false;
+    }
+
+    if (!confirm('Are you sure you want to delete this link?')) {
+        return false;
+    }
+
+    try {
+        const response = await fetch(`${API_BASE}/projects/${projectId}/links/${linkId}`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                user_id: currentUser.id
+            })
+        });
+
+        const result = await response.json();
+        if (result.success) {
+            showNotification('Link deleted!', 'success');
+            return true;
+        }
+    } catch (error) {
+        console.error('Error deleting link:', error);
+        showNotification('Failed to delete link', 'error');
+    }
+    return false;
+}
+
 // ============================================
 // HISTORY API CALLS
 // ============================================
@@ -392,6 +453,8 @@ window.IowaDOTTracker = {
     // Link functions
     fetchProjectLinks,
     addProjectLink,
+    updateProjectLink,
+    deleteProjectLink,
 
     // History functions
     fetchProjectHistory,
