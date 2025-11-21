@@ -941,6 +941,21 @@
                     <button class="filter-chip" data-status="ongoing" onclick="filterByStatus('ongoing')">Ongoing</button>
                     <button class="filter-chip" data-status="draft" onclick="filterByStatus('draft')">Draft</button>
                 </div>
+                <div class="filter-group" style="display: flex; align-items: center; gap: 0.5rem;">
+                    <label for="sortSelect" style="font-size: 0.875rem; font-weight: 600; color: #6b7280;">Sort by:</label>
+                    <select id="sortSelect" onchange="sortProjects(this.value)" style="padding: 0.5rem 1rem; background: white; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 0.875rem; font-weight: 500; cursor: pointer; color: #374151;">
+                        <option value="plan-order">Plan Order (Default)</option>
+                        <option value="name">Project Name (A-Z)</option>
+                        <option value="completion-desc">Completion (High to Low)</option>
+                        <option value="completion-asc">Completion (Low to High)</option>
+                        <option value="weight-desc">Impact/Weight (High to Low)</option>
+                        <option value="weight-asc">Impact/Weight (Low to High)</option>
+                        <option value="division">Division (A-Z)</option>
+                        <option value="bureau">Bureau (A-Z)</option>
+                        <option value="status">Status</option>
+                        <option value="plan-page">Plan Page Number</option>
+                    </select>
+                </div>
             </div>
 
             <div id="projectsContainer"></div>
@@ -1278,6 +1293,7 @@
         let currentFilter = 'all';
         let currentStatusFilter = 'all';
         let currentProjectId = null;
+        let currentSortOrder = 'plan-order';
 
         // Theme Toggle
         function toggleTheme() {
@@ -1291,6 +1307,64 @@
         // Load saved theme
         if (localStorage.getItem('theme') === 'dark') {
             toggleTheme();
+        }
+
+        // Sort Projects
+        function sortProjects(sortBy) {
+            currentSortOrder = sortBy;
+
+            switch(sortBy) {
+                case 'plan-order':
+                    allProjects.sort((a, b) => a.id - b.id);
+                    break;
+                case 'name':
+                    allProjects.sort((a, b) => a.name.localeCompare(b.name));
+                    break;
+                case 'completion-desc':
+                    allProjects.sort((a, b) => (b.completion_percentage || 0) - (a.completion_percentage || 0));
+                    break;
+                case 'completion-asc':
+                    allProjects.sort((a, b) => (a.completion_percentage || 0) - (b.completion_percentage || 0));
+                    break;
+                case 'weight-desc':
+                    allProjects.sort((a, b) => (b.weight || 1) - (a.weight || 1));
+                    break;
+                case 'weight-asc':
+                    allProjects.sort((a, b) => (a.weight || 1) - (b.weight || 1));
+                    break;
+                case 'division':
+                    allProjects.sort((a, b) => {
+                        const divA = a.division || 'zzz';
+                        const divB = b.division || 'zzz';
+                        return divA.localeCompare(divB);
+                    });
+                    break;
+                case 'bureau':
+                    allProjects.sort((a, b) => {
+                        const burA = a.bureau || 'zzz';
+                        const burB = b.bureau || 'zzz';
+                        return burA.localeCompare(burB);
+                    });
+                    break;
+                case 'status':
+                    const statusOrder = { 'completed': 1, 'ongoing': 2, 'in-progress': 3, 'draft': 4, 'not-started': 5 };
+                    allProjects.sort((a, b) => {
+                        const statusA = statusOrder[a.status] || 99;
+                        const statusB = statusOrder[b.status] || 99;
+                        return statusA - statusB;
+                    });
+                    break;
+                case 'plan-page':
+                    allProjects.sort((a, b) => {
+                        const pageA = a.plan_page || 9999;
+                        const pageB = b.plan_page || 9999;
+                        return pageA - pageB;
+                    });
+                    break;
+            }
+
+            // Re-render the projects with new order
+            renderProjects();
         }
 
         // Switch Tabs
