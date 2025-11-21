@@ -1,6 +1,8 @@
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const { OpenAI } = require('openai');
+const multer = require('multer');
+const fs = require('fs');
 
 // Database connection
 const DB_PATH = path.join(__dirname, 'iowa-dot-tracker.db');
@@ -656,6 +658,117 @@ Remember: You're representing Iowa DOT, so be professional, accurate, and helpfu
                 success: false,
                 error: 'Failed to process chat message. Please try again.'
             });
+        }
+    });
+
+    // ============================================
+    // PHOTO ENDPOINTS
+    // ============================================
+
+    // Configure multer for file uploads
+    const storage = multer.diskStorage({
+        destination: function (req, file, cb) {
+            const uploadDir = path.join(__dirname, 'uploads', 'projects');
+            // Ensure directory exists
+            if (!fs.existsSync(uploadDir)) {
+                fs.mkdirSync(uploadDir, { recursive: true });
+            }
+            cb(null, uploadDir);
+        },
+        filename: function (req, file, cb) {
+            // Generate unique filename: timestamp-original name
+            const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+            cb(null, uniqueSuffix + '-' + file.originalname);
+        }
+    });
+
+    const upload = multer({
+        storage: storage,
+        limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+        fileFilter: function (req, file, cb) {
+            // Allow only images
+            if (file.mimetype.startsWith('image/')) {
+                cb(null, true);
+            } else {
+                cb(new Error('Only image files are allowed!'), false);
+            }
+        }
+    });
+
+    // GET photos for a project
+    app.get('/api/projects/:id/photos', async (req, res) => {
+        try {
+            const photos = await dbAll(`
+                SELECT * FROM project_photos
+                WHERE project_id = ?
+                ORDER BY uploaded_at DESC
+            `, [req.params.id]);
+
+            res.json({ success: true, data: photos });
+        } catch (err) {
+            console.error('Error fetching photos:', err);
+            res.status(500).json({ success: false, error: 'Failed to fetch photos' });
+        }
+    });
+
+    // POST upload photo
+    app.post('/api/projects/:id/photos', upload.single('photo'), async (req, res) => {
+        try {
+            if (!req.file) {
+                return res.status(400).json({ success: false, error: 'No file uploaded' });
+            }
+
+            const { caption, uploaded_by } = req.body;
+            const project_id = req.params.id;
+            const file_path = `/uploads/projects/${req.file.filename}`;
+
+            const result = await dbRun(`
+                INSERT INTO project_photos (project_id, file_path, file_name, caption, uploaded_by)
+                VALUES (?, ?, ?, ?, ?)
+            `, [project_id, file_path, req.file.originalname, caption || '', uploaded_by || 'Anonymous']);
+
+            res.json({
+                success: true,
+                data: {
+                    id: result.id,
+                    project_id,
+                    file_path,
+                    file_name: req.file.originalname,
+                    caption,
+                    uploaded_by: uploaded_by || 'Anonymous'
+                }
+            });
+        } catch (err) {
+            console.error('Error uploading photo:', err);
+            res.status(500).json({ success: false, error: 'Failed to upload photo' });
+        }
+    });
+
+    // DELETE photo
+    app.delete('/api/projects/:projectId/photos/:photoId', async (req, res) => {
+        try {
+            const { projectId, photoId } = req.params;
+
+            // Get photo info before deleting
+            const photo = await dbGet('SELECT file_path FROM project_photos WHERE id = ? AND project_id = ?', [photoId, projectId]);
+
+            if (!photo) {
+                return res.status(404).json({ success: false, error: 'Photo not found' });
+            }
+
+            // Delete file from filesystem
+            const filePath = path.join(__dirname, photo.file_path);
+            if (fs.existsSync(filePath)) {
+                fs.unlinkSync(filePath);
+            }
+
+            // Delete from database
+            await dbRun('DELETE FROM project_photos WHERE id = ? AND project_id = ?', [photoId, projectId]);
+
+            res.json({ success: true, message: 'Photo deleted' });
+        } catch (err) {
+            console.error('Error deleting photo:', err);
+            res.status(500).json({ success: false, error: 'Failed to delete photo' });
         }
     });
 }

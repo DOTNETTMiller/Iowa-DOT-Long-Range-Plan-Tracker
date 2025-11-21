@@ -1403,6 +1403,35 @@
                     </div>
                 </div>
 
+                <!-- Project Photos Section -->
+                <div class="modal-section">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h4 class="modal-section-title" style="margin: 0;">📸 Project Photos</h4>
+                        <button onclick="showPhotoUpload()" style="background: linear-gradient(135deg, #03617A 0%, #19405B 100%); color: white; border: none; padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: all 0.2s;">
+                            + Upload Photo
+                        </button>
+                    </div>
+
+                    <!-- Photo Upload Form (Hidden by default) -->
+                    <div id="photoUploadForm" style="display: none; background: #f9fafb; padding: 1.5rem; border-radius: 12px; border: 2px dashed #d1d5db; margin-bottom: 1.5rem;">
+                        <h5 style="font-size: 0.875rem; font-weight: 600; color: #374151; margin: 0 0 1rem 0;">Upload New Photo</h5>
+                        <input type="file" id="photoFileInput" accept="image/*" style="display: block; width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 8px; margin-bottom: 1rem; font-size: 0.875rem;">
+                        <input type="text" id="photoCaption" placeholder="Photo caption (optional)" style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 8px; margin-bottom: 1rem; font-size: 0.875rem;">
+                        <input type="text" id="photoUploadedBy" placeholder="Your name (optional)" style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 8px; margin-bottom: 1rem; font-size: 0.875rem;">
+                        <div style="display: flex; gap: 0.75rem;">
+                            <button class="btn-primary" onclick="uploadPhoto()">Upload Photo</button>
+                            <button onclick="cancelPhotoUpload()" style="background: #f3f4f6; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer; color: #6b7280;">
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Photo Gallery -->
+                    <div id="photoGallery" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;">
+                        <p style="color: #9ca3af; text-align: center; padding: 2rem; grid-column: 1 / -1;">No photos yet. Upload the first one!</p>
+                    </div>
+                </div>
+
                 <!-- Comments Section -->
                 <div class="modal-section">
                     <h4 class="modal-section-title">Comments & Discussion</h4>
@@ -1958,6 +1987,9 @@
             // Load comments
             await loadComments(projectId);
 
+            // Load photos
+            await loadPhotos(projectId);
+
             // Show modal
             document.getElementById('projectModal').classList.add('active');
             document.body.style.overflow = 'hidden'; // Prevent background scrolling
@@ -2067,6 +2099,150 @@
             } catch (error) {
                 console.error('Error posting comment:', error);
                 alert('Failed to post comment. Please try again.');
+            }
+        }
+
+        // Photo Management Functions
+
+        // Show Photo Upload Form
+        function showPhotoUpload() {
+            document.getElementById('photoUploadForm').style.display = 'block';
+        }
+
+        // Cancel Photo Upload
+        function cancelPhotoUpload() {
+            document.getElementById('photoUploadForm').style.display = 'none';
+            document.getElementById('photoFileInput').value = '';
+            document.getElementById('photoCaption').value = '';
+            document.getElementById('photoUploadedBy').value = '';
+        }
+
+        // Upload Photo
+        async function uploadPhoto() {
+            if (!currentProjectId) return;
+
+            const fileInput = document.getElementById('photoFileInput');
+            const caption = document.getElementById('photoCaption').value.trim();
+            const uploadedBy = document.getElementById('photoUploadedBy').value.trim();
+
+            if (!fileInput.files || !fileInput.files[0]) {
+                alert('Please select a photo to upload');
+                return;
+            }
+
+            const file = fileInput.files[0];
+
+            // Validate file size (5MB limit)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('File size must be less than 5MB');
+                return;
+            }
+
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                alert('Only image files are allowed');
+                return;
+            }
+
+            try {
+                const formData = new FormData();
+                formData.append('photo', file);
+                formData.append('caption', caption);
+                formData.append('uploaded_by', uploadedBy || 'Anonymous');
+
+                const response = await fetch(`/api/projects/${currentProjectId}/photos`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Clear form
+                    cancelPhotoUpload();
+
+                    // Reload photos
+                    await loadPhotos(currentProjectId);
+
+                    console.log('Photo uploaded successfully');
+                } else {
+                    alert('Failed to upload photo: ' + (result.error || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Error uploading photo:', error);
+                alert('Failed to upload photo. Please try again.');
+            }
+        }
+
+        // Load Photos
+        async function loadPhotos(projectId) {
+            try {
+                const response = await fetch(`/api/projects/${projectId}/photos`);
+                const result = await response.json();
+
+                if (result.success) {
+                    renderPhotos(result.data);
+                } else {
+                    console.error('Failed to load photos:', result.error);
+                }
+            } catch (error) {
+                console.error('Error loading photos:', error);
+            }
+        }
+
+        // Render Photos
+        function renderPhotos(photos) {
+            const gallery = document.getElementById('photoGallery');
+
+            if (!photos || photos.length === 0) {
+                gallery.innerHTML = '<p style="color: #9ca3af; text-align: center; padding: 2rem; grid-column: 1 / -1;">No photos yet. Upload the first one!</p>';
+                return;
+            }
+
+            gallery.innerHTML = photos.map(photo => `
+                <div style="position: relative; border-radius: 12px; overflow: hidden; border: 1px solid #e5e7eb; background: white;">
+                    <img src="${photo.file_path}" alt="${photo.caption || 'Project photo'}" style="width: 100%; height: 200px; object-fit: cover;">
+                    <div style="padding: 0.75rem;">
+                        ${photo.caption ? `<p style="font-size: 0.875rem; color: #374151; margin: 0 0 0.5rem 0;">${escapeHtml(photo.caption)}</p>` : ''}
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <p style="font-size: 0.75rem; color: #9ca3af; margin: 0;">
+                                ${photo.uploaded_by || 'Anonymous'}<br>
+                                ${new Date(photo.uploaded_at).toLocaleDateString()}
+                            </p>
+                            <button onclick="deletePhoto(${photo.id})" style="background: #fee; border: 1px solid #fcc; color: #c33; padding: 0.375rem 0.75rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer;">
+                                🗑️ Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Delete Photo
+        async function deletePhoto(photoId) {
+            if (!currentProjectId) return;
+
+            if (!confirm('Are you sure you want to delete this photo?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/projects/${currentProjectId}/photos/${photoId}`, {
+                    method: 'DELETE'
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Reload photos
+                    await loadPhotos(currentProjectId);
+                    console.log('Photo deleted successfully');
+                } else {
+                    alert('Failed to delete photo: ' + (result.error || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Error deleting photo:', error);
+                alert('Failed to delete photo. Please try again.');
             }
         }
 

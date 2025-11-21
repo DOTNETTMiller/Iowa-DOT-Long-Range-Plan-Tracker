@@ -39,8 +39,13 @@ setupApiRoutes(app);
 // Serve static files from the current directory
 app.use(express.static(__dirname));
 
-// Default route - serve the enhanced tracker
+// Default route - serve the modern tracker
 app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'iowa_dot_tracker_modern.html'));
+});
+
+// Legacy route - serve the enhanced tracker
+app.get('/legacy', (req, res) => {
   res.sendFile(path.join(__dirname, 'iowa_dot_enhanced_tracker.html'));
 });
 
