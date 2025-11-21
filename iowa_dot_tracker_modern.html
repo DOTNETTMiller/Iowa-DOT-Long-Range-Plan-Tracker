@@ -1246,6 +1246,27 @@
                     <p id="modalProjectDescription" style="color: #4b5563; line-height: 1.6;"></p>
                 </div>
 
+                <!-- Project Timeline Section -->
+                <div class="modal-section" id="projectTimelineSection" style="display: none;">
+                    <h4 class="modal-section-title">Project Timeline</h4>
+                    <div style="background: #f9fafb; padding: 1.5rem; border-radius: 12px; border: 1px solid #e5e7eb;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.5rem;">
+                            <div id="startDateContainer" style="display: none;">
+                                <div style="font-size: 0.75rem; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">📅 Start Date</div>
+                                <div id="displayStartDate" style="font-size: 0.875rem; color: #111827; font-weight: 600;"></div>
+                            </div>
+                            <div id="targetDateContainer" style="display: none;">
+                                <div style="font-size: 0.75rem; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">🎯 Target Completion</div>
+                                <div id="displayTargetDate" style="font-size: 0.875rem; color: #111827; font-weight: 600;"></div>
+                            </div>
+                            <div id="completionDateContainer" style="display: none;">
+                                <div style="font-size: 0.75rem; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">✅ Completed</div>
+                                <div id="displayCompletionDate" style="font-size: 0.875rem; color: #10b981; font-weight: 600;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Plan Reference & Organization Section -->
                 <div class="modal-section">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
@@ -1869,6 +1890,46 @@
             document.getElementById('detailsDisplay').style.display = 'block';
             document.getElementById('detailsEdit').style.display = 'none';
 
+            // Display project timeline dates
+            const hasStartDate = project.start_date;
+            const hasTargetDate = project.target_completion_date;
+            const hasCompletionDate = project.actual_completion_date;
+            const hasAnyDate = hasStartDate || hasTargetDate || hasCompletionDate;
+
+            const timelineSection = document.getElementById('projectTimelineSection');
+            if (hasAnyDate) {
+                timelineSection.style.display = 'block';
+
+                // Start Date
+                const startDateContainer = document.getElementById('startDateContainer');
+                if (hasStartDate) {
+                    startDateContainer.style.display = 'block';
+                    document.getElementById('displayStartDate').textContent = formatProjectDate(project.start_date);
+                } else {
+                    startDateContainer.style.display = 'none';
+                }
+
+                // Target Completion Date
+                const targetDateContainer = document.getElementById('targetDateContainer');
+                if (hasTargetDate) {
+                    targetDateContainer.style.display = 'block';
+                    document.getElementById('displayTargetDate').textContent = formatProjectDate(project.target_completion_date);
+                } else {
+                    targetDateContainer.style.display = 'none';
+                }
+
+                // Actual Completion Date
+                const completionDateContainer = document.getElementById('completionDateContainer');
+                if (hasCompletionDate) {
+                    completionDateContainer.style.display = 'block';
+                    document.getElementById('displayCompletionDate').textContent = formatProjectDate(project.actual_completion_date);
+                } else {
+                    completionDateContainer.style.display = 'none';
+                }
+            } else {
+                timelineSection.style.display = 'none';
+            }
+
             // Load comments
             await loadComments(projectId);
 
@@ -2169,14 +2230,38 @@
             const textMap = {
                 'completed': 'Completed',
                 'ongoing': 'Ongoing',
-                'in-progress': 'In Progress',
+                'in-progress': 'In-progress',
                 'draft': 'Draft',
                 'not-started': 'Not Started'
             };
             return textMap[status] || 'Ongoing';
         }
 
-        // Format Date
+        // Format Project Timeline Date (handles YYYY-MM-DD, YYYY-MM, or YYYY formats)
+        function formatProjectDate(dateString) {
+            if (!dateString) return '';
+
+            // Handle different date formats from database
+            if (dateString.length === 4) {
+                // Year only (e.g., "2024")
+                return dateString;
+            } else if (dateString.length === 7) {
+                // Year-Month (e.g., "2024-06")
+                const [year, month] = dateString.split('-');
+                const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                return `${monthNames[parseInt(month) - 1]} ${year}`;
+            } else {
+                // Full date (e.g., "2024-06-15")
+                const date = new Date(dateString + 'T00:00:00');
+                const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                const month = monthNames[date.getMonth()];
+                const day = date.getDate();
+                const year = date.getFullYear();
+                return `${month} ${day}, ${year}`;
+            }
+        }
+
+        // Format Date (for comments - relative time)
         function formatDate(dateString) {
             if (!dateString) return 'Just now';
             const date = new Date(dateString);
