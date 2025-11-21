@@ -932,6 +932,7 @@
             <div class="filters">
                 <div class="filter-group">
                     <button class="filter-chip active" data-filter="all" onclick="filterByCategory('all')">All</button>
+                    <button class="filter-chip" data-filter="Construction Project" onclick="filterByCategory('Construction Project')">🚧 Construction</button>
                     <button class="filter-chip" data-filter="Modal Plan" onclick="filterByCategory('Modal Plan')">Modal Plans</button>
                     <button class="filter-chip" data-filter="Funding Program" onclick="filterByCategory('Funding Program')">Funding Programs</button>
                     <button class="filter-chip" data-filter="System Plan" onclick="filterByCategory('System Plan')">System Plans</button>
@@ -1025,7 +1026,109 @@
         <!-- Map Section -->
         <div id="mapSection" class="content-section">
             <div class="section-header">
-                <h3 class="section-title">Interactive Project Map</h3>
+                <h3 class="section-title">Active Construction Projects</h3>
+            </div>
+
+            <!-- Construction Projects Grid -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 3rem;">
+                <!-- U.S. 30 Missouri Valley Bypass -->
+                <div style="background: white; border-radius: 12px; border: 1px solid #e5e7eb; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                    <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+                        <span style="font-size: 2rem;">🚧</span>
+                        <div>
+                            <h4 style="font-size: 1.125rem; font-weight: 600; color: #111827; margin: 0;">U.S. 30 Missouri Valley Bypass</h4>
+                            <span style="font-size: 0.875rem; color: #6b7280;">Harrison County</span>
+                        </div>
+                    </div>
+                    <div style="background: #f3f4f6; padding: 0.75rem; border-radius: 8px; margin-bottom: 1rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <span style="font-size: 0.875rem; color: #6b7280;">Progress</span>
+                            <span style="font-size: 1rem; font-weight: 700; color: #03617A;">65%</span>
+                        </div>
+                        <div style="height: 6px; background: #e5e7eb; border-radius: 99px; overflow: hidden;">
+                            <div style="height: 100%; width: 65%; background: linear-gradient(90deg, #03617A 0%, #BBE2DA 100%);"></div>
+                        </div>
+                    </div>
+                    <p style="font-size: 0.875rem; color: #6b7280; margin-bottom: 1rem;">Expected completion: 2027</p>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <a href="https://511ia.org/map?layers=roadReports,weatherRadar,constructionReports&zoom=11&lat=41.5&lon=-96.0" target="_blank" style="flex: 1; text-align: center; background: #03617A; color: white; padding: 0.5rem; border-radius: 6px; text-decoration: none; font-size: 0.875rem; font-weight: 600;">View on 511</a>
+                        <button onclick="filterByCategory('Construction Project'); switchTab('home');" style="flex: 1; background: #f3f4f6; color: #374151; padding: 0.5rem; border: none; border-radius: 6px; font-size: 0.875rem; font-weight: 600; cursor: pointer;">Details</button>
+                    </div>
+                </div>
+
+                <!-- U.S. 63 Oskaloosa Bypass -->
+                <div style="background: white; border-radius: 12px; border: 1px solid #e5e7eb; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                    <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+                        <span style="font-size: 2rem;">🚧</span>
+                        <div>
+                            <h4 style="font-size: 1.125rem; font-weight: 600; color: #111827; margin: 0;">U.S. 63 Oskaloosa Bypass</h4>
+                            <span style="font-size: 0.875rem; color: #6b7280;">Mahaska County</span>
+                        </div>
+                    </div>
+                    <div style="background: #f3f4f6; padding: 0.75rem; border-radius: 8px; margin-bottom: 1rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <span style="font-size: 0.875rem; color: #6b7280;">Progress</span>
+                            <span style="font-size: 1rem; font-weight: 700; color: #03617A;">80%</span>
+                        </div>
+                        <div style="height: 6px; background: #e5e7eb; border-radius: 99px; overflow: hidden;">
+                            <div style="height: 100%; width: 80%; background: linear-gradient(90deg, #03617A 0%, #BBE2DA 100%);"></div>
+                        </div>
+                    </div>
+                    <p style="font-size: 0.875rem; color: #6b7280; margin-bottom: 1rem;">Expected completion: 2027</p>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <a href="https://511ia.org/map?layers=roadReports,weatherRadar,constructionReports&zoom=11&lat=41.3&lon=-92.6" target="_blank" style="flex: 1; text-align: center; background: #03617A; color: white; padding: 0.5rem; border-radius: 6px; text-decoration: none; font-size: 0.875rem; font-weight: 600;">View on 511</a>
+                        <button onclick="filterByCategory('Construction Project'); switchTab('home');" style="flex: 1; background: #f3f4f6; color: #374151; padding: 0.5rem; border: none; border-radius: 6px; font-size: 0.875rem; font-weight: 600; cursor: pointer;">Details</button>
+                    </div>
+                </div>
+
+                <!-- Mississippi River Bridge at Lansing -->
+                <div style="background: white; border-radius: 12px; border: 1px solid #e5e7eb; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                    <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+                        <span style="font-size: 2rem;">🌉</span>
+                        <div>
+                            <h4 style="font-size: 1.125rem; font-weight: 600; color: #111827; margin: 0;">Mississippi River Bridge</h4>
+                            <span style="font-size: 0.875rem; color: #6b7280;">Lansing (Iowa/Wisconsin)</span>
+                        </div>
+                    </div>
+                    <div style="background: #f3f4f6; padding: 0.75rem; border-radius: 8px; margin-bottom: 1rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <span style="font-size: 0.875rem; color: #6b7280;">Progress</span>
+                            <span style="font-size: 1rem; font-weight: 700; color: #03617A;">55%</span>
+                        </div>
+                        <div style="height: 6px; background: #e5e7eb; border-radius: 99px; overflow: hidden;">
+                            <div style="height: 100%; width: 55%; background: linear-gradient(90deg, #03617A 0%, #BBE2DA 100%);"></div>
+                        </div>
+                    </div>
+                    <p style="font-size: 0.875rem; color: #6b7280; margin-bottom: 1rem;">Opens Spring 2027 • Ferry operating</p>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <a href="https://iowadot.gov/bridge-replacement-lansing" target="_blank" style="flex: 1; text-align: center; background: #03617A; color: white; padding: 0.5rem; border-radius: 6px; text-decoration: none; font-size: 0.875rem; font-weight: 600;">Project Website</a>
+                        <button onclick="filterByCategory('Construction Project'); switchTab('home');" style="flex: 1; background: #f3f4f6; color: #374151; padding: 0.5rem; border: none; border-radius: 6px; font-size: 0.875rem; font-weight: 600; cursor: pointer;">Details</button>
+                    </div>
+                </div>
+
+                <!-- Iowa 12 Gordon Drive Bridge -->
+                <div style="background: white; border-radius: 12px; border: 1px solid #e5e7eb; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                    <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+                        <span style="font-size: 2rem;">🏗️</span>
+                        <div>
+                            <h4 style="font-size: 1.125rem; font-weight: 600; color: #111827; margin: 0;">Iowa 12 Gordon Drive Bridge</h4>
+                            <span style="font-size: 0.875rem; color: #6b7280;">Sioux City</span>
+                        </div>
+                    </div>
+                    <div style="background: #fef3c7; padding: 0.75rem; border-radius: 8px; margin-bottom: 1rem;">
+                        <span style="font-size: 0.875rem; font-weight: 600; color: #92400e;">📋 Planned - Design Phase</span>
+                    </div>
+                    <p style="font-size: 0.875rem; color: #6b7280; margin-bottom: 1rem;">Included in transportation improvement program</p>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <a href="https://iowadot.gov/program_management/Five-Year-Program" target="_blank" style="flex: 1; text-align: center; background: #03617A; color: white; padding: 0.5rem; border-radius: 6px; text-decoration: none; font-size: 0.875rem; font-weight: 600;">5-Year Plan</a>
+                        <button onclick="filterByCategory('Construction Project'); switchTab('home');" style="flex: 1; background: #f3f4f6; color: #374151; padding: 0.5rem; border: none; border-radius: 6px; font-size: 0.875rem; font-weight: 600; cursor: pointer;">Details</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Map Links Section -->
+            <div class="section-header" style="margin-top: 2rem;">
+                <h3 class="section-title">Interactive Maps</h3>
             </div>
             <div style="text-align: center; padding: 4rem 2rem; background: white; border-radius: 12px; border: 1px solid #e5e7eb; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
                 <div style="max-width: 600px; margin: 0 auto;">
