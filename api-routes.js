@@ -161,6 +161,50 @@ function setupApiRoutes(app) {
         }
     });
 
+    // PATCH - Update project completion percentage and status
+    app.patch('/api/projects/:id/completion', async (req, res) => {
+        const { completion_percentage, status, user_id } = req.body;
+        const project_id = req.params.id;
+
+        if (completion_percentage === undefined || completion_percentage < 0 || completion_percentage > 100) {
+            return res.status(400).json({ success: false, error: 'Valid completion percentage is required (0-100)' });
+        }
+
+        try {
+            // Get current values
+            const current = await dbGet('SELECT status, completion_percentage FROM projects WHERE id = ?', [project_id]);
+            if (!current) {
+                return res.status(404).json({ success: false, error: 'Project not found' });
+            }
+
+            // Update project
+            await dbRun(`
+                UPDATE projects
+                SET completion_percentage = ?, status = ?, updated_at = CURRENT_TIMESTAMP
+                WHERE id = ?
+            `, [completion_percentage, status, project_id]);
+
+            // Log status update if status has changed
+            if (current.status !== status || current.completion_percentage !== completion_percentage) {
+                await dbRun(`
+                    INSERT INTO status_updates (project_id, user_id, old_status, new_status, old_completion, new_completion, update_note)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                `, [project_id, user_id || 1, current.status, status, current.completion_percentage, completion_percentage, 'Completion updated via modal']);
+
+                // Log activity
+                await dbRun(`
+                    INSERT INTO activity_log (user_id, project_id, activity_type, activity_data)
+                    VALUES (?, ?, 'completion_updated', ?)
+                `, [user_id || 1, project_id, JSON.stringify({ old_status: current.status, new_status: status, old_completion: current.completion_percentage, new_completion: completion_percentage })]);
+            }
+
+            res.json({ success: true, message: 'Project completion updated' });
+        } catch (err) {
+            console.error('Error updating project completion:', err);
+            res.status(500).json({ success: false, error: 'Failed to update project completion' });
+        }
+    });
+
     // PATCH - Update project weight
     app.patch('/api/projects/:id/weight', async (req, res) => {
         const { weight, user_id } = req.body;
