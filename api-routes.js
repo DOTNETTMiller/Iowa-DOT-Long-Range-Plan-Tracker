@@ -259,6 +259,25 @@ function setupApiRoutes(app) {
         }
     });
 
+    // PATCH update project coordinates
+    app.patch('/api/projects/:id/coordinates', async (req, res) => {
+        const { latitude, longitude } = req.body;
+        const project_id = req.params.id;
+
+        try {
+            await dbRun(`
+                UPDATE projects
+                SET latitude = ?, longitude = ?, updated_at = CURRENT_TIMESTAMP
+                WHERE id = ?
+            `, [latitude || null, longitude || null, project_id]);
+
+            res.json({ success: true, message: 'Project coordinates updated' });
+        } catch (err) {
+            console.error('Error updating project coordinates:', err);
+            res.status(500).json({ success: false, error: 'Failed to update project coordinates' });
+        }
+    });
+
     // ============================================
     // COMMENTS ENDPOINTS
     // ============================================

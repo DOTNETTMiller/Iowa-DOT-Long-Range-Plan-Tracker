@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Iowa DOT 2050 Long-Range Plan Tracker</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Leaflet.js for Interactive Maps -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
     <style>
         * {
             margin: 0;
@@ -1046,128 +1051,72 @@
         <!-- Map Section -->
         <div id="mapSection" class="content-section">
             <div class="section-header">
-                <h3 class="section-title">Active Construction Projects</h3>
+                <h3 class="section-title">Project Location Map</h3>
+                <p style="color: #6b7280; font-size: 0.875rem; margin-top: 0.5rem;">
+                    Interactive map showing locations of Iowa DOT SLTP projects. Click markers to view project details.
+                </p>
             </div>
 
-            <!-- Construction Projects Grid -->
-            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 3rem;">
-                <!-- U.S. 30 Missouri Valley Bypass -->
-                <div style="background: white; border-radius: 12px; border: 1px solid #e5e7eb; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                    <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
-                        <span style="font-size: 2rem;">🚧</span>
-                        <div>
-                            <h4 style="font-size: 1.125rem; font-weight: 600; color: #111827; margin: 0;">U.S. 30 Missouri Valley Bypass</h4>
-                            <span style="font-size: 0.875rem; color: #6b7280;">Harrison County</span>
-                        </div>
+            <!-- Interactive Map Container -->
+            <div style="background: white; border-radius: 12px; border: 1px solid #e5e7eb; padding: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                <div id="projectMap" style="height: 600px; border-radius: 8px; position: relative; z-index: 1;"></div>
+                <div style="margin-top: 1rem; padding: 0.75rem; background: #f9fafb; border-radius: 8px; display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; font-size: 0.875rem;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <div style="width: 12px; height: 12px; background: #10b981; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.5);"></div>
+                        <span style="color: #6b7280;">67-100% Complete</span>
                     </div>
-                    <div style="background: #f3f4f6; padding: 0.75rem; border-radius: 8px; margin-bottom: 1rem;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                            <span style="font-size: 0.875rem; color: #6b7280;">Progress</span>
-                            <span style="font-size: 1rem; font-weight: 700; color: #03617A;">65%</span>
-                        </div>
-                        <div style="height: 6px; background: #e5e7eb; border-radius: 99px; overflow: hidden;">
-                            <div style="height: 100%; width: 65%; background: linear-gradient(90deg, #03617A 0%, #BBE2DA 100%);"></div>
-                        </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <div style="width: 12px; height: 12px; background: #f59e0b; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.5);"></div>
+                        <span style="color: #6b7280;">34-66% Complete</span>
                     </div>
-                    <p style="font-size: 0.875rem; color: #6b7280; margin-bottom: 1rem;">Expected completion: 2027</p>
-                    <div style="display: flex; gap: 0.5rem;">
-                        <a href="https://511ia.org/map?layers=roadReports,weatherRadar,constructionReports&zoom=11&lat=41.5&lon=-96.0" target="_blank" style="flex: 1; text-align: center; background: #03617A; color: white; padding: 0.5rem; border-radius: 6px; text-decoration: none; font-size: 0.875rem; font-weight: 600;">View on 511</a>
-                        <button onclick="filterByCategory('Construction Project'); switchTab('home');" style="flex: 1; background: #f3f4f6; color: #374151; padding: 0.5rem; border: none; border-radius: 6px; font-size: 0.875rem; font-weight: 600; cursor: pointer;">Details</button>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <div style="width: 12px; height: 12px; background: #ef4444; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.5);"></div>
+                        <span style="color: #6b7280;">0-33% Complete</span>
                     </div>
-                </div>
-
-                <!-- U.S. 63 Oskaloosa Bypass -->
-                <div style="background: white; border-radius: 12px; border: 1px solid #e5e7eb; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                    <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
-                        <span style="font-size: 2rem;">🚧</span>
-                        <div>
-                            <h4 style="font-size: 1.125rem; font-weight: 600; color: #111827; margin: 0;">U.S. 63 Oskaloosa Bypass</h4>
-                            <span style="font-size: 0.875rem; color: #6b7280;">Mahaska County</span>
-                        </div>
-                    </div>
-                    <div style="background: #f3f4f6; padding: 0.75rem; border-radius: 8px; margin-bottom: 1rem;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                            <span style="font-size: 0.875rem; color: #6b7280;">Progress</span>
-                            <span style="font-size: 1rem; font-weight: 700; color: #03617A;">80%</span>
-                        </div>
-                        <div style="height: 6px; background: #e5e7eb; border-radius: 99px; overflow: hidden;">
-                            <div style="height: 100%; width: 80%; background: linear-gradient(90deg, #03617A 0%, #BBE2DA 100%);"></div>
-                        </div>
-                    </div>
-                    <p style="font-size: 0.875rem; color: #6b7280; margin-bottom: 1rem;">Expected completion: 2027</p>
-                    <div style="display: flex; gap: 0.5rem;">
-                        <a href="https://511ia.org/map?layers=roadReports,weatherRadar,constructionReports&zoom=11&lat=41.3&lon=-92.6" target="_blank" style="flex: 1; text-align: center; background: #03617A; color: white; padding: 0.5rem; border-radius: 6px; text-decoration: none; font-size: 0.875rem; font-weight: 600;">View on 511</a>
-                        <button onclick="filterByCategory('Construction Project'); switchTab('home');" style="flex: 1; background: #f3f4f6; color: #374151; padding: 0.5rem; border: none; border-radius: 6px; font-size: 0.875rem; font-weight: 600; cursor: pointer;">Details</button>
-                    </div>
-                </div>
-
-                <!-- Mississippi River Bridge at Lansing -->
-                <div style="background: white; border-radius: 12px; border: 1px solid #e5e7eb; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                    <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
-                        <span style="font-size: 2rem;">🌉</span>
-                        <div>
-                            <h4 style="font-size: 1.125rem; font-weight: 600; color: #111827; margin: 0;">Mississippi River Bridge</h4>
-                            <span style="font-size: 0.875rem; color: #6b7280;">Lansing (Iowa/Wisconsin)</span>
-                        </div>
-                    </div>
-                    <div style="background: #f3f4f6; padding: 0.75rem; border-radius: 8px; margin-bottom: 1rem;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                            <span style="font-size: 0.875rem; color: #6b7280;">Progress</span>
-                            <span style="font-size: 1rem; font-weight: 700; color: #03617A;">55%</span>
-                        </div>
-                        <div style="height: 6px; background: #e5e7eb; border-radius: 99px; overflow: hidden;">
-                            <div style="height: 100%; width: 55%; background: linear-gradient(90deg, #03617A 0%, #BBE2DA 100%);"></div>
-                        </div>
-                    </div>
-                    <p style="font-size: 0.875rem; color: #6b7280; margin-bottom: 1rem;">Opens Spring 2027 • Ferry operating</p>
-                    <div style="display: flex; gap: 0.5rem;">
-                        <a href="https://iowadot.gov/bridge-replacement-lansing" target="_blank" style="flex: 1; text-align: center; background: #03617A; color: white; padding: 0.5rem; border-radius: 6px; text-decoration: none; font-size: 0.875rem; font-weight: 600;">Project Website</a>
-                        <button onclick="filterByCategory('Construction Project'); switchTab('home');" style="flex: 1; background: #f3f4f6; color: #374151; padding: 0.5rem; border: none; border-radius: 6px; font-size: 0.875rem; font-weight: 600; cursor: pointer;">Details</button>
-                    </div>
-                </div>
-
-                <!-- Iowa 12 Gordon Drive Bridge -->
-                <div style="background: white; border-radius: 12px; border: 1px solid #e5e7eb; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                    <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
-                        <span style="font-size: 2rem;">🏗️</span>
-                        <div>
-                            <h4 style="font-size: 1.125rem; font-weight: 600; color: #111827; margin: 0;">Iowa 12 Gordon Drive Bridge</h4>
-                            <span style="font-size: 0.875rem; color: #6b7280;">Sioux City</span>
-                        </div>
-                    </div>
-                    <div style="background: #fef3c7; padding: 0.75rem; border-radius: 8px; margin-bottom: 1rem;">
-                        <span style="font-size: 0.875rem; font-weight: 600; color: #92400e;">📋 Planned - Design Phase</span>
-                    </div>
-                    <p style="font-size: 0.875rem; color: #6b7280; margin-bottom: 1rem;">Included in transportation improvement program</p>
-                    <div style="display: flex; gap: 0.5rem;">
-                        <a href="https://iowadot.gov/program_management/Five-Year-Program" target="_blank" style="flex: 1; text-align: center; background: #03617A; color: white; padding: 0.5rem; border-radius: 6px; text-decoration: none; font-size: 0.875rem; font-weight: 600;">5-Year Plan</a>
-                        <button onclick="filterByCategory('Construction Project'); switchTab('home');" style="flex: 1; background: #f3f4f6; color: #374151; padding: 0.5rem; border: none; border-radius: 6px; font-size: 0.875rem; font-weight: 600; cursor: pointer;">Details</button>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <div style="width: 12px; height: 12px; background: #9ca3af; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 0 1px rgba(156, 163, 175, 0.5);"></div>
+                        <span style="color: #6b7280;">No location data</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Map Links Section -->
-            <div class="section-header" style="margin-top: 2rem;">
-                <h3 class="section-title">Interactive Maps</h3>
+            <!-- External Maps Section -->
+            <div class="section-header">
+                <h3 class="section-title">Additional Resources</h3>
             </div>
-            <div style="text-align: center; padding: 4rem 2rem; background: white; border-radius: 12px; border: 1px solid #e5e7eb; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                <div style="max-width: 600px; margin: 0 auto;">
-                    <svg style="width: 80px; height: 80px; margin-bottom: 1.5rem; color: #03617A;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+                <!-- Iowa DOT Major Projects -->
+                <div style="background: white; border-radius: 12px; border: 1px solid #e5e7eb; padding: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); text-align: center;">
+                    <svg style="width: 60px; height: 60px; margin: 0 auto 1rem; color: #03617A;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
                     </svg>
-                    <h3 style="color: #19405B; font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem;">Iowa DOT Major Projects Map</h3>
-                    <p style="color: #6b7280; font-size: 1rem; line-height: 1.6; margin-bottom: 2rem;">
-                        View an interactive map of active construction projects, planned improvements, and transportation initiatives across Iowa.
+                    <h4 style="color: #111827; font-size: 1.125rem; font-weight: 600; margin-bottom: 0.75rem;">Iowa DOT Major Projects</h4>
+                    <p style="color: #6b7280; font-size: 0.875rem; line-height: 1.6; margin-bottom: 1.5rem;">
+                        View active construction projects and planned improvements statewide.
                     </p>
                     <a href="https://majorprojects.iowadot.gov" target="_blank" rel="noopener noreferrer"
-                       style="display: inline-block; background: #03617A; color: white; padding: 0.875rem 2rem; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 1rem; transition: background 0.2s;"
+                       style="display: inline-block; background: #03617A; color: white; padding: 0.625rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.875rem; transition: background 0.2s;"
                        onmouseover="this.style.background='#19405B'"
                        onmouseout="this.style.background='#03617A'">
-                        🗺️ Open Interactive Map
+                        Open Map
                     </a>
-                    <p style="color: #9ca3af; font-size: 0.875rem; margin-top: 1rem;">
-                        Opens in a new window
+                </div>
+
+                <!-- Iowa 511 Traveler Info -->
+                <div style="background: white; border-radius: 12px; border: 1px solid #e5e7eb; padding: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); text-align: center;">
+                    <svg style="width: 60px; height: 60px; margin: 0 auto 1rem; color: #03617A;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <h4 style="color: #111827; font-size: 1.125rem; font-weight: 600; margin-bottom: 0.75rem;">Iowa 511 Travel Info</h4>
+                    <p style="color: #6b7280; font-size: 0.875rem; line-height: 1.6; margin-bottom: 1.5rem;">
+                        Real-time road conditions, construction alerts, and travel information.
                     </p>
+                    <a href="https://511ia.org" target="_blank" rel="noopener noreferrer"
+                       style="display: inline-block; background: #03617A; color: white; padding: 0.625rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.875rem; transition: background 0.2s;"
+                       onmouseover="this.style.background='#19405B'"
+                       onmouseout="this.style.background='#03617A'">
+                        Open 511
+                    </a>
                 </div>
             </div>
         </div>
@@ -1370,6 +1319,72 @@
                             <div style="display: flex; gap: 0.75rem; margin-top: 1rem;">
                                 <button class="btn-primary" onclick="saveProjectDetails()">Save Details</button>
                                 <button onclick="cancelDetailsEdit()" style="background: #f3f4f6; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer; color: #6b7280;">
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Map Location Section -->
+                <div class="modal-section">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h4 class="modal-section-title" style="margin: 0;">Map Location</h4>
+                        <button id="editLocationBtn" onclick="toggleLocationEdit()" style="background: #f3f4f6; border: 1px solid #d1d5db; padding: 0.375rem 0.75rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; color: #6b7280; cursor: pointer; transition: all 0.2s;">
+                            ✏️ Edit
+                        </button>
+                    </div>
+
+                    <!-- Display Mode -->
+                    <div id="locationDisplay" style="background: #f9fafb; padding: 1.5rem; border-radius: 12px; border: 1px solid #e5e7eb;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
+                            <div>
+                                <div style="font-size: 0.75rem; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">Latitude</div>
+                                <div id="displayLatitude" style="font-size: 0.875rem; color: #111827; font-weight: 600;">
+                                    <em style="color: #9ca3af;">Not specified</em>
+                                </div>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.75rem; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">Longitude</div>
+                                <div id="displayLongitude" style="font-size: 0.875rem; color: #111827; font-weight: 600;">
+                                    <em style="color: #9ca3af;">Not specified</em>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid #e5e7eb; font-size: 0.75rem; color: #6b7280;">
+                            Set coordinates to display this project on the interactive map. Visit <a href="https://www.google.com/maps" target="_blank" style="color: #03617A; text-decoration: underline;">Google Maps</a> to find coordinates.
+                        </div>
+                    </div>
+
+                    <!-- Edit Mode -->
+                    <div id="locationEdit" style="display: none;">
+                        <div style="background: #f9fafb; padding: 1.5rem; border-radius: 12px; border: 1px solid #e5e7eb;">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                <div>
+                                    <label style="display: block; font-size: 0.875rem; font-weight: 600; color: #374151; margin-bottom: 0.5rem;">
+                                        Latitude
+                                    </label>
+                                    <input type="number" id="inputLatitude"
+                                           placeholder="e.g., 42.0308"
+                                           step="0.0001"
+                                           style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 8px; font-size: 0.875rem;">
+                                </div>
+                                <div>
+                                    <label style="display: block; font-size: 0.875rem; font-weight: 600; color: #374151; margin-bottom: 0.5rem;">
+                                        Longitude
+                                    </label>
+                                    <input type="number" id="inputLongitude"
+                                           placeholder="e.g., -93.6319"
+                                           step="0.0001"
+                                           style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 8px; font-size: 0.875rem;">
+                                </div>
+                            </div>
+                            <div style="margin-top: 1rem; padding: 0.75rem; background: #dbeafe; border-radius: 8px; font-size: 0.75rem; color: #1e40af;">
+                                <strong>Tip:</strong> Right-click on Google Maps and select "What's here?" to get exact coordinates for any location.
+                            </div>
+                            <div style="display: flex; gap: 0.75rem; margin-top: 1rem;">
+                                <button class="btn-primary" onclick="saveProjectLocation()">Save Location</button>
+                                <button onclick="cancelLocationEdit()" style="background: #f3f4f6; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer; color: #6b7280;">
                                     Cancel
                                 </button>
                             </div>
@@ -1991,6 +2006,30 @@
             document.getElementById('detailsDisplay').style.display = 'block';
             document.getElementById('detailsEdit').style.display = 'none';
 
+            // Set location display
+            const displayLatitude = document.getElementById('displayLatitude');
+            const displayLongitude = document.getElementById('displayLongitude');
+
+            if (project.latitude) {
+                displayLatitude.textContent = project.latitude.toFixed(6);
+            } else {
+                displayLatitude.innerHTML = '<em style="color: #9ca3af;">Not specified</em>';
+            }
+
+            if (project.longitude) {
+                displayLongitude.textContent = project.longitude.toFixed(6);
+            } else {
+                displayLongitude.innerHTML = '<em style="color: #9ca3af;">Not specified</em>';
+            }
+
+            // Set location edit form values
+            document.getElementById('inputLatitude').value = project.latitude || '';
+            document.getElementById('inputLongitude').value = project.longitude || '';
+
+            // Reset location edit mode
+            document.getElementById('locationDisplay').style.display = 'block';
+            document.getElementById('locationEdit').style.display = 'none';
+
             // Reset completion edit mode
             document.getElementById('completionDisplay').style.display = 'block';
             document.getElementById('completionEdit').style.display = 'none';
@@ -2585,6 +2624,100 @@
             }
         }
 
+        // Toggle Location Edit Mode
+        function toggleLocationEdit() {
+            document.getElementById('locationDisplay').style.display = 'none';
+            document.getElementById('locationEdit').style.display = 'block';
+            document.getElementById('inputLatitude').focus();
+        }
+
+        // Cancel Location Edit
+        function cancelLocationEdit() {
+            document.getElementById('locationDisplay').style.display = 'block';
+            document.getElementById('locationEdit').style.display = 'none';
+
+            // Reset input to original value
+            const project = allProjects.find(p => p.id === currentProjectId);
+            if (project) {
+                document.getElementById('inputLatitude').value = project.latitude || '';
+                document.getElementById('inputLongitude').value = project.longitude || '';
+            }
+        }
+
+        // Save Project Location
+        async function saveProjectLocation() {
+            if (!currentProjectId) return;
+
+            const latitude = parseFloat(document.getElementById('inputLatitude').value);
+            const longitude = parseFloat(document.getElementById('inputLongitude').value);
+
+            // Validate coordinates
+            if ((latitude && (latitude < -90 || latitude > 90))) {
+                alert('Latitude must be between -90 and 90 degrees');
+                return;
+            }
+
+            if ((longitude && (longitude < -180 || longitude > 180))) {
+                alert('Longitude must be between -180 and 180 degrees');
+                return;
+            }
+
+            try {
+                // Call the coordinates update API
+                const response = await fetch(`${window.location.origin}/api/projects/${currentProjectId}/coordinates`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        latitude: latitude || null,
+                        longitude: longitude || null
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Update local project data
+                    const project = allProjects.find(p => p.id === currentProjectId);
+                    if (project) {
+                        project.latitude = latitude || null;
+                        project.longitude = longitude || null;
+                    }
+
+                    // Update display
+                    const displayLatitude = document.getElementById('displayLatitude');
+                    const displayLongitude = document.getElementById('displayLongitude');
+
+                    if (latitude) {
+                        displayLatitude.textContent = latitude.toFixed(6);
+                    } else {
+                        displayLatitude.innerHTML = '<em style="color: #9ca3af;">Not specified</em>';
+                    }
+
+                    if (longitude) {
+                        displayLongitude.textContent = longitude.toFixed(6);
+                    } else {
+                        displayLongitude.innerHTML = '<em style="color: #9ca3af;">Not specified</em>';
+                    }
+
+                    // Refresh map markers if map is initialized
+                    if (projectMap) {
+                        addProjectMarkers();
+                    }
+
+                    // Exit edit mode
+                    document.getElementById('locationDisplay').style.display = 'block';
+                    document.getElementById('locationEdit').style.display = 'none';
+
+                    window.IowaDOTTracker.showNotification('Location saved successfully!', 'success');
+                } else {
+                    throw new Error(result.error || 'Failed to save location');
+                }
+            } catch (error) {
+                console.error('Error saving location:', error);
+                alert('Failed to save location. Please try again.');
+            }
+        }
+
         // Toggle Completion Edit Mode
         function toggleCompletionEdit() {
             const project = allProjects.find(p => p.id === currentProjectId);
@@ -2926,8 +3059,141 @@
         }
 
         // Initialize
+        // Initialize Leaflet Map
+        let projectMap = null;
+        let mapMarkers = [];
+
+        function initializeMap() {
+            // Only initialize map when on the map tab
+            if (!document.getElementById('projectMap')) return;
+
+            // Initialize map centered on Iowa
+            projectMap = L.map('projectMap').setView([42.0, -93.5], 7);
+
+            // Add OpenStreetMap tiles
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                maxZoom: 18
+            }).addTo(projectMap);
+
+            // Add markers for projects with coordinates
+            addProjectMarkers();
+        }
+
+        function addProjectMarkers() {
+            // Clear existing markers
+            mapMarkers.forEach(marker => projectMap.removeLayer(marker));
+            mapMarkers = [];
+
+            // Add markers for each project with coordinates
+            allProjects.forEach(project => {
+                if (project.latitude && project.longitude) {
+                    // Determine marker color based on completion
+                    const completion = project.completion_percentage || 0;
+                    let markerColor = '#9ca3af'; // Gray default
+
+                    if (completion >= 67) {
+                        markerColor = '#10b981'; // Green
+                    } else if (completion >= 34) {
+                        markerColor = '#f59e0b'; // Orange
+                    } else if (completion > 0) {
+                        markerColor = '#ef4444'; // Red
+                    }
+
+                    // Create custom marker icon
+                    const markerIcon = L.divIcon({
+                        className: 'custom-marker',
+                        html: `<div style="background: ${markerColor}; width: 24px; height: 24px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3);"></div>`,
+                        iconSize: [24, 24],
+                        iconAnchor: [12, 12]
+                    });
+
+                    // Create marker
+                    const marker = L.marker([project.latitude, project.longitude], { icon: markerIcon })
+                        .bindPopup(createMarkerPopup(project))
+                        .addTo(projectMap);
+
+                    mapMarkers.push(marker);
+                }
+            });
+        }
+
+        function createMarkerPopup(project) {
+            const completion = project.completion_percentage || 0;
+            const statusClass = getStatusClass(project.status);
+            const statusLabel = getStatusLabel(project.status);
+
+            return `
+                <div style="min-width: 250px; padding: 0.5rem;">
+                    <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; font-weight: 600; color: #111827;">
+                        ${escapeHtml(project.name)}
+                    </h4>
+                    <div style="display: flex; gap: 0.5rem; margin-bottom: 0.75rem;">
+                        <span class="status-badge ${statusClass}" style="font-size: 0.75rem;">
+                            ${statusLabel}
+                        </span>
+                    </div>
+                    <div style="margin-bottom: 0.75rem;">
+                        <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #6b7280; margin-bottom: 0.25rem;">
+                            <span>Progress</span>
+                            <span style="font-weight: 600;">${completion}%</span>
+                        </div>
+                        <div style="height: 6px; background: #e5e7eb; border-radius: 99px; overflow: hidden;">
+                            <div style="height: 100%; width: ${completion}%; background: linear-gradient(90deg, #03617A 0%, #BBE2DA 100%);"></div>
+                        </div>
+                    </div>
+                    ${project.category ? `
+                        <div style="font-size: 0.75rem; color: #6b7280; margin-bottom: 0.75rem;">
+                            <strong>Category:</strong> ${escapeHtml(project.category)}
+                        </div>
+                    ` : ''}
+                    <button onclick="viewProject(${project.id}); switchTab('home');"
+                            style="width: 100%; background: #03617A; color: white; border: none; padding: 0.5rem; border-radius: 6px; font-size: 0.875rem; font-weight: 600; cursor: pointer;">
+                        View Details
+                    </button>
+                </div>
+            `;
+        }
+
+        function updateProjectCoordinates(projectId, latitude, longitude) {
+            fetch(`${window.location.origin}/api/projects/${projectId}/coordinates`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ latitude, longitude })
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    // Update local project data
+                    const project = allProjects.find(p => p.id === projectId);
+                    if (project) {
+                        project.latitude = latitude;
+                        project.longitude = longitude;
+                    }
+
+                    // Refresh map markers
+                    if (projectMap) {
+                        addProjectMarkers();
+                    }
+
+                    alert('Location updated successfully!');
+                } else {
+                    alert('Failed to update location: ' + result.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error updating coordinates:', error);
+                alert('Failed to update location');
+            });
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             loadProjects();
+
+            // Initialize map after projects are loaded
+            setTimeout(() => {
+                initializeMap();
+            }, 1000);
 
             // Set footer year
             document.getElementById('footerYear').textContent = new Date().getFullYear();
