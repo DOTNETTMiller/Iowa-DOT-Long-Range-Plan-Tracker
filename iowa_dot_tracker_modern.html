@@ -843,7 +843,7 @@
                 <div class="logo-text">
                     <h1>Iowa DOT Plan Tracker</h1>
                     <p>2050 Long-Range Transportation Plan</p>
-                    <p style="font-size: 0.75rem; color: #BBE2DA; margin-top: 0.25rem; font-weight: 500;">Brought to you by Matthew Miller, CPM • Director of New and Emerging Transportation Technologies</p>
+                    <p style="font-size: 0.75rem; color: #000000; margin-top: 0.25rem; font-weight: 500;">Brought to you by Matthew Miller, CPM • Director of New and Emerging Transportation Technologies</p>
                 </div>
             </div>
             <div class="header-actions">
@@ -1637,7 +1637,7 @@
             const s = status.toLowerCase();
             if (s.includes('completed')) return 'COMPLETED';
             if (s.includes('ongoing') || s.includes('operational') || s.includes('in use') || s.includes('in effect')) return 'ONGOING';
-            if (s.includes('draft') || s.includes('in progress')) return 'IN PROGRESS';
+            if (s.includes('draft') || s.includes('in progress') || s.includes('in-progress')) return 'IN PROGRESS';
             return 'NOT STARTED';
         }
 
