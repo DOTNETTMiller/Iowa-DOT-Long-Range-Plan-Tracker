@@ -30,7 +30,13 @@ const PROJECT_OVERRIDES = {
     'I-80 Mid-America Alternative Fuel Corridor': LOCATIONS['Council Bluffs'],
 
     // Mississippi River projects - Dubuque area
-    'M-35 Marine Highway Corridor (Waterway of the Saints)': LOCATIONS['Dubuque']
+    'M-35 Marine Highway Corridor (Waterway of the Saints)': LOCATIONS['Dubuque'],
+
+    // Active Construction Projects - Real Locations
+    'U.S. 30 Missouri Valley Bypass': { lat: 41.5700, lon: -95.9000 }, // Harrison County, Missouri Valley
+    'U.S. 63 Oskaloosa Bypass': { lat: 41.2974, lon: -92.6443 }, // Mahaska County, Oskaloosa
+    'Iowa 12 Gordon Drive Bridge Replacement': LOCATIONS['Sioux City'], // Sioux City
+    'Mississippi River Bridge at Lansing': { lat: 43.3619, lon: -91.2215 } // Lansing, Iowa/Wisconsin border
 };
 
 async function updateCoordinates() {

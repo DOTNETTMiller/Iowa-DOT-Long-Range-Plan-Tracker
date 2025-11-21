@@ -10,6 +10,11 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
+    <!-- Leaflet MarkerCluster Plugin -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+
     <style>
         * {
             margin: 0;
@@ -3061,7 +3066,7 @@
         // Initialize
         // Initialize Leaflet Map
         let projectMap = null;
-        let mapMarkers = [];
+        let markerClusterGroup = null;
 
         function initializeMap() {
             // Only initialize map when on the map tab
@@ -3076,14 +3081,45 @@
                 maxZoom: 18
             }).addTo(projectMap);
 
+            // Create marker cluster group with custom styling
+            markerClusterGroup = L.markerClusterGroup({
+                showCoverageOnHover: false,
+                zoomToBoundsOnClick: true,
+                spiderfyOnMaxZoom: true,
+                removeOutsideVisibleBounds: true,
+                iconCreateFunction: function(cluster) {
+                    const count = cluster.getChildCount();
+                    let size = 'small';
+                    let bgColor = '#03617A';
+
+                    if (count > 20) {
+                        size = 'large';
+                        bgColor = '#19405B';
+                    } else if (count > 10) {
+                        size = 'medium';
+                        bgColor = '#0277A0';
+                    }
+
+                    return L.divIcon({
+                        html: `<div style="background: ${bgColor}; color: white; width: ${size === 'large' ? 50 : size === 'medium' ? 42 : 36}px; height: ${size === 'large' ? 50 : size === 'medium' ? 42 : 36}px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.3); font-size: ${size === 'large' ? '16px' : '14px'};">${count}</div>`,
+                        className: 'marker-cluster',
+                        iconSize: L.point(size === 'large' ? 50 : size === 'medium' ? 42 : 36, size === 'large' ? 50 : size === 'medium' ? 42 : 36)
+                    });
+                }
+            });
+
             // Add markers for projects with coordinates
             addProjectMarkers();
+
+            // Add cluster group to map
+            projectMap.addLayer(markerClusterGroup);
         }
 
         function addProjectMarkers() {
             // Clear existing markers
-            mapMarkers.forEach(marker => projectMap.removeLayer(marker));
-            mapMarkers = [];
+            if (markerClusterGroup) {
+                markerClusterGroup.clearLayers();
+            }
 
             // Add markers for each project with coordinates
             allProjects.forEach(project => {
@@ -3110,10 +3146,10 @@
 
                     // Create marker
                     const marker = L.marker([project.latitude, project.longitude], { icon: markerIcon })
-                        .bindPopup(createMarkerPopup(project))
-                        .addTo(projectMap);
+                        .bindPopup(createMarkerPopup(project));
 
-                    mapMarkers.push(marker);
+                    // Add to cluster group
+                    markerClusterGroup.addLayer(marker);
                 }
             });
         }
