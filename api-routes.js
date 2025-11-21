@@ -123,7 +123,7 @@ function setupApiRoutes(app) {
 
     // PATCH update project status/completion
     app.patch('/api/projects/:id/status', async (req, res) => {
-        const { status, completion_percentage, update_note, user_id } = req.body;
+        const { status, completion_percentage, completion_justification, update_note, user_id } = req.body;
         const project_id = req.params.id;
 
         try {
@@ -136,9 +136,9 @@ function setupApiRoutes(app) {
             // Update project
             await dbRun(`
                 UPDATE projects
-                SET status = ?, completion_percentage = ?, updated_at = CURRENT_TIMESTAMP
+                SET status = ?, completion_percentage = ?, completion_justification = ?, updated_at = CURRENT_TIMESTAMP
                 WHERE id = ?
-            `, [status, completion_percentage, project_id]);
+            `, [status, completion_percentage, completion_justification || null, project_id]);
 
             // Log status update
             await dbRun(`
@@ -185,6 +185,31 @@ function setupApiRoutes(app) {
         } catch (err) {
             console.error('Error updating weight:', err);
             res.status(500).json({ success: false, error: 'Failed to update weight' });
+        }
+    });
+
+    // PATCH - Update project details (plan page, division, bureau)
+    app.patch('/api/projects/:id/details', async (req, res) => {
+        const { plan_page, division, bureau, status, user_id } = req.body;
+        const project_id = req.params.id;
+
+        try {
+            await dbRun(`
+                UPDATE projects
+                SET plan_page = ?, division = ?, bureau = ?, status = ?, updated_at = CURRENT_TIMESTAMP
+                WHERE id = ?
+            `, [plan_page || null, division || null, bureau || null, status || 'ongoing', project_id]);
+
+            // Log activity
+            await dbRun(`
+                INSERT INTO activity_log (user_id, project_id, activity_type, activity_data)
+                VALUES (?, ?, 'details_updated', ?)
+            `, [user_id || 1, project_id, JSON.stringify({ plan_page, division, bureau, status })]);
+
+            res.json({ success: true, message: 'Project details updated' });
+        } catch (err) {
+            console.error('Error updating project details:', err);
+            res.status(500).json({ success: false, error: 'Failed to update project details' });
         }
     });
 

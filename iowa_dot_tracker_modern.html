@@ -1158,6 +1158,12 @@
                                     <em style="color: #9ca3af;">Not specified</em>
                                 </div>
                             </div>
+                            <div>
+                                <div style="font-size: 0.75rem; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">Project Status</div>
+                                <div id="displayStatus" style="font-size: 0.875rem; color: #111827;">
+                                    <span class="status-badge status-ongoing">Ongoing</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -1188,6 +1194,18 @@
                                     <input type="text" id="inputBureau"
                                            placeholder="e.g., Systems Planning Bureau"
                                            style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 8px; font-size: 0.875rem;">
+                                </div>
+                                <div>
+                                    <label style="display: block; font-size: 0.875rem; font-weight: 600; color: #374151; margin-bottom: 0.5rem;">
+                                        Project Status
+                                    </label>
+                                    <select id="inputStatus" style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 8px; font-size: 0.875rem; background: white; cursor: pointer;">
+                                        <option value="completed">Completed</option>
+                                        <option value="ongoing">Ongoing</option>
+                                        <option value="in-progress">In Progress</option>
+                                        <option value="draft">Draft</option>
+                                        <option value="not-started">Not Started</option>
+                                    </select>
                                 </div>
                             </div>
                             <div style="display: flex; gap: 0.75rem; margin-top: 1rem;">
@@ -1660,10 +1678,15 @@
                 displayBureau.innerHTML = '<em style="color: #9ca3af;">Not specified</em>';
             }
 
+            // Set status display
+            const displayStatus = document.getElementById('displayStatus');
+            displayStatus.innerHTML = `<span class="status-badge ${getStatusBadgeClass(project.status)}">${formatStatusText(project.status)}</span>`;
+
             // Set edit form values
             document.getElementById('inputPlanPage').value = project.plan_page || '';
             document.getElementById('inputDivision').value = project.division || '';
             document.getElementById('inputBureau').value = project.bureau || '';
+            document.getElementById('inputStatus').value = project.status || 'ongoing';
 
             // Reset details edit mode
             document.getElementById('detailsDisplay').style.display = 'block';
@@ -1872,6 +1895,7 @@
                 document.getElementById('inputPlanPage').value = project.plan_page || '';
                 document.getElementById('inputDivision').value = project.division || '';
                 document.getElementById('inputBureau').value = project.bureau || '';
+                document.getElementById('inputStatus').value = project.status || 'ongoing';
             }
         }
 
@@ -1882,6 +1906,7 @@
             const planPage = document.getElementById('inputPlanPage').value.trim();
             const division = document.getElementById('inputDivision').value.trim();
             const bureau = document.getElementById('inputBureau').value.trim();
+            const status = document.getElementById('inputStatus').value;
 
             try {
                 // Call the details update API
@@ -1892,6 +1917,7 @@
                         plan_page: planPage ? parseInt(planPage) : null,
                         division: division || null,
                         bureau: bureau || null,
+                        status: status,
                         user_id: window.IowaDOTTracker.getCurrentUser()?.id || 1
                     })
                 });
@@ -1905,12 +1931,14 @@
                         project.plan_page = planPage ? parseInt(planPage) : null;
                         project.division = division || null;
                         project.bureau = bureau || null;
+                        project.status = status;
                     }
 
                     // Update display
                     const displayPlanPage = document.getElementById('displayPlanPage');
                     const displayDivision = document.getElementById('displayDivision');
                     const displayBureau = document.getElementById('displayBureau');
+                    const displayStatus = document.getElementById('displayStatus');
 
                     if (planPage) {
                         displayPlanPage.innerHTML = `Page ${planPage} <a href="https://iowadot.gov/media/2571/download?inline#page=${planPage}" target="_blank" style="color: #03617A; margin-left: 0.5rem;">↗</a>`;
@@ -1930,6 +1958,9 @@
                         displayBureau.innerHTML = '<em style="color: #9ca3af;">Not specified</em>';
                     }
 
+                    // Update status badge
+                    displayStatus.innerHTML = `<span class="status-badge ${getStatusBadgeClass(status)}">${formatStatusText(status)}</span>`;
+
                     // Exit edit mode
                     document.getElementById('detailsDisplay').style.display = 'block';
                     document.getElementById('detailsEdit').style.display = 'none';
@@ -1942,6 +1973,30 @@
                 console.error('Error saving project details:', error);
                 alert('Failed to save project details. Please try again.');
             }
+        }
+
+        // Get Status Badge CSS Class
+        function getStatusBadgeClass(status) {
+            const classMap = {
+                'completed': 'status-completed',
+                'ongoing': 'status-ongoing',
+                'in-progress': 'status-in-progress',
+                'draft': 'status-in-progress',
+                'not-started': 'status-not-started'
+            };
+            return classMap[status] || 'status-ongoing';
+        }
+
+        // Format Status Text for Display
+        function formatStatusText(status) {
+            const textMap = {
+                'completed': 'Completed',
+                'ongoing': 'Ongoing',
+                'in-progress': 'In Progress',
+                'draft': 'Draft',
+                'not-started': 'Not Started'
+            };
+            return textMap[status] || 'Ongoing';
         }
 
         // Format Date
