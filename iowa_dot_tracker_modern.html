@@ -1607,6 +1607,13 @@
                 section.classList.remove('active');
             });
             document.getElementById(tabName + 'Section').classList.add('active');
+
+            // Fix map rendering when switching to map tab
+            if (tabName === 'map' && projectMap) {
+                setTimeout(() => {
+                    projectMap.invalidateSize();
+                }, 100);
+            }
         }
 
         // Toggle Chat Panel
