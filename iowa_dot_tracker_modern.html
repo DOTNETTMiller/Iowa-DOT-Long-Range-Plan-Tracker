@@ -885,19 +885,19 @@
             </div>
 
             <div class="stats-grid">
-                <div class="stat-box">
-                    <div class="stat-label">Total Projects</div>
+                <div class="stat-box" onclick="showAllProjects()" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+                    <div class="stat-label">Total Projects 🔍</div>
                     <div class="stat-value" id="totalProjects">40</div>
                     <div class="stat-subtext">Plans & initiatives being tracked</div>
                 </div>
-                <div class="stat-box">
-                    <div class="stat-label">Categories</div>
+                <div class="stat-box" onclick="showCategoryBreakdown()" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+                    <div class="stat-label">Categories 📊</div>
                     <div class="stat-value" id="totalCategories">20</div>
                     <div class="stat-subtext">Different project types</div>
                 </div>
-                <div class="stat-box">
-                    <div class="stat-label">Iowa DOT Bureaus</div>
-                    <div class="stat-value">15+</div>
+                <div class="stat-box" onclick="showBureauBreakdown()" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+                    <div class="stat-label">Iowa DOT Bureaus 🏛️</div>
+                    <div class="stat-value" id="totalBureaus">15+</div>
                     <div class="stat-subtext">Working on these initiatives</div>
                 </div>
             </div>
@@ -1021,6 +1021,19 @@
                 </div>
                 <div id="chatTyping" style="display: none; margin-top: 0.75rem; font-size: 0.875rem; color: #6b7280; font-style: italic;">
                     AI is typing...
+                </div>
+            </div>
+        </div>
+
+        <!-- Details Modal -->
+        <div class="modal-overlay" id="detailsModal" onclick="closeDetailsModal()" style="display: none;">
+            <div class="modal-content" onclick="event.stopPropagation()" style="max-width: 900px; max-height: 80vh; overflow-y: auto;">
+                <div class="modal-header">
+                    <h2 id="detailsModalTitle" style="font-size: 1.5rem; font-weight: 700; color: #111827; margin: 0;">Details</h2>
+                    <button class="modal-close" onclick="closeDetailsModal()">×</button>
+                </div>
+                <div id="detailsModalContent" style="padding: 2rem;">
+                    <!-- Content will be dynamically inserted here -->
                 </div>
             </div>
         </div>
@@ -2282,6 +2295,126 @@
                 console.error('Error deleting photo:', error);
                 alert('Failed to delete photo. Please try again.');
             }
+        }
+
+        // Metrics Details Functions
+
+        // Show All Projects List
+        function showAllProjects() {
+            const modal = document.getElementById('detailsModal');
+            const title = document.getElementById('detailsModalTitle');
+            const content = document.getElementById('detailsModalContent');
+
+            title.textContent = 'All Projects';
+
+            const html = `
+                <div style="display: grid; gap: 1rem;">
+                    ${allProjects.map(project => `
+                        <div onclick="viewProject(${project.id}); closeDetailsModal();" style="padding: 1rem; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='#f9fafb'">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                <h4 style="margin: 0; font-size: 0.875rem; font-weight: 600; color: #111827;">${escapeHtml(project.name)}</h4>
+                                <span class="status-badge ${getStatusClass(project.status)}">${getStatusLabel(project.status)}</span>
+                            </div>
+                            <div style="display: flex; gap: 1rem; align-items: center; font-size: 0.75rem; color: #6b7280;">
+                                <span>${project.category || 'Uncategorized'}</span>
+                                <span>•</span>
+                                <span>${project.completion_percentage || 0}% Complete</span>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+
+            content.innerHTML = html;
+            modal.style.display = 'flex';
+        }
+
+        // Show Category Breakdown
+        function showCategoryBreakdown() {
+            const modal = document.getElementById('detailsModal');
+            const title = document.getElementById('detailsModalTitle');
+            const content = document.getElementById('detailsModalContent');
+
+            title.textContent = 'Projects by Category';
+
+            // Group projects by category
+            const categories = {};
+            allProjects.forEach(project => {
+                const cat = project.category || 'Uncategorized';
+                if (!categories[cat]) {
+                    categories[cat] = [];
+                }
+                categories[cat].push(project);
+            });
+
+            const html = Object.keys(categories).sort().map(category => `
+                <div style="margin-bottom: 2rem;">
+                    <h3 style="font-size: 1.125rem; font-weight: 700; color: #111827; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #e5e7eb;">
+                        ${category} (${categories[category].length})
+                    </h3>
+                    <div style="display: grid; gap: 0.75rem;">
+                        ${categories[category].map(project => `
+                            <div onclick="viewProject(${project.id}); closeDetailsModal();" style="padding: 0.75rem; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='#f9fafb'">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="font-size: 0.875rem; font-weight: 600; color: #111827;">${escapeHtml(project.name)}</span>
+                                    <span style="font-size: 0.75rem; color: #6b7280;">${project.completion_percentage || 0}%</span>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+
+            content.innerHTML = html;
+            modal.style.display = 'flex';
+        }
+
+        // Show Bureau Breakdown
+        function showBureauBreakdown() {
+            const modal = document.getElementById('detailsModal');
+            const title = document.getElementById('detailsModalTitle');
+            const content = document.getElementById('detailsModalContent');
+
+            title.textContent = 'Projects by Iowa DOT Bureau';
+
+            // Group projects by bureau
+            const bureaus = {};
+            allProjects.forEach(project => {
+                const bureau = project.bureau || 'Unassigned';
+                if (!bureaus[bureau]) {
+                    bureaus[bureau] = [];
+                }
+                bureaus[bureau].push(project);
+            });
+
+            // Update bureau count
+            document.getElementById('totalBureaus').textContent = Object.keys(bureaus).length;
+
+            const html = Object.keys(bureaus).sort().map(bureau => `
+                <div style="margin-bottom: 2rem;">
+                    <h3 style="font-size: 1.125rem; font-weight: 700; color: #111827; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #e5e7eb;">
+                        ${bureau} (${bureaus[bureau].length} projects)
+                    </h3>
+                    <div style="display: grid; gap: 0.75rem;">
+                        ${bureaus[bureau].map(project => `
+                            <div onclick="viewProject(${project.id}); closeDetailsModal();" style="padding: 0.75rem; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='#f9fafb'">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="font-size: 0.875rem; font-weight: 600; color: #111827;">${escapeHtml(project.name)}</span>
+                                    <span style="font-size: 0.75rem; color: #6b7280;">${project.completion_percentage || 0}%</span>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+
+            content.innerHTML = html;
+            modal.style.display = 'flex';
+        }
+
+        // Close Details Modal
+        function closeDetailsModal() {
+            document.getElementById('detailsModal').style.display = 'none';
         }
 
         // Toggle Justification Edit Mode
