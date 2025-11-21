@@ -1413,7 +1413,10 @@
                     </div>
 
                     <!-- Photo Upload Form (Hidden by default) -->
-                    <div id="photoUploadForm" style="display: none; background: #f9fafb; padding: 1.5rem; border-radius: 12px; border: 2px dashed #d1d5db; margin-bottom: 1.5rem;">
+                    <div id="photoUploadForm" style="display: none; background: #f9fafb; padding: 1.5rem; border-radius: 12px; border: 2px dashed #d1d5db; margin-bottom: 1.5rem; position: relative;">
+                        <button onclick="cancelPhotoUpload()" style="position: absolute; top: 0.75rem; right: 0.75rem; background: transparent; border: none; font-size: 1.5rem; color: #9ca3af; cursor: pointer; line-height: 1; padding: 0.25rem; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 4px; transition: all 0.2s;" onmouseover="this.style.background='#e5e7eb'" onmouseout="this.style.background='transparent'">
+                            ×
+                        </button>
                         <h5 style="font-size: 0.875rem; font-weight: 600; color: #374151; margin: 0 0 1rem 0;">Upload New Photo</h5>
                         <input type="file" id="photoFileInput" accept="image/*" style="display: block; width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 8px; margin-bottom: 1rem; font-size: 0.875rem;">
                         <input type="text" id="photoCaption" placeholder="Photo caption (optional)" style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 8px; margin-bottom: 1rem; font-size: 0.875rem;">
