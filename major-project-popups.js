@@ -279,8 +279,17 @@ async function uploadMajorProjectPhoto(event, majorProjectId, containerId) {
         const result = await response.json();
 
         if (result.success) {
-            alert('Photo uploaded! It will appear after approval.');
+            alert('Photo uploaded successfully!');
             form.reset();
+
+            // Reload photos to show the new upload
+            const photosContent = document.getElementById(`${containerId}-content-photos`);
+            photosContent.dataset.loaded = 'false';
+            loadMajorProjectPhotos(containerId);
+
+            // Update photo count
+            const countEl = document.getElementById(`${containerId}-photo-count`);
+            countEl.textContent = parseInt(countEl.textContent) + 1;
         } else {
             alert('Failed to upload photo: ' + result.error);
         }

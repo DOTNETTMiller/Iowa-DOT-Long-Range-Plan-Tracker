@@ -1060,10 +1060,10 @@ Remember: You're representing Iowa DOT, so be professional, accurate, and helpfu
 
             const result = await dbRun(`
                 INSERT INTO major_project_photos (major_project_id, user_id, photo_url, caption, approved)
-                VALUES (?, ?, ?, ?, 0)
+                VALUES (?, ?, ?, ?, 1)
             `, [major_project_id, user_id || 1, `/uploads/projects/${compressedFilename}`, caption || '']);
 
-            res.json({ success: true, data: { id: result.id }, message: 'Photo uploaded (pending approval)' });
+            res.json({ success: true, data: { id: result.id }, message: 'Photo uploaded successfully!' });
         } catch (err) {
             console.error('Error uploading photo:', err);
             res.status(500).json({ success: false, error: 'Failed to upload photo' });
