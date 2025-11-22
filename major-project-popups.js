@@ -182,7 +182,8 @@ async function loadMajorProjectPhotos(containerId) {
             photosList.innerHTML = result.data.map(photo => `
                 <div style="margin-bottom: 0.75rem; border: 1px solid #e5e7eb; border-radius: 6px; padding: 0.5rem;">
                     <img src="${photo.photo_url}" alt="${photo.caption || 'Project photo'}"
-                         style="width: 100%; height: auto; border-radius: 4px; margin-bottom: 0.5rem;">
+                         style="width: 100%; max-height: 200px; object-fit: cover; border-radius: 4px; margin-bottom: 0.5rem; cursor: pointer;"
+                         onclick="window.open('${photo.photo_url}', '_blank')">
                     ${photo.caption ? `<p style="font-size: 0.8rem; color: #374151; margin: 0 0 0.25rem 0;">${escapeHtml(photo.caption)}</p>` : ''}
                     <p style="font-size: 0.7rem; color: #9ca3af; margin: 0;">
                         By ${escapeHtml(photo.display_name)} • ${new Date(photo.upload_date).toLocaleDateString()}
