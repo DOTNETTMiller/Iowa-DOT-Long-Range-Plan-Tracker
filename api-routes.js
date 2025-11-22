@@ -748,7 +748,7 @@ Remember: You're representing Iowa DOT, so be professional, accurate, and helpfu
 
     const upload = multer({
         storage: storage,
-        limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit (images are compressed after upload)
+        limits: { fileSize: 15 * 1024 * 1024 }, // 15MB limit to accept large drone/DSLR photos (compressed after upload)
         fileFilter: function (req, file, cb) {
             // Allow only images
             if (file.mimetype.startsWith('image/')) {
