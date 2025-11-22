@@ -1080,6 +1080,87 @@ Remember: You're representing Iowa DOT, so be professional, accurate, and helpfu
             res.status(500).json({ success: false, error: 'Failed to approve photo' });
         }
     });
+
+    // ============================================
+    // DATABASE SETUP ENDPOINT (for Railway)
+    // ============================================
+    app.get('/api/setup-database', async (req, res) => {
+        try {
+            console.log('🚀 Running database setup...');
+
+            // Step 1: Create major projects tables
+            const additionalSchema = fs.readFileSync(path.join(__dirname, 'add-major-projects-tables.sql'), 'utf8');
+            await new Promise((resolve, reject) => {
+                db.exec(additionalSchema, (err) => {
+                    if (err) reject(err);
+                    else resolve();
+                });
+            });
+            console.log('✅ Major projects tables created');
+
+            // Step 2: Check if data already exists
+            const existing = await dbGet('SELECT COUNT(*) as count FROM major_projects');
+            if (existing.count > 0) {
+                return res.json({
+                    success: true,
+                    message: `Database already set up with ${existing.count} major projects`,
+                    count: existing.count
+                });
+            }
+
+            // Step 3: Load GeoJSON data
+            const geojsonPath = path.join(__dirname, 'major-projects-data.geojson');
+            if (!fs.existsSync(geojsonPath)) {
+                return res.json({
+                    success: true,
+                    message: 'Tables created but no GeoJSON data found to import',
+                    count: 0
+                });
+            }
+
+            const geojsonData = JSON.parse(fs.readFileSync(geojsonPath, 'utf8'));
+
+            // Step 4: Insert major projects
+            for (const feature of geojsonData.features) {
+                const props = feature.properties;
+                const coords = feature.geometry.coordinates;
+
+                await dbRun(`
+                    INSERT INTO major_projects (
+                        project_title, project_number, district, description,
+                        start_date, end_date, contact_name, contact_email,
+                        latitude, longitude, geojson_object_id
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                `, [
+                    props.Project_Title,
+                    props.Project_Number,
+                    props.District,
+                    props.Description,
+                    props.Start_Date,
+                    props.End_Date,
+                    props.Contact_name,
+                    props.Contact_Email,
+                    coords[1], // latitude
+                    coords[0], // longitude
+                    props.OBJECTID
+                ]);
+            }
+
+            console.log(`✅ Inserted ${geojsonData.features.length} major projects`);
+
+            res.json({
+                success: true,
+                message: `Database setup complete! Inserted ${geojsonData.features.length} major construction projects`,
+                count: geojsonData.features.length
+            });
+        } catch (err) {
+            console.error('❌ Database setup error:', err);
+            res.status(500).json({
+                success: false,
+                error: 'Database setup failed: ' + err.message
+            });
+        }
+    });
 }
 
 // ============================================
