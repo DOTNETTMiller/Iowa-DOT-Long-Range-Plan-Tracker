@@ -1091,7 +1091,7 @@ Remember: You're representing Iowa DOT, so be professional, accurate, and helpfu
             // Step 1: Create major projects tables
             const additionalSchema = fs.readFileSync(path.join(__dirname, 'add-major-projects-tables.sql'), 'utf8');
             await new Promise((resolve, reject) => {
-                db.exec(additionalSchema, (err) => {
+                getDb().exec(additionalSchema, (err) => {
                     if (err) reject(err);
                     else resolve();
                 });
