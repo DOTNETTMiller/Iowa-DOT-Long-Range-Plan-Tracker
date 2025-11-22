@@ -32,11 +32,11 @@ const PROJECT_OVERRIDES = {
     // Mississippi River projects - Dubuque area
     'M-35 Marine Highway Corridor (Waterway of the Saints)': LOCATIONS['Dubuque'],
 
-    // Active Construction Projects - Real Locations
-    'U.S. 30 Missouri Valley Bypass': { lat: 41.5700, lon: -95.9000 }, // Harrison County, Missouri Valley
-    'U.S. 63 Oskaloosa Bypass': { lat: 41.2974, lon: -92.6443 }, // Mahaska County, Oskaloosa
-    'Iowa 12 Gordon Drive Bridge Replacement': LOCATIONS['Sioux City'], // Sioux City
-    'Mississippi River Bridge at Lansing': { lat: 43.3619, lon: -91.2215 } // Lansing, Iowa/Wisconsin border
+    // Active Construction Projects - Accurate GeoJSON Coordinates
+    'U.S. 30 Missouri Valley Bypass': { lat: 41.764111, lon: -95.682403 }, // US 30 Bridge Replacement, Harrison County
+    'U.S. 63 Oskaloosa Bypass': { lat: 41.804667, lon: -92.591328 }, // US 63 Super 2, Poweshiek & Tama County
+    'Iowa 12 Gordon Drive Bridge Replacement': { lat: 42.496005, lon: -94.187957 }, // Business US 20 in Fort Dodge
+    'Mississippi River Bridge at Lansing': { lat: 43.364821, lon: -91.216095 } // Mississippi River Bridge in Lansing
 };
 
 async function updateCoordinates() {

@@ -6,6 +6,10 @@
     <title>Iowa DOT 2050 Transportation Plan Tracker - Bureau Progress Dashboard</title>
     <!-- Google Fonts for improved typography -->
     <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=Roboto+Slab:wght@400;700&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Leaflet.js for interactive maps -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
     <style>
         /* Iowa DOT Brand Guidelines Applied */
         * {
@@ -655,6 +659,138 @@
             border-radius: 6px;
         }
 
+        /* Embedded Map Styles */
+        #embedded-map-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+            padding: 0.75rem;
+            background: #f9fafb;
+            border-radius: 6px;
+        }
+
+        .map-filter-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .map-filter-group label {
+            font-size: 0.85rem;
+            color: #53565A;
+            font-weight: 500;
+        }
+
+        .map-filter-group select {
+            padding: 0.4rem 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            background: white;
+            cursor: pointer;
+        }
+
+        .map-filter-group select:focus {
+            outline: none;
+            border-color: #03617A;
+        }
+
+        #embedded-map-stats {
+            margin-left: auto;
+            font-size: 0.85rem;
+            color: #53565A;
+            font-weight: 600;
+        }
+
+        #embedded-map {
+            height: 600px;
+            width: 100%;
+            border-radius: 6px;
+            border: 2px solid #e5e7eb;
+        }
+
+        .marker-popup {
+            font-family: 'Work Sans', sans-serif;
+        }
+
+        .marker-popup h3 {
+            color: #19405B;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .marker-popup .project-number {
+            font-size: 0.7rem;
+            color: #666;
+            background: #f0f0f0;
+            padding: 0.25rem 0.5rem;
+            border-radius: 3px;
+            display: inline-block;
+            margin-bottom: 0.5rem;
+            font-family: monospace;
+        }
+
+        .marker-popup .description {
+            font-size: 0.85rem;
+            color: #53565A;
+            line-height: 1.4;
+            margin-bottom: 0.75rem;
+        }
+
+        .marker-popup .detail-row {
+            font-size: 0.8rem;
+            margin: 0.25rem 0;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .marker-popup .detail-row strong {
+            color: #19405B;
+            min-width: 80px;
+        }
+
+        .marker-popup .detail-row span {
+            color: #53565A;
+        }
+
+        .marker-popup .links {
+            margin-top: 0.75rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .marker-popup .links a {
+            font-size: 0.75rem;
+            padding: 0.35rem 0.75rem;
+            background: #03617A;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .marker-popup .links a:hover {
+            background: #19405B;
+            transform: translateY(-1px);
+        }
+
+        .district-badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            background: #03617A;
+            color: white;
+            border-radius: 3px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+
         .stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -1158,8 +1294,8 @@
 
         .projects-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 1.5rem;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.25rem;
         }
 
         .project-card {
@@ -1464,48 +1600,100 @@
             color: #1E40AF;
         }
 
-        /* Improved Project Cards */
+        /* Compact Project Cards with Prominent Percentages */
         .project-card {
             background: white;
-            padding: 1.75rem;
-            border-radius: 12px;
+            padding: 1.25rem;
+            border-radius: 10px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-            margin-bottom: 1.25rem;
             cursor: pointer;
             transition: all 0.3s;
-            border: 1px solid #e5e7eb;
+            border: 2px solid #e5e7eb;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            min-height: 180px;
         }
 
         .project-card:hover {
-            box-shadow: 0 8px 20px rgba(3, 97, 122, 0.12);
-            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(3, 97, 122, 0.15);
+            transform: translateY(-4px);
             border-color: #03617A;
         }
 
+        .project-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #03617A 0%, #BBE2DA 100%);
+        }
+
+        .project-percentage {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #03617A;
+            line-height: 1;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: baseline;
+            gap: 0.25rem;
+        }
+
+        .project-percentage-symbol {
+            font-size: 1.5rem;
+            color: #6b7280;
+        }
+
         .project-name {
-            font-size: 1.3rem;
-            font-weight: 700;
+            font-size: 1rem;
+            font-weight: 600;
             color: #19405B;
-            margin-bottom: 1rem;
+            margin-bottom: 0.75rem;
             line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
         .project-category {
             display: inline-block;
-            padding: 0.35rem 0.8rem;
+            padding: 0.25rem 0.6rem;
             background: #E0F2FE;
             color: #075985;
-            border-radius: 6px;
-            font-size: 0.8rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
             font-weight: 600;
-            margin-bottom: 1rem;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .project-description {
-            color: #4b5563;
-            font-size: 0.95rem;
-            line-height: 1.6;
-            margin-bottom: 1.25rem;
+            color: #6b7280;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            margin-bottom: auto;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .project-card-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid #e5e7eb;
+            font-size: 0.75rem;
+            color: #9ca3af;
         }
 
         /* Multi-Select Filters */
@@ -2206,31 +2394,42 @@
             <!-- Main Interactive Map Embed -->
             <div class="map-embed-container">
                 <div class="map-embed-title">📍 Iowa DOT Major Projects Interactive Map</div>
-                <div style="background: #f0f9ff; border: 2px solid #03617A; border-radius: 6px; padding: 2rem; text-align: center; min-height: 400px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                    <div style="font-size: 3rem; margin-bottom: 1rem;">🗺️</div>
-                    <h3 style="color: #03617A; margin-bottom: 1rem;">Interactive Map Viewer</h3>
-                    <p style="color: #53565A; margin-bottom: 1.5rem;">
-                        The embedded map requires access to Iowa DOT's GIS servers.<br>
-                        Click the button below to open the interactive map in a new window.
-                    </p>
-                    <a href="https://iowadot.gov/majorprojects" target="_blank" 
-                       style="background: #03617A; color: white; padding: 0.75rem 2rem; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; font-weight: 600; transition: all 0.3s;"
-                       onmouseover="this.style.background='#19405B'; this.style.transform='scale(1.05)'"
-                       onmouseout="this.style.background='#03617A'; this.style.transform='scale(1)'">
-                        <span>🔗</span>
-                        <span>Open Full Interactive Map</span>
-                    </a>
-                    <div style="margin-top: 1.5rem; padding: 1rem; background: white; border-radius: 6px; text-align: left; max-width: 500px;">
-                        <strong style="color: #19405B;">Map Features:</strong>
-                        <ul style="margin: 0.5rem 0 0 1.5rem; padding: 0; color: #53565A; font-size: 0.9rem;">
-                            <li>View all major construction projects</li>
-                            <li>Check project status and timelines</li>
-                            <li>Filter by district or project type</li>
-                            <li>Access detailed project information</li>
-                            <li>Download project data</li>
-                        </ul>
+
+                <div id="embedded-map-controls">
+                    <div class="map-filter-group">
+                        <label for="embedded-district-filter">Filter by District:</label>
+                        <select id="embedded-district-filter">
+                            <option value="all">All Districts</option>
+                            <option value="1">District 1</option>
+                            <option value="2">District 2</option>
+                            <option value="3">District 3</option>
+                            <option value="4">District 4</option>
+                            <option value="5">District 5</option>
+                            <option value="6">District 6</option>
+                        </select>
                     </div>
+
+                    <div class="map-filter-group">
+                        <label for="embedded-type-filter">Filter by Type:</label>
+                        <select id="embedded-type-filter">
+                            <option value="all">All Projects</option>
+                            <option value="interstate">Interstate</option>
+                            <option value="us-highway">US Highway</option>
+                            <option value="state-highway">State Highway</option>
+                            <option value="bridge">Bridge</option>
+                        </select>
+                    </div>
+
+                    <div id="embedded-map-stats">
+                        <span id="embedded-project-count">37 projects</span>
+                    </div>
+
+                    <a href="interactive-map.html" target="_blank" style="background: #03617A; color: white; padding: 0.4rem 0.75rem; border-radius: 4px; text-decoration: none; font-size: 0.85rem; font-weight: 500;">
+                        🔗 Open in New Window
+                    </a>
                 </div>
+
+                <div id="embedded-map"></div>
             </div>
         </div>
 
@@ -2780,7 +2979,7 @@
                         Location: Harrison County, Iowa<br>
                         Status: 65% Complete<br>
                         Expected Completion: 2027<br>
-                        <a href="https://511ia.org/map?layers=roadReports,weatherRadar,constructionReports&zoom=11&lat=41.5&lon=-96.0" target="_blank" class="action-btn" style="margin-top: 0.5rem;">View on 511 Map</a>
+                        <a href="https://511ia.org/map?layers=roadReports,weatherRadar,constructionReports&zoom=11&lat=41.764111&lon=-95.682403" target="_blank" class="action-btn" style="margin-top: 0.5rem;">View on 511 Map</a>
                     </div>
                 </div>
 
@@ -2833,7 +3032,7 @@
                         Location: Mahaska County, Iowa<br>
                         Status: 80% Complete<br>
                         Expected Completion: 2027<br>
-                        <a href="https://511ia.org/map?layers=roadReports,weatherRadar,constructionReports&zoom=11&lat=41.3&lon=-92.6" target="_blank" class="action-btn" style="margin-top: 0.5rem;">View on 511 Map</a>
+                        <a href="https://511ia.org/map?layers=roadReports,weatherRadar,constructionReports&zoom=11&lat=41.804667&lon=-92.591328" target="_blank" class="action-btn" style="margin-top: 0.5rem;">View on 511 Map</a>
                     </div>
                 </div>
 
@@ -2969,7 +3168,7 @@
                         Status: 55% Complete<br>
                         New Bridge Opens: Spring 2027<br>
                         Ferry Service: Currently Operating<br>
-                        <a href="https://511ia.org/map?layers=roadReports,weatherRadar,constructionReports&zoom=11&lat=43.2&lon=-91.2" target="_blank" class="action-btn" style="margin-top: 0.5rem;">View on 511 Map</a>
+                        <a href="https://511ia.org/map?layers=roadReports,weatherRadar,constructionReports&zoom=11&lat=43.364821&lon=-91.216095" target="_blank" class="action-btn" style="margin-top: 0.5rem;">View on 511 Map</a>
                     </div>
                 </div>
             </div>
@@ -4103,7 +4302,7 @@
             "description": "Primary guide for Iowa DOT decision-making on bicycle and pedestrian programs and facilities; involved stakeholder input, recommendations, and includes Iowa DOT's Complete Streets Policy requiring accommodations for all users on highway projects.",
             "status": "Completed (2018)",
             "responsible": "Iowa DOT Systems Planning Bureau",
-            "url": "https://iowadot.gov/iowainmotion/Modal-Plans/Bicycle-Pedestrian-Plan",
+            "url": "https://iowadot.gov/transportation-development/systems-planning/areas-planning/transportation-plans/bicycle-pedestrian-plan",
             "reference": "Appendix 4"
           },
           {
@@ -4121,7 +4320,7 @@
             "description": "Weaves together Iowa DOT's freight planning activities to achieve optimal freight transportation. Guides investment decisions to maintain and improve the freight system.",
             "status": "Draft (2022)",
             "responsible": "Iowa DOT Freight and Policy Bureau",
-            "url": "https://iowadot.gov/iowainmotion/Specialized-System-plans/2022-State-Freight-Plan",
+            "url": "https://iowadot.gov/transportation-development/systems-planning/areas-planning/transportation-plans/freight-plan",
             "reference": "Appendix 4"
           },
           {
@@ -4130,7 +4329,7 @@
             "description": "Guides Iowa DOT in promoting rail access, improving the freight rail system, expanding passenger rail service, and enhancing rail safety. Describes the rail network, economic impacts, vision, goals, and proposed improvements.",
             "status": "Completed (2021)",
             "responsible": "Iowa DOT Rail Transportation Bureau",
-            "url": "https://iowadot.gov/iowainmotion/Modal-Plans/Rail-Transportation-Plan",
+            "url": "https://iowadot.gov/transportation-development/systems-planning/areas-planning/transportation-plans/rail-plan",
             "reference": "Appendix 4"
           },
           {
@@ -4166,7 +4365,7 @@
             "description": "Statewide strategy required by the 2021 IIJA to reduce transportation emissions. Developed with MPOs, it compiles and synthesizes emission-reduction strategies and initiatives across Iowa into a cohesive plan.",
             "status": "Completed (2024)",
             "responsible": "Iowa DOT Systems Planning Bureau",
-            "url": "https://iowadot.gov/iowainmotion/Long-Range-Transportation-Plans/2022-State-Transportation-Plan",
+            "url": "https://iowadot.gov/transportation-development/systems-planning/areas-planning/transportation-plans/carbon-reduction-strategy",
             "reference": "Appendix 4"
           },
           {
@@ -4193,7 +4392,7 @@
             "description": "State program promoting economic development through road infrastructure. Funds establishment, construction, and improvement of roads and streets to spur value-adding economic activities. Since 1985 it has funded 840+ local road projects, providing nearly $500 million and supporting over 90,000 job opportunities.",
             "status": "Ongoing",
             "responsible": "Iowa DOT Program Management Bureau",
-            "url": "https://iowadot.gov/systems_planning/RISE.aspx",
+            "url": "https://iowadot.gov/local_systems/Grant-Programs/REVITALIZE-IOWAS-SOUND-ECONOMY-RISE-PROGRAM",
             "reference": "Section 4.3 Economic Vitality"
           },
           {
@@ -4247,7 +4446,7 @@
             "description": "Iowa's implementation of the federal Transportation Alternatives Program, funding community-based projects like trails, safe routes to school, and other non-motorized transportation improvements. Administered via an application process by Iowa DOT.",
             "status": "Ongoing",
             "responsible": "Iowa DOT Program Management Bureau",
-            "url": "https://iowadot.gov/systems_planning/Grant-Programs/Transportation-Alternatives",
+            "url": "https://iowadot.gov/transportation-development/local-systems/grant-programs/transportation-alternatives",
             "reference": "Section 7.1 Programming"
           },
           {
@@ -4256,7 +4455,7 @@
             "description": "State program (modeled on federal CMAQ) funding transportation projects that improve air quality and reduce congestion. In practice, ICAAP funding has often been used for projects like public transit bus replacements to reduce emissions.",
             "status": "Ongoing",
             "responsible": "Iowa DOT Systems Planning Bureau",
-            "url": "https://iowadot.gov/systems_planning/icaap.aspx",
+            "url": "https://iowadot.gov/local_systems/Grant-Programs/Iowa-Clean-Air-Attainment-Program-ICAAP",
             "reference": "Section 7.1 Programming"
           },
           {
@@ -4265,7 +4464,7 @@
             "description": "State-funded program that provides grants for roadway safety improvements on public roads. Projects are typically selected annually based on safety benefit and include spot improvements, traffic control devices, and research or public awareness initiatives.",
             "status": "Ongoing",
             "responsible": "Iowa DOT Traffic & Safety Bureau",
-            "url": "https://iowadot.gov/traffic/tsip/traffic-safety-improvement-program",
+            "url": "https://iowadot.gov/traffic/traffic-and-safety-programs/tsip/tsip-program",
             "reference": "Section 7.1 Programming"
           },
           {
@@ -4274,7 +4473,7 @@
             "description": "State grant program that funds development of recreational trails in Iowa. It complements the Federal Recreational Trails Program by providing state resources for trail projects.",
             "status": "Ongoing",
             "responsible": "Iowa DOT Parks and Trails Program (Systems Planning)",
-            "url": "https://iowadot.gov/systems_planning/Grant-Programs/Recreational-Trails",
+            "url": "https://iowadot.gov/modes-travel/trails/federal-state-recreational-trails",
             "reference": "Section 5.4 Strategies"
           },
           {
@@ -4337,7 +4536,7 @@
             "description": "Policy adopted in 2020 requiring all Iowa DOT projects on the Primary Highway System to consider accommodations for all users (including bicyclists and pedestrians) in planning, design, construction, and reconstruction. It formalizes accessibility considerations by treating all improvements as opportunities to improve safety, access, and mobility for all modes.",
             "status": "Adopted (2020, implementation ongoing)",
             "responsible": "Iowa DOT (all divisions, led by Systems Planning/Bureau of Design)",
-            "url": "https://iowadot.gov/completestreets",
+            "url": "https://iowadot.gov/media/2546/download",
             "reference": "Section 3.2 Bicycle/Pedestrian"
           },
           {
@@ -4355,7 +4554,7 @@
             "description": "An initiative to inform individuals of their transportation options and improve personal mobility for all users. Aimed at reducing barriers for underserved populations, this program (e.g., a web tool or campaign) helps Iowans discover available travel modes and services.",
             "status": "Ongoing",
             "responsible": "Iowa DOT Motor Vehicle Division (Driver & Identification Services)",
-            "url": "https://iowadot.gov/getthere",
+            "url": "https://iowadot.gov/getthereyourway/home",
             "reference": "Strategy 14 – Accessibility"
           },
           {
@@ -4373,7 +4572,7 @@
             "description": "The statewide vision and strategic framework for advancing cooperative and automated transportation (CAT) in Iowa. Developed in conjunction with the ATC, it sets strategic objectives (in areas like infrastructure, policy, economic development, safety, education, research) to prepare Iowa for future CAT deployment.",
             "status": "Completed (Adopted by ATC)",
             "responsible": "Iowa DOT Traffic Operations (with ATC)",
-            "url": "https://iowadot.gov/automatedtransportation/vision",
+            "url": "https://iowadot.gov/transportation-development/automated-transportation/planning-visioning",
             "reference": "Strategy 18 – Automated Transportation"
           },
           {
@@ -4382,7 +4581,7 @@
             "description": "Iowa's administration of funds from the Volkswagen emissions settlement. The Iowa DOT has used this funding to support alternative fuel and electric vehicle infrastructure and emissions-reduction projects across the state. (For example, funding electric vehicle charging stations or cleaner transit buses.)",
             "status": "Ongoing (Funding Implementation)",
             "responsible": "Iowa DOT and Iowa Department of Natural Resources",
-            "url": "https://www.iowadnr.gov/Environmental-Protection/Air-Quality/VW-Settlement",
+            "url": "https://iowadot.gov/vwsettlement",
             "reference": "Strategy 19 – Alternative Fuel Initiatives"
           },
           {
@@ -5533,18 +5732,17 @@
 
                     html += `
                         <div class="project-card" onclick="openProjectDetail(${project.id})">
-                            <div class="project-name">${project.name}</div>
-                            <div class="project-description">${project.description}</div>
-                            <div class="progress-bar-container">
-                                <div class="progress-bar" style="width: ${project.completion_percentage || 0}%">
-                                    ${project.completion_percentage || 0}%
-                                </div>
+                            <div class="project-percentage">
+                                ${project.completion_percentage || 0}<span class="project-percentage-symbol">%</span>
                             </div>
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
-                                <span class="status-badge ${getStatusBadgeClass(project.status)}">
-                                    ${project.status}
+                            <div class="project-name">${project.name}</div>
+                            <span class="project-category ${getCategoryClassName(project.category)}">${project.category}</span>
+                            <div class="project-description">${project.description}</div>
+                            <div class="project-card-meta">
+                                <span class="status-badge ${getStatusBadgeClass(project.status)}" style="font-size: 0.7rem; padding: 0.2rem 0.5rem;">
+                                    ${project.status.length > 20 ? project.status.substring(0, 17) + '...' : project.status}
                                 </span>
-                                <div style="display: flex; gap: 1rem; font-size: 0.85rem; color: #6b7280;">
+                                <div style="display: flex; gap: 0.75rem;">
                                     <span>💬 ${project.comment_count || 0}</span>
                                     <span>❤️ ${project.like_count || 0}</span>
                                 </div>
@@ -5634,12 +5832,19 @@
                         <div style="display: grid; gap: 1rem;">
                             ${items.map(project => `
                                 <div class="project-card" onclick="openProjectDetail(${project.id})">
+                                    <div class="project-percentage">
+                                        ${project.completion_percentage || 0}<span class="project-percentage-symbol">%</span>
+                                    </div>
                                     <div class="project-name">${project.name}</div>
-                                    <span class="project-category">${project.category}</span>
+                                    <span class="project-category ${getCategoryClassName(project.category)}">${project.category}</span>
                                     <div class="project-description">${project.description}</div>
-                                    <div class="progress-bar-container">
-                                        <div class="progress-bar" style="width: ${project.completion_percentage || 0}%">
-                                            ${project.completion_percentage || 0}%
+                                    <div class="project-card-meta">
+                                        <span class="status-badge ${getStatusBadgeClass(project.status)}" style="font-size: 0.7rem; padding: 0.2rem 0.5rem;">
+                                            ${project.status.length > 20 ? project.status.substring(0, 17) + '...' : project.status}
+                                        </span>
+                                        <div style="display: flex; gap: 0.75rem;">
+                                            <span>💬 ${project.comment_count || 0}</span>
+                                            <span>❤️ ${project.like_count || 0}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -5940,6 +6145,159 @@
                 form.reset();
             }
         }
+    </script>
+
+    <!-- Leaflet.js Map Libraries -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+
+    <!-- Embedded Map Initialization -->
+    <script>
+        // Wait for the page to load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if map container exists
+            const mapContainer = document.getElementById('embedded-map');
+            if (!mapContainer) return;
+
+            // Initialize the map centered on Iowa
+            const embeddedMap = L.map('embedded-map').setView([42.0, -93.5], 7);
+
+            // Add OpenStreetMap tiles
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 18
+            }).addTo(embeddedMap);
+
+            // GeoJSON data embedded directly
+            const projectsGeoJSON = {"type": "FeatureCollection","features": [{"type": "Feature", "properties": {"OBJECTID": 1, "District": 1, "Project_Title": "I-35/80/235 interchange NE of Des Moines (Northeast Mix Master)", "Project_Number": "IM-035-3(194)87--13-77\\nIM-035-3(195)87--13-77", "Description": "Grading of relocated EB I-80 to I-235 & WB I-80 to NB I-35 ramps. New flyover bridge on EB I-35/80 to NB I-35, new bridges on relocated EB I-80 to I-235 ramp over UPRR & Broadway Ave, & new bridge on relocated WB I-80 to NB I-35 ramp over NE 29th St. ", "Start_Date": "August 2022", "End_Date": "2024.0", "Contact_name": "Frank Leong", "Contact_Email": "Frank.Leong@iowadot.us "}, "geometry": {"type": "Point", "coordinates": [-93.575684, 41.652035]}},{"type": "Feature", "properties": {"OBJECTID": 2, "District": 1, "Project_Title": "I-35 Polk/Story County", "Project_Number": "IM-NHS-035-4(244)95--03-77", "Description": "Grade and pave new SB lanes of I-35 from NE 36th St. in Ankeny to .5 miles south of 158th Ave. Project includes the reconstruction of the Elkharrt interchange, which will be closed through the 2023 season.", "Start_Date": "March 29, 2023", "End_Date": "2024.0", "Contact_name": "Dustin Skogerboe", "Contact_Email": "dustin.skogerboe@iowadot.us "}, "geometry": {"type": "Point", "coordinates": [-93.5707916, 41.788188]}},{"type": "Feature", "properties": {"OBJECTID": 3, "District": 1, "Project_Title": "US 63 Super 2 in Poweshiek & Tama County ", "Project_Number": "NHSX-063-4(053)--3H-79\\nNHSX-063-5(073)--3H-86", "Description": "Super 2 improvements will accompany the pavement rehabilitation projects on US 63 from US 6 to the south city limits of Tama. Improvements will include fully paved shoulders, climbing and passing lanes, and right/left turn lanes at Co Rd E64/350th St.", "Start_Date": "April 1, 2024", "End_Date": "Fall 2024", "Contact_name": "Jeremy Vortherms", "Contact_Email": "Jeremey.Vortherms@iowadot.us"}, "geometry": {"type": "Point", "coordinates": [-92.591328, 41.804667]}},{"type": "Feature", "properties": {"OBJECTID": 4, "District": 1, "Project_Title": "I-35 Polk/Story County", "Project_Number": "IM-NHS-035-4(248)95--03-77", "Description": "Grade and Pave new SB lanes of I-35 from just N of I-35 rest areas North to N. of 315th Street. Project includes the reconstruction of 158th Street and 315th Street bridges over I-35, and the reconstruction of the Ia 210 (Huxley) interchange, which will b", "Start_Date": "April 1, 2024", "End_Date": "Fall 2025", "Contact_name": "Dustin Skogerboe", "Contact_Email": "dustin.skogerboe@iowadot.us "}, "geometry": {"type": "Point", "coordinates": [-93.57113, 41.845067]}},{"type": "Feature", "properties": {"OBJECTID": 5, "District": 1, "Project_Title": "Business US 20 in Fort Dodge", "Project_Number": "BRF-926-0-(17)--38-94 \\nBRF-926-0(19)--38-94 ", "Description": "Bridge Replacements on Business US 20 over the Des Moines River and B Ave, and over CNRR and 7th St. in Fort Dodge. ", "Start_Date": "20231120", "End_Date": "Fall 2025", "Contact_name": "Jenny Hoskins", "Contact_Email": "Jenny.hoskins@iowadot.us"}, "geometry": {"type": "Point", "coordinates": [-94.187957, 42.496005]}},{"type": "Feature", "properties": {"OBJECTID": 6, "District": 1, "Project_Title": "US 30/580th Ave. in Story County", "Project_Number": "NHSX-030-5(260)--3H-85", "Description": "Grade and Pave new interchange at the intersection of US 30 and 580th Ave. 1.5 miles east of I-35. Project includes new frontage roads north and south of US 30, and closing of US 30 and 580th at grade intersection.", "Start_Date": "April 1, 2024", "End_Date": "Fall 2024", "Contact_name": "Jenny Hoskins", "Contact_Email": "Jenny.hoskins@iowadot.us"}, "geometry": {"type": "Point", "coordinates": [-93.540965, 42.029969]}},{"type": "Feature", "properties": {"OBJECTID": 7, "District": 2, "Project_Title": "PCC replacement for the intersection at IA 27/58 at Ridgeway in Cedar Falls", "Project_Number": "NHSX-27-7(8)--3H-07", "Description": "The project is to reconstruct IA 27/58 and Ridgeway intersection. The project entails reconstructing from just south of Viking Rd. to US 20. Traffic will be reduced to one lane in each direction. Construction will require two years to complete.", "Start_Date": "April 10, 2023", "End_Date": "Fall 2024", "Contact_name": "Ron Loecher", "Contact_Email": "ron.loecher@iowadot.us"}, "geometry": {"type": "Point", "coordinates": [-92.445684, 42.469275]}},{"type": "Feature", "properties": {"OBJECTID": 8, "District": 2, "Project_Title": "Bridge replacement, Mississippi River Bridge in Lansing", "Project_Number": "STP-009-9(84)--2C-03", "Description": "This project is to replace the existing river-crossing bridge at Lansing and reconstruct the approaches on each end.", "Start_Date": "September 11, 2023", "End_Date": "November 2026", "Contact_name": "Ron Loecher", "Contact_Email": "ron.loecher@iowadot.us"}, "geometry": {"type": "Point", "coordinates": [-91.216095, 43.364821]}},{"type": "Feature", "properties": {"OBJECTID": 9, "District": 2, "Project_Title": "New Interchange, Cedar River in Janesville to IA 116 in Waverly.", "Project_Number": "NHSX-218-8(124)--3H-09", "Description": "This project is to eliminate at-grade access to US 218 between Janesville and Waverly.", "Start_Date": "April 2024", "End_Date": "November 2025", "Contact_name": "Ron Loecher", "Contact_Email": "ron.loecher@iowadot.us"}, "geometry": {"type": "Point", "coordinates": [-92.472644, 42.670169]}},{"type": "Feature", "properties": {"OBJECTID": 10, "District": 3, "Project_Title": "US 71 reconstruction in Arnolds Park and Okoboji", "Project_Number": "NHSX-071-9(78)--3H-30", "Description": "Pavement Replacement from Okoboji Grove Rd. in Arnolds Park to East View Ave. in Okoboji.", "Start_Date": "March 15, 2023", "End_Date": "Fall 2024", "Contact_name": "Kirk Johnson", "Contact_Email": "kirk.johnson@iowadot.us"}, "geometry": {"type": "Point", "coordinates": [-95.127852, 43.385566]}},{"type": "Feature", "properties": {"OBJECTID": 11, "District": 3, "Project_Title": "US 30 Bridge Replacement", "Project_Number": "BRFN-030-1(164)--39-43", "Description": "Bridge replacement at stream 2.3 miles east of Co. Road F-32. ", "Start_Date": "April 2023", "End_Date": "September 2023", "Contact_name": "Jason Klemme", "Contact_Email": "jason.klemme@iowadot.us "}, "geometry": {"type": "Point", "coordinates": [-95.682403, 41.764111]}},{"type": "Feature", "properties": {"OBJECTID": 12, "District": 3, "Project_Title": "Iowa 175 Sidewalk Replacement", "Project_Number": "STPN-175-1(90)--2J-67", "Description": "PCC sidewalk/trail in Onawa.", "Start_Date": "April 2023", "End_Date": "May 2024", "Contact_name": "Jason Klemme", "Contact_Email": "jason.klemme@iowadot.us "}, "geometry": {"type": "Point", "coordinates": [-96.096883, 42.027167]}},{"type": "Feature", "properties": {"OBJECTID": 13, "District": 3, "Project_Title": "Iowa 175 Bridge Replacement", "Project_Number": "BRFN-175-1(73)--39-67", "Description": "Bridge replacement at McCandless Cleghorn Ditch 0.6 mi east of I-29 in Onawa.", "Start_Date": "April 2023", "End_Date": "March 2024", "Contact_name": "Jason Klemme", "Contact_Email": "jason.klemme@iowadot.us "}, "geometry": {"type": "Point", "coordinates": [-96.12057222, 42.02703333]}},{"type": "Feature", "properties": {"OBJECTID": 14, "District": 3, "Project_Title": "Iowa 3 Pavement Planing/Grooving", "Project_Number": "STP-003-1(099)--2C-75", "Description": "Pavement planing/grooving from South Dakota to south junction IA 12.", "Start_Date": "May 2023", "End_Date": "June 2024", "Contact_name": "Jason Klemme", "Contact_Email": "jason.klemme@iowadot.us "}, "geometry": {"type": "Point", "coordinates": [-96.62135, 42.76280278]}},{"type": "Feature", "properties": {"OBJECTID": 15, "District": 3, "Project_Title": "Iowa 12 Right Turn Lane", "Project_Number": "NHSN-012-1(41)--2R-97", "Description": "PCC pavement grade and new at W 19th St. intersection in Sioux City.", "Start_Date": "April 2023", "End_Date": "July 2024", "Contact_name": "Jason Klemme", "Contact_Email": "jason.klemme@iowadot.us "}, "geometry": {"type": "Point", "coordinates": [-96.47437778, 42.515]}},{"type": "Feature", "properties": {"OBJECTID": 16, "District": 3, "Project_Title": "US 20 Reconstruction", "Project_Number": "NHSX-020-1(179)--3H-97, (188)(189)(190)(195)BRF(193)", "Description": "PCC pavement at US 75 / IA 12 interchange in Sioux City to Little Whiskey Creek (EB/WB).", "Start_Date": "April 2023", "End_Date": "November 2024", "Contact_name": "Jason Klemme", "Contact_Email": "jason.klemme@iowadot.us "}, "geometry": {"type": "Point", "coordinates": [-96.30143611, 42.47535278]}},{"type": "Feature", "properties": {"OBJECTID": 17, "District": 3, "Project_Title": "I-29 & Iowa 141 Interchange Reconstruction", "Project_Number": "IMX-029-6(294)127--02-97, (295)(296)(297)", "Description": "Reconstruction of the I-29 and IA 141 interchange.", "Start_Date": "September 2023", "End_Date": "October 2024", "Contact_name": "Jason Klemme", "Contact_Email": "jason.klemme@iowadot.us "}, "geometry": {"type": "Point", "coordinates": [-96.24201389, 42.22883611]}},{"type": "Feature", "properties": {"OBJECTID": 18, "District": 3, "Project_Title": "US 75 Reconstruction", "Project_Number": "NHSX-075-3(55)--3H-84", "Description": "PCC pavement - grade and replace from Riviera Rd. to 13th St. S in Sioux Center.", "Start_Date": "April 2023", "End_Date": "August 24", "Contact_name": "Jason Klemme", "Contact_Email": "jason.klemme@iowadot.us "}, "geometry": {"type": "Point", "coordinates": [-96.174864, 43.060956]}},{"type": "Feature", "properties": {"OBJECTID": 19, "District": 4, "Project_Title": "I-29/I-80/I-480 in Council Bluffs", "Project_Number": "IM-NHS-29-3(115)48--03-78", "Description": "Grade/pave/bridges", "Start_Date": null, "End_Date": "Summer 2026", "Contact_name": "Dave Dorsett", "Contact_Email": "David.Dorsett@iowadot.us "}, "geometry": {"type": "Point", "coordinates": [-95.872479553417705, 41.232422382635797]}},{"type": "Feature", "properties": {"OBJECTID": 20, "District": 4, "Project_Title": "I-80 Raccoon River bridges near Van Meter", "Project_Number": "IMN-080-3(226)1100E-25", "Description": "Replacing E & W-bound bridges over Raccoon river. W-bound bridges will be built N of current alignment. Traffic will be placed in the new W-bound lanes while E-bound is constructed. Additional lanes will be added to make this portion of I-80 6 lanes", "Start_Date": "Fall 2021", "End_Date": "Fall 2024", "Contact_name": "Scott Suhr", "Contact_Email": "scott.suhr@iowadot.us "}, "geometry": {"type": "Point", "coordinates": [-93.967334, 41.545266]}},{"type": "Feature", "properties": {"OBJECTID": 21, "District": 4, "Project_Title": "I-80 W of Grand Prairie Parkway to E of Jordan Creek Parkway", "Project_Number": "18-25-080-020-01", "Description": "Widening I-80 to six lanes. This project is just starting.", "Start_Date": "Summer 2023", "End_Date": "Winter 2025", "Contact_name": "Scott Suhr", "Contact_Email": "scott.suhr@iowadot.us "}, "geometry": {"type": "Point", "coordinates": [-93.835969, 41.578308]}},{"type": "Feature", "properties": {"OBJECTID": 22, "District": 4, "Project_Title": "I-29/I-480/West Broadway System Interchange ", "Project_Number": "IM-029-3(190)53--13-78", "Description": "This project is part of Segment 4 of the Council Bluffs Interstate System (CBIS).  It includes the area along I-29 and I-480 near Broadway.  Work currently under construction includes new bridges, improved interchanges and access along I-29 and I-480.", "Start_Date": "Spring 2021", "End_Date": "Summer 2024", "Contact_name": "Dave Dorsett", "Contact_Email": "David.Dorsett@iowadot.us "}, "geometry": {"type": "Point", "coordinates": [-95.912227, 41.261537]}},{"type": "Feature", "properties": {"OBJECTID": 23, "District": 4, "Project_Title": "Madison Avenue Interchange Council Bluffs (CBIS)", "Project_Number": "IM-NHS-080-1(447)5--03-78", "Description": "Reconstruction of Madison Avenue and expansion of I-80 from Madison Avenue to Franklin Avenue ", "Start_Date": "Fall 2022", "End_Date": "Fall 2025", "Contact_name": "Dave Dorsett", "Contact_Email": "David.Dorsett@iowadot.us "}, "geometry": {"type": "Point", "coordinates": [-95.824221, 41.242309]}},{"type": "Feature", "properties": {"OBJECTID": 24, "District": 4, "Project_Title": "I-80 W of Grand Prairie Parkway to E of Jordan Creek Parkway", "Project_Number": "NHS-080-3(282)118--11-25", "Description": "This project is mainly median work between Grand Prairie Parkway and 60th St that includes a new railroad bridge in the median. The work is mostly complete for this year. There will be additional paving near the railroad bridge and Jordan Creek next year.", "Start_Date": "Spring 2023", "End_Date": "Spring 2024", "Contact_name": "Creston RCE\\nDaniel Redmond", "Contact_Email": "daniel.redmond@iowadot.us"}, "geometry": {"type": "Point", "coordinates": [-93.815725, 41.588544]}},{"type": "Feature", "properties": {"OBJECTID": 25, "District": 4, "Project_Title": "Raccoon river bridges on I-80 Dallas County", "Project_Number": "IM-NHS-080-3(238)110--03-25", "Description": "Replacing existing bridges over Raccoon River on I-80 in Dallas Co. When complete, I-80 will have 3 lanes in each direction from De Soto to Van Meter. Remaining paving will be done by mid-summer 2024.", "Start_Date": "Spring 23", "End_Date": "Mid Summer 24", "Contact_name": "Creston RCE\\nDaniel Redmond", "Contact_Email": "daniel.redmond@iowadot.us"}, "geometry": {"type": "Point", "coordinates": [-93.967258, 41.54514]}},{"type": "Feature", "properties": {"OBJECTID": 26, "District": 4, "Project_Title": "Raccoon river bridges on I-80 Dallas County", "Project_Number": "IM-NHS-080-3-(239)110--03-2", "Description": "Replacing existing bridges over Raccoon River on I-80 in Dallas Co. When complete, I-80 will have 3 lanes in each direction from De Soto to Van Meter. Work on the new Old Portland Bridge has begun.", "Start_Date": "Late Fall 23", "End_Date": "Mid Summer 26", "Contact_name": "Creston RCE\\nDaniel Redmond", "Contact_Email": "daniel.redmond@iowadot.us"}, "geometry": {"type": "Point", "coordinates": [-93.973782, 41.544551]}},{"type": "Feature", "properties": {"OBJECTID": 27, "District": 5, "Project_Title": "Iowa 1 from Keokuk County line to West Centerline of Brighton", "Project_Number": "NHSX-001-4(061)--3H-92", "Description": "PCC pavement replacement and pipe culvert.", "Start_Date": "April 10, 2023", "End_Date": "Late Fall/ Early Winter 2024", "Contact_name": "Christy Vanbuskirk", "Contact_Email": "christy.vanbuskirk@iowadot.us"}, "geometry": {"type": "Point", "coordinates": [-91.945351, 41.177665]}},{"type": "Feature", "properties": {"OBJECTID": 28, "District": 5, "Project_Title": "Southbound I-35 from north of Iowa Highway 92 to south of North River.", "Project_Number": "IM-NHS-035-2(427)57--03-91", "Description": "PCC pavement (grade and new) and traffic signs.", "Start_Date": "Dec. 6, 2022", "End_Date": "Late Fall/ Early Winter 2025", "Contact_name": "Liz Finarty", "Contact_Email": "liz.finarty@iowadot.us  "}, "geometry": {"type": "Point", "coordinates": [-93.7806, 41.3666]}},{"type": "Feature", "properties": {"OBJECTID": 29, "District": 5, "Project_Title": "1.4 miles north of IA 92 to north of Hoover St.", "Project_Number": "IM-NHS-035-2(489)58--03-91", "Description": "PCC pavement (grade and new). Bridge replacement.", "Start_Date": "Aug. 24, 2022", "End_Date": "Late Fall/ Early Winter", "Contact_name": "Liz Finarty", "Contact_Email": "liz.finarty@iowadot.us  "}, "geometry": {"type": "Point", "coordinates": [-93.780897, 41.388379]}},{"type": "Feature", "properties": {"OBJECTID": 30, "District": 5, "Project_Title": "US 61 from N of Mediapolis to 0.5 mi N of IA 78", "Project_Number": "NHSX-061-2(66)--3H-29", "Description": "Grading. New Tripple RCB. New Single RCB", "Start_Date": "October 16, 2023", "End_Date": "Late Fall/ Early Winter 2026", "Contact_name": "Christy Vanbuskirk", "Contact_Email": "christy.vanbuskirk@iowadot.us"}, "geometry": {"type": "Point", "coordinates": [-91.1701, 41.0248]}},{"type": "Feature", "properties": {"OBJECTID": 31, "District": 5, "Project_Title": "IA 92 E of US 218 to 2nd St in Columbus Junction", "Project_Number": "NHSX-092-9(57)--3H-92", "Description": "PCC Pavement (grade and replace), New Single RCB, and Traffic Signs", "Start_Date": "April 1, 2024", "End_Date": "Late Fall/ Early Winter 2025", "Contact_name": "Christy Vanbuskirk", "Contact_Email": "christy.vanbuskirk@iowadot.us"}, "geometry": {"type": "Point", "coordinates": [-91.51767, 41.29343]}},{"type": "Feature", "properties": {"OBJECTID": 32, "District": 6, "Project_Title": "US 30 in Benton County", "Project_Number": "NHSX-030-6(181)--3H-06", "Description": "About 6.5 miles of 2 lanes eastbound and 2 lane westbound will be constructed from W of Co Rd V44 to 1 mile W of US 218. ", "Start_Date": "October 1, 2021", "End_Date": "Summer 2024", "Contact_name": "John Lamping", "Contact_Email": "john.lamping@iowadot.us "}, "geometry": {"type": "Point", "coordinates": [-92.187482, 41.964085]}},{"type": "Feature", "properties": {"OBJECTID": 33, "District": 6, "Project_Title": "I-80/1st Ave interchange in Johnson County", "Project_Number": "IM-080-6(488)242--13-52", "Description": "Grading, paving, and a new bridge at the I-80 and 1st Ave interchange in Coralville. Expect ramp closures and changing traffic conditions on I-80 and 1st Ave.", "Start_Date": "October 1, 2022", "End_Date": "Fall 2024", "Contact_name": "Adrian Simonson", "Contact_Email": "Adrian.Simonson@iowadot.us "}, "geometry": {"type": "Point", "coordinates": [-91.564007, 41.685761]}},{"type": "Feature", "properties": {"OBJECTID": 34, "District": 6, "Project_Title": "Sugar Creek near Cedar County Rest Areas", "Project_Number": "IM-NHS-080-8(341)269--03-16", "Description": "Grading, paving, and a new bridges on I-80 EB & WB at Sugar Creek in Cedar County near the rest areas. Expect lane closures and changing traffic conditions on I-80.", "Start_Date": "January 13, 2023", "End_Date": "Fall 2024", "Contact_name": "Adrian Simonson", "Contact_Email": "adrian.simonson@iowadot.us"}, "geometry": {"type": "Point", "coordinates": [-91.063566, 41.642187]}},{"type": "Feature", "properties": {"OBJECTID": 35, "District": 6, "Project_Title": "US 30 Benton County", "Project_Number": "NHSX-030-6(183)--3H-06", "Description": "About 4.5 miles of 2 lanes eastbound and 2 lane westbound will be constructed from 11th Ave Dr to W of Co Rd V44.", "Start_Date": "March 20, 2023", "End_Date": "Fall 2024", "Contact_name": "John Lamping", "Contact_Email": "john.lamping@iowadot.us "}, "geometry": {"type": "Point", "coordinates": [-92.240338, 41.963884]}},{"type": "Feature", "properties": {"OBJECTID": 36, "District": 6, "Project_Title": "I-80 Eastbound reconstruction in Johnson/ Cedar County", "Project_Number": "IM-NHS-080-7(127)251--03-52", "Description": "About 4 miles of I-80 Eastbound 6-lane expansion from Wapsi Ave to just East of West Branch to be reconstructed. This project is continuation of the 6-lane I-80 from Iowa City through West Branch. Expect changing traffic conditions on I-80.", "Start_Date": "April 1, 2024", "End_Date": "Fall 2024", "Contact_name": "Adrian Simonson", "Contact_Email": "adrian.simonson@iowadot.us"}, "geometry": {"type": "Point", "coordinates": [-91.354764, 41.663733]}},{"type": "Feature", "properties": {"OBJECTID": 37, "District": null, "Project_Title": "I-280 River Bridge (Illinois DOT project)", "Project_Number": "NHPP-YJLB (572)", "Description": "Bridge deck replacement and resurfacing.", "Start_Date": "January 2, 2021", "End_Date": "Fall 2023", "Contact_name": "Ryan Hippen", "Contact_Email": "Ryan.Hippen@Illinois.gov "}, "geometry": {"type": "Point", "coordinates": [-90.632087, 41.478811]}}]};
+
+            // Create marker cluster group
+            const markers = L.markerClusterGroup({
+                maxClusterRadius: 50,
+                spiderfyOnMaxZoom: true,
+                showCoverageOnHover: false
+            });
+
+            let allMarkers = [];
+
+            // Function to determine project type
+            function getProjectType(title) {
+                if (title.match(/I-\d+/)) return 'interstate';
+                if (title.match(/US \d+/)) return 'us-highway';
+                if (title.match(/Iowa \d+|IA \d+/)) return 'state-highway';
+                if (title.toLowerCase().includes('bridge')) return 'bridge';
+                return 'other';
+            }
+
+            // Function to get marker color based on district
+            function getMarkerColor(district) {
+                const colors = {
+                    1: '#03617A',
+                    2: '#19405B',
+                    3: '#D4610E',
+                    4: '#E8B923',
+                    5: '#5D8C3E',
+                    6: '#8B4789'
+                };
+                return colors[district] || '#53565A';
+            }
+
+            // Create custom icon
+            function createCustomIcon(district) {
+                const color = getMarkerColor(district);
+                return L.divIcon({
+                    className: 'custom-marker',
+                    html: `<div style="background-color: ${color}; width: 30px; height: 30px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>`,
+                    iconSize: [30, 30],
+                    iconAnchor: [15, 15]
+                });
+            }
+
+            // Add markers for each project
+            projectsGeoJSON.features.forEach(feature => {
+                const props = feature.properties;
+                const coords = feature.geometry.coordinates;
+                const lat = coords[1];
+                const lon = coords[0];
+
+                const popupContent = `
+                    <div class="marker-popup">
+                        <h3>${props.Project_Title}</h3>
+                        ${props.District ? `<span class="district-badge">District ${props.District}</span>` : ''}
+                        <div class="project-number">${props.Project_Number}</div>
+                        <div class="description">${props.Description}</div>
+                        <div class="detail-row">
+                            <strong>Start:</strong>
+                            <span>${props.Start_Date || 'N/A'}</span>
+                        </div>
+                        <div class="detail-row">
+                            <strong>End:</strong>
+                            <span>${props.End_Date || 'N/A'}</span>
+                        </div>
+                        <div class="detail-row">
+                            <strong>Contact:</strong>
+                            <span>${props.Contact_name} (${props.Contact_Email})</span>
+                        </div>
+                        <div class="links">
+                            <a href="https://511ia.org/map?layers=roadReports,weatherRadar,constructionReports&zoom=13&lat=${lat}&lon=${lon}" target="_blank">View on 511 Map</a>
+                            ${props.PIM ? `<a href="${props.PIM}" target="_blank">Public Meeting Info</a>` : ''}
+                            ${props.Additional_Project_Info ? `<a href="${props.Additional_Project_Info}" target="_blank">Project Info</a>` : ''}
+                        </div>
+                    </div>
+                `;
+
+                const marker = L.marker([lat, lon], {
+                    icon: createCustomIcon(props.District)
+                }).bindPopup(popupContent, {
+                    maxWidth: 400,
+                    className: 'custom-popup'
+                });
+
+                marker.projectData = {
+                    district: props.District,
+                    type: getProjectType(props.Project_Title),
+                    title: props.Project_Title
+                };
+
+                allMarkers.push(marker);
+                markers.addLayer(marker);
+            });
+
+            embeddedMap.addLayer(markers);
+
+            // Filter functionality
+            const districtFilter = document.getElementById('embedded-district-filter');
+            const typeFilter = document.getElementById('embedded-type-filter');
+            const projectCount = document.getElementById('embedded-project-count');
+
+            function updateMap() {
+                const selectedDistrict = districtFilter.value;
+                const selectedType = typeFilter.value;
+
+                markers.clearLayers();
+                let count = 0;
+
+                allMarkers.forEach(marker => {
+                    const districtMatch = selectedDistrict === 'all' || marker.projectData.district == selectedDistrict;
+                    const typeMatch = selectedType === 'all' || marker.projectData.type === selectedType;
+
+                    if (districtMatch && typeMatch) {
+                        markers.addLayer(marker);
+                        count++;
+                    }
+                });
+
+                projectCount.textContent = `${count} project${count !== 1 ? 's' : ''}`;
+            }
+
+            districtFilter.addEventListener('change', updateMap);
+            typeFilter.addEventListener('change', updateMap);
+
+            // Fix map size issues when switching tabs
+            setTimeout(() => {
+                embeddedMap.invalidateSize();
+            }, 250);
+        });
     </script>
 </body>
 </html>
