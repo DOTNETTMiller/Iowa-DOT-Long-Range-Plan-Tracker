@@ -3,6 +3,7 @@ const path = require('path');
 const { OpenAI } = require('openai');
 const multer = require('multer');
 const fs = require('fs');
+const sharp = require('sharp');
 
 // Database connection
 const DB_PATH = path.join(__dirname, 'iowa-dot-tracker.db');
@@ -747,7 +748,7 @@ Remember: You're representing Iowa DOT, so be professional, accurate, and helpfu
 
     const upload = multer({
         storage: storage,
-        limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+        limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit (images are compressed after upload)
         fileFilter: function (req, file, cb) {
             // Allow only images
             if (file.mimetype.startsWith('image/')) {
@@ -783,7 +784,20 @@ Remember: You're representing Iowa DOT, so be professional, accurate, and helpfu
 
             const { caption, uploaded_by } = req.body;
             const project_id = req.params.id;
-            const file_path = `/uploads/projects/${req.file.filename}`;
+
+            // Compress and resize image
+            const compressedFilename = `compressed-${Date.now()}.webp`;
+            const compressedPath = path.join(__dirname, 'uploads', 'projects', compressedFilename);
+
+            await sharp(req.file.path)
+                .resize(1200, 1200, { fit: 'inside', withoutEnlargement: true })
+                .webp({ quality: 80 })
+                .toFile(compressedPath);
+
+            // Delete original file
+            fs.unlinkSync(req.file.path);
+
+            const file_path = `/uploads/projects/${compressedFilename}`;
 
             const result = await dbRun(`
                 INSERT INTO project_photos (project_id, file_path, file_name, caption, uploaded_by)
@@ -1032,10 +1046,22 @@ Remember: You're representing Iowa DOT, so be professional, accurate, and helpfu
                 return res.status(404).json({ success: false, error: 'Major project not found' });
             }
 
+            // Compress and resize image
+            const compressedFilename = `compressed-${Date.now()}.webp`;
+            const compressedPath = path.join(__dirname, 'uploads', 'projects', compressedFilename);
+
+            await sharp(req.file.path)
+                .resize(1200, 1200, { fit: 'inside', withoutEnlargement: true })
+                .webp({ quality: 80 })
+                .toFile(compressedPath);
+
+            // Delete original file
+            fs.unlinkSync(req.file.path);
+
             const result = await dbRun(`
                 INSERT INTO major_project_photos (major_project_id, user_id, photo_url, caption, approved)
                 VALUES (?, ?, ?, ?, 0)
-            `, [major_project_id, user_id || 1, '/uploads/' + req.file.filename, caption || '']);
+            `, [major_project_id, user_id || 1, `/uploads/projects/${compressedFilename}`, caption || '']);
 
             res.json({ success: true, data: { id: result.id }, message: 'Photo uploaded (pending approval)' });
         } catch (err) {
