@@ -3309,6 +3309,14 @@
             });
         }
 
+        // Prevent browser scroll restoration
+        if ('scrollRestoration' in history) {
+            history.scrollRestoration = 'manual';
+        }
+
+        // Scroll to top immediately
+        window.scrollTo(0, 0);
+
         document.addEventListener('DOMContentLoaded', () => {
             // Scroll to top of page on load
             window.scrollTo(0, 0);
@@ -3318,10 +3326,17 @@
             // Initialize map after projects are loaded
             setTimeout(() => {
                 initializeMap();
+                // Scroll to top again after map loads
+                window.scrollTo(0, 0);
             }, 1000);
 
             // Set footer year
             document.getElementById('footerYear').textContent = new Date().getFullYear();
+        });
+
+        // Force scroll to top after everything loads
+        window.addEventListener('load', () => {
+            window.scrollTo(0, 0);
         });
     </script>
     <script src="major-project-popups.js"></script>
