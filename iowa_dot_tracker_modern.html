@@ -3223,42 +3223,17 @@
                     iconAnchor: [13, 13]
                 });
 
-                // Create popup content for major construction project
-                const popupContent = `
-                    <div style="min-width: 280px; padding: 0.5rem; font-family: Inter, sans-serif;">
-                        <div style="background: linear-gradient(135deg, #03617A 0%, #BBE2DA 100%); color: white; padding: 0.75rem; margin: -0.5rem -0.5rem 0.75rem -0.5rem; border-radius: 6px 6px 0 0;">
-                            <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; font-weight: 700;">
-                                ${escapeHtml(props.Project_Title)}
-                            </h4>
-                            ${props.District ? `<span style="background: rgba(255,255,255,0.3); padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.7rem; font-weight: 600;">District ${props.District}</span>` : ''}
-                        </div>
-                        <div style="font-size: 0.7rem; color: #6b7280; background: #f9fafb; padding: 0.5rem; border-radius: 4px; margin-bottom: 0.75rem; font-family: monospace;">
-                            ${escapeHtml(props.Project_Number)}
-                        </div>
-                        <div style="font-size: 0.85rem; color: #374151; line-height: 1.5; margin-bottom: 0.75rem;">
-                            ${escapeHtml(props.Description)}
-                        </div>
-                        <div style="display: grid; grid-template-columns: auto 1fr; gap: 0.5rem; font-size: 0.8rem; color: #6b7280; margin-bottom: 0.75rem;">
-                            <strong style="color: #111827;">Start:</strong>
-                            <span>${escapeHtml(props.Start_Date || 'N/A')}</span>
-                            <strong style="color: #111827;">End:</strong>
-                            <span>${escapeHtml(props.End_Date || 'N/A')}</span>
-                            <strong style="color: #111827;">Contact:</strong>
-                            <span>${escapeHtml(props.Contact_name)}<br/>${escapeHtml(props.Contact_Email)}</span>
-                        </div>
-                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                            <a href="https://511ia.org/map?layers=roadReports,weatherRadar,constructionReports&zoom=13&lat=${lat}&lon=${lon}" target="_blank"
-                               style="flex: 1; background: #03617A; color: white; padding: 0.5rem; text-align: center; border-radius: 6px; text-decoration: none; font-size: 0.75rem; font-weight: 600;">
-                                View on 511 Map
-                            </a>
-                            ${props.PIM ? `<a href="${escapeHtml(props.PIM)}" target="_blank" style="flex: 1; background: #6b7280; color: white; padding: 0.5rem; text-align: center; border-radius: 6px; text-decoration: none; font-size: 0.75rem; font-weight: 600;">Public Info</a>` : ''}
-                        </div>
-                    </div>
-                `;
-
-                // Create marker
+                // Create marker with interactive popup
                 const marker = L.marker([lat, lon], { icon: markerIcon })
-                    .bindPopup(popupContent, { maxWidth: 320 });
+                    .bindPopup(createMajorProjectPopup(feature, props.OBJECTID), {
+                        maxWidth: 500,
+                        minWidth: 350
+                    });
+
+                // Initialize popup data when opened
+                marker.on('popupopen', () => {
+                    initializeMajorProjectPopup(`major-project-${props.OBJECTID}`, props.OBJECTID);
+                });
 
                 // Add to cluster group
                 markerClusterGroup.addLayer(marker);
@@ -3346,5 +3321,6 @@
             document.getElementById('footerYear').textContent = new Date().getFullYear();
         });
     </script>
+    <script src="major-project-popups.js"></script>
 </body>
 </html>

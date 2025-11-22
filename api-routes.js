@@ -834,6 +834,226 @@ Remember: You're representing Iowa DOT, so be professional, accurate, and helpfu
             res.status(500).json({ success: false, error: 'Failed to delete photo' });
         }
     });
+
+    // ============================================
+    // MAJOR CONSTRUCTION PROJECTS ENDPOINTS
+    // ============================================
+
+    // Helper function to resolve project ID (accepts either database ID or geojson_object_id)
+    async function resolveMajorProjectId(idOrObjectId) {
+        // First try as database ID
+        let project = await dbGet('SELECT id FROM major_projects WHERE id = ?', [idOrObjectId]);
+
+        // If not found, try as geojson_object_id
+        if (!project) {
+            project = await dbGet('SELECT id FROM major_projects WHERE geojson_object_id = ?', [idOrObjectId]);
+        }
+
+        return project ? project.id : null;
+    }
+
+    // GET all major projects with stats
+    app.get('/api/major-projects', async (req, res) => {
+        try {
+            const projects = await dbAll(`
+                SELECT
+                    mp.*,
+                    (SELECT COUNT(*) FROM major_project_comments WHERE major_project_id = mp.id) as comment_count,
+                    (SELECT COUNT(*) FROM major_project_likes WHERE major_project_id = mp.id) as like_count,
+                    (SELECT COUNT(*) FROM major_project_photos WHERE major_project_id = mp.id AND approved = 1) as photo_count
+                FROM major_projects mp
+                ORDER BY mp.district, mp.project_title
+            `);
+            res.json({ success: true, data: projects });
+        } catch (err) {
+            console.error('Error fetching major projects:', err);
+            res.status(500).json({ success: false, error: 'Failed to fetch major projects' });
+        }
+    });
+
+    // GET single major project with details
+    app.get('/api/major-projects/:id', async (req, res) => {
+        try {
+            const projectId = await resolveMajorProjectId(req.params.id);
+
+            if (!projectId) {
+                return res.status(404).json({ success: false, error: 'Major project not found' });
+            }
+
+            const project = await dbGet(`
+                SELECT
+                    mp.*,
+                    (SELECT COUNT(*) FROM major_project_comments WHERE major_project_id = mp.id) as comment_count,
+                    (SELECT COUNT(*) FROM major_project_likes WHERE major_project_id = mp.id) as like_count,
+                    (SELECT COUNT(*) FROM major_project_photos WHERE major_project_id = mp.id AND approved = 1) as photo_count
+                FROM major_projects mp
+                WHERE mp.id = ?
+            `, [projectId]);
+
+            res.json({ success: true, data: project });
+        } catch (err) {
+            console.error('Error fetching major project:', err);
+            res.status(500).json({ success: false, error: 'Failed to fetch major project' });
+        }
+    });
+
+    // GET comments for a major project
+    app.get('/api/major-projects/:id/comments', async (req, res) => {
+        try {
+            const projectId = await resolveMajorProjectId(req.params.id);
+
+            if (!projectId) {
+                return res.status(404).json({ success: false, error: 'Major project not found' });
+            }
+
+            const comments = await dbAll(`
+                SELECT c.*, u.display_name, u.username
+                FROM major_project_comments c
+                JOIN users u ON c.user_id = u.id
+                WHERE c.major_project_id = ?
+                ORDER BY c.created_at DESC
+            `, [projectId]);
+            res.json({ success: true, data: comments });
+        } catch (err) {
+            console.error('Error fetching comments:', err);
+            res.status(500).json({ success: false, error: 'Failed to fetch comments' });
+        }
+    });
+
+    // POST new comment on major project
+    app.post('/api/major-projects/:id/comments', async (req, res) => {
+        const { comment_text, user_id, display_name } = req.body;
+
+        if (!comment_text) {
+            return res.status(400).json({ success: false, error: 'Comment text is required' });
+        }
+
+        try {
+            const major_project_id = await resolveMajorProjectId(req.params.id);
+
+            if (!major_project_id) {
+                return res.status(404).json({ success: false, error: 'Major project not found' });
+            }
+
+            // Get or create user
+            let userId = user_id || 1;
+            if (display_name && !user_id) {
+                // Create anonymous user
+                const result = await dbRun(`
+                    INSERT INTO users (username, email, display_name, role)
+                    VALUES (?, ?, ?, ?)
+                `, [`anon_${Date.now()}`, `anon_${Date.now()}@temp.local`, display_name, 'user']);
+                userId = result.id;
+            }
+
+            const result = await dbRun(`
+                INSERT INTO major_project_comments (major_project_id, user_id, comment_text)
+                VALUES (?, ?, ?)
+            `, [major_project_id, userId, comment_text]);
+
+            res.json({ success: true, data: { id: result.id }, message: 'Comment added' });
+        } catch (err) {
+            console.error('Error adding comment:', err);
+            res.status(500).json({ success: false, error: 'Failed to add comment' });
+        }
+    });
+
+    // POST toggle like on major project
+    app.post('/api/major-projects/:id/like', async (req, res) => {
+        const { user_id } = req.body;
+
+        try {
+            const major_project_id = await resolveMajorProjectId(req.params.id);
+
+            if (!major_project_id) {
+                return res.status(404).json({ success: false, error: 'Major project not found' });
+            }
+
+            // Check if already liked
+            const existing = await dbGet(
+                `SELECT id FROM major_project_likes WHERE major_project_id = ? AND user_id = ?`,
+                [major_project_id, user_id || 1]
+            );
+
+            if (existing) {
+                // Unlike
+                await dbRun('DELETE FROM major_project_likes WHERE id = ?', [existing.id]);
+                res.json({ success: true, liked: false, message: 'Like removed' });
+            } else {
+                // Like
+                await dbRun(`
+                    INSERT INTO major_project_likes (major_project_id, user_id)
+                    VALUES (?, ?)
+                `, [major_project_id, user_id || 1]);
+
+                res.json({ success: true, liked: true, message: 'Project liked' });
+            }
+        } catch (err) {
+            console.error('Error toggling like:', err);
+            res.status(500).json({ success: false, error: 'Failed to toggle like' });
+        }
+    });
+
+    // GET photos for a major project
+    app.get('/api/major-projects/:id/photos', async (req, res) => {
+        try {
+            const major_project_id = await resolveMajorProjectId(req.params.id);
+
+            if (!major_project_id) {
+                return res.status(404).json({ success: false, error: 'Major project not found' });
+            }
+
+            const photos = await dbAll(`
+                SELECT p.*, u.display_name
+                FROM major_project_photos p
+                JOIN users u ON p.user_id = u.id
+                WHERE p.major_project_id = ? AND p.approved = 1
+                ORDER BY p.upload_date DESC
+            `, [major_project_id]);
+            res.json({ success: true, data: photos });
+        } catch (err) {
+            console.error('Error fetching photos:', err);
+            res.status(500).json({ success: false, error: 'Failed to fetch photos' });
+        }
+    });
+
+    // POST upload photo to major project
+    app.post('/api/major-projects/:id/photos', upload.single('photo'), async (req, res) => {
+        const { caption, user_id } = req.body;
+
+        if (!req.file) {
+            return res.status(400).json({ success: false, error: 'No photo file uploaded' });
+        }
+
+        try {
+            const major_project_id = await resolveMajorProjectId(req.params.id);
+
+            if (!major_project_id) {
+                return res.status(404).json({ success: false, error: 'Major project not found' });
+            }
+
+            const result = await dbRun(`
+                INSERT INTO major_project_photos (major_project_id, user_id, photo_url, caption, approved)
+                VALUES (?, ?, ?, ?, 0)
+            `, [major_project_id, user_id || 1, '/uploads/' + req.file.filename, caption || '']);
+
+            res.json({ success: true, data: { id: result.id }, message: 'Photo uploaded (pending approval)' });
+        } catch (err) {
+            console.error('Error uploading photo:', err);
+            res.status(500).json({ success: false, error: 'Failed to upload photo' });
+        }
+    });
+
+    // POST approve photo (admin/moderator only)
+    app.post('/api/major-projects/:projectId/photos/:photoId/approve', async (req, res) => {
+        try {
+            await dbRun('UPDATE major_project_photos SET approved = 1 WHERE id = ?', [req.params.photoId]);
+            res.json({ success: true, message: 'Photo approved' });
+        } catch (err) {
+            console.error('Error approving photo:', err);
+            res.status(500).json({ success: false, error: 'Failed to approve photo' });
+        }
+    });
 }
 
 // ============================================
