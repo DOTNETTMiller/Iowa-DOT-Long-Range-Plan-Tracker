@@ -1,0 +1,24 @@
+{
+  "name": "Iowa DOT 2050 Long-Range Plan Tracker",
+  "short_name": "Iowa DOT Tracker",
+  "description": "Interactive dashboard for tracking Iowa Department of Transportation 2050 Long-Range Plan objectives",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#03617A",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "https://iowadot.gov/themes/custom/wildrose/logo-iowa.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["government", "transportation", "productivity"],
+  "lang": "en-US",
+  "dir": "ltr",
+  "scope": "/",
+  "related_applications": [],
+  "prefer_related_applications": false
+}

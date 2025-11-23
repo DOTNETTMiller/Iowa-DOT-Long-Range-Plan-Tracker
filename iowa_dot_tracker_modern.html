@@ -4,6 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Iowa DOT 2050 Long-Range Plan Tracker</title>
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#03617A">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Iowa DOT Tracker">
+
+    <!-- SEO & Social -->
+    <meta name="description" content="Interactive dashboard for tracking Iowa Department of Transportation 2050 Long-Range Plan objectives and progress">
+    <meta name="keywords" content="Iowa DOT, transportation, infrastructure, planning, tracking">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- Leaflet.js for Interactive Maps -->
@@ -14,6 +25,9 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
     <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+
+    <!-- Chart.js for Analytics Dashboard -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <style>
         * {
@@ -840,6 +854,215 @@
             border-color: #374151;
             color: #f9fafb;
         }
+
+        /* Bureau Updates Section */
+        .bureau-updates-section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            border-top: 3px solid #19405B;
+        }
+
+        .bureau-updates-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .bureau-updates-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #19405B;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .update-frequency {
+            background: #03617A;
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .bureau-tabs {
+            display: flex;
+            gap: 0.3rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 0;
+        }
+
+        .bureau-tab {
+            padding: 0.6rem 1rem;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #53565A;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .bureau-tab:hover {
+            background: #f9fafb;
+            color: #03617A;
+        }
+
+        .bureau-tab.active {
+            color: #03617A;
+            border-bottom-color: #03617A;
+            background: #f0f9ff;
+        }
+
+        .bureau-content {
+            min-height: 300px;
+            background: #f9fafb;
+            border-radius: 6px;
+            padding: 1rem;
+        }
+
+        .bureau-update {
+            background: white;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            border-left: 3px solid #03617A;
+        }
+
+        .update-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.75rem;
+        }
+
+        .update-date {
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 0.25rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .update-title {
+            font-weight: 600;
+            color: #19405B;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .update-content {
+            font-size: 0.9rem;
+            color: #53565A;
+            line-height: 1.6;
+        }
+
+        .update-projects {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-top: 0.75rem;
+        }
+
+        .update-project-tag {
+            background: #e0f2fe;
+            color: #03617A;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .bureau-info {
+            background: #e0f2fe;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            border-left: 3px solid #03617A;
+        }
+
+        .bureau-contact {
+            font-size: 0.85rem;
+            color: #53565A;
+            margin-top: 0.5rem;
+        }
+
+        .no-updates {
+            text-align: center;
+            padding: 2rem;
+            color: #9ca3af;
+            font-style: italic;
+        }
+
+        .add-update-btn {
+            background: #03617A;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 1rem;
+        }
+
+        .add-update-btn:hover {
+            background: #19405B;
+            transform: scale(1.02);
+        }
+
+        .bureau-panel {
+            display: none;
+        }
+
+        /* Print Styles */
+        @media print {
+            body {
+                background: white !important;
+                color: black !important;
+            }
+
+            .header-actions,
+            .nav-tabs,
+            .filters,
+            .search-box,
+            #chatPanel,
+            #compareBanner,
+            #savedPresets,
+            button:not(.no-print) {
+                display: none !important;
+            }
+
+            .project-card {
+                page-break-inside: avoid;
+                border: 1px solid #ccc !important;
+                box-shadow: none !important;
+            }
+
+            .section-header {
+                page-break-after: avoid;
+            }
+
+            .chart-card {
+                page-break-inside: avoid;
+            }
+
+            @page {
+                margin: 0.75in;
+            }
+        }
     </style>
 </head>
 <body>
@@ -857,6 +1080,9 @@
                 </div>
             </div>
             <div class="header-actions">
+                <button id="installBtn" style="display: none; background: #10b981; color: white; border: none; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; font-size: 0.875rem; font-weight: 600; transition: all 0.2s;" onclick="installPWA()">
+                    📱 Install App
+                </button>
                 <button class="theme-toggle" onclick="toggleTheme()">
                     <span id="themeIcon">☀️</span> <span id="themeLabel">Light</span>
                 </button>
@@ -928,14 +1154,327 @@
     <main class="main-content">
         <!-- Home Section -->
         <div id="homeSection" class="content-section active">
+            <!-- Bureau Biweekly Updates Section -->
+            <div class="bureau-updates-section">
+                <div class="bureau-updates-header">
+                    <div class="bureau-updates-title">
+                        <span>📋</span>
+                        <span>Bureau Biweekly Progress Updates</span>
+                    </div>
+                    <div style="display: flex; gap: 0.75rem; align-items: center;">
+                        <span class="update-frequency">Updated Every 2 Weeks</span>
+                        <span style="background: #fef3c7; color: #92400e; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.8rem; font-weight: 500;">
+                            Next Update: Dec 6, 2025
+                        </span>
+                    </div>
+                </div>
+
+                <div style="background: #e0f2fe; padding: 0.75rem; border-radius: 6px; margin-bottom: 1rem; font-size: 0.85rem; color: #03617A;">
+                    <strong>Real-Time Progress Reporting:</strong> Each Iowa DOT bureau provides biweekly updates on project status, milestones achieved, and upcoming activities. Click tabs below to view updates from specific bureaus.
+                </div>
+
+                <div class="bureau-tabs">
+                    <button class="bureau-tab active" onclick="switchBureauTab('program-mgmt')">Program Management</button>
+                    <button class="bureau-tab" onclick="switchBureauTab('systems-planning')">Systems Planning</button>
+                    <button class="bureau-tab" onclick="switchBureauTab('traffic-safety')">Traffic & Safety</button>
+                    <button class="bureau-tab" onclick="switchBureauTab('bridge-mgmt')">Bridge Management</button>
+                    <button class="bureau-tab" onclick="switchBureauTab('modal-transport')">Modal Transportation</button>
+                    <button class="bureau-tab" onclick="switchBureauTab('maintenance')">Maintenance Division</button>
+                    <button class="bureau-tab" onclick="switchBureauTab('location-env')">Location & Environment</button>
+                    <button class="bureau-tab" onclick="switchBureauTab('right-of-way')">Right of Way</button>
+                    <button class="bureau-tab" onclick="switchBureauTab('materials')">Materials</button>
+                    <button class="bureau-tab" onclick="switchBureauTab('new-tech')">New Technologies</button>
+                </div>
+
+                <div class="bureau-content" id="bureau-content">
+                    <!-- Program Management Bureau -->
+                    <div id="program-mgmt" class="bureau-panel" style="display: block;">
+                        <div class="bureau-info">
+                            <strong>Program Management Bureau</strong>
+                            <div class="bureau-contact">Contact: 515-239-1768 | Lead: Stuart Anderson</div>
+                        </div>
+
+                        <div class="bureau-update">
+                            <div class="update-header">
+                                <div class="update-title">Five-Year Program Amendment Progress</div>
+                                <div class="update-date">Nov 8, 2025</div>
+                            </div>
+                            <div class="update-content">
+                                Completed review of FY 2026-2030 program amendments. Commission approved $42M in additional funding for accelerated bridge replacements. US 30 Bypass construction remains on schedule despite weather delays in early October. Coordination with District 4 on right-of-way acquisitions proceeding as planned.
+                            </div>
+                            <div class="update-projects">
+                                <span class="update-project-tag">US 30 Bypass - 65%</span>
+                                <span class="update-project-tag">US 63 Bypass - 80%</span>
+                                <span class="update-project-tag">FY26 Lettings - On Track</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Systems Planning Bureau -->
+                    <div id="systems-planning" class="bureau-panel">
+                        <div class="bureau-info">
+                            <strong>Systems Planning Bureau</strong>
+                            <div class="bureau-contact">Contact: 515-239-1664 | Lead: Craig Markley</div>
+                        </div>
+
+                        <div class="bureau-update">
+                            <div class="update-header">
+                                <div class="update-title">2027 State Transportation Plan Update Kickoff</div>
+                                <div class="update-date">Nov 8, 2025</div>
+                            </div>
+                            <div class="update-content">
+                                Initiated comprehensive planning process for 2027 plan update. Stakeholder engagement sessions scheduled for November across all six districts. New emphasis on incorporating lessons learned from SMV Alert System pilot and carbon reduction strategies. Public comment portal launching November 15.
+                            </div>
+                            <div class="update-projects">
+                                <span class="update-project-tag">2027 Plan Update</span>
+                                <span class="update-project-tag">Stakeholder Engagement</span>
+                                <span class="update-project-tag">Carbon Strategy Integration</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Traffic & Safety Bureau -->
+                    <div id="traffic-safety" class="bureau-panel">
+                        <div class="bureau-info">
+                            <strong>Traffic & Safety Bureau</strong>
+                            <div class="bureau-contact">Contact: 515-239-1267 | Lead: Tom Welch</div>
+                        </div>
+
+                        <div class="bureau-update">
+                            <div class="update-header">
+                                <div class="update-title">FY2026 TSIP Application Review Complete</div>
+                                <div class="update-date">Nov 8, 2025</div>
+                            </div>
+                            <div class="update-content">
+                                Reviewed 78 applications for Traffic Safety Improvement Program totaling $24M in requests. Recommended 35 projects for $8.6M in funding. Focus areas include rural intersection improvements (42%), pedestrian safety enhancements (28%), and work zone safety upgrades (30%). Awards announcement scheduled for November Commission meeting.
+                            </div>
+                            <div class="update-projects">
+                                <span class="update-project-tag">TSIP FY2026 - $8.6M</span>
+                                <span class="update-project-tag">35 Safety Projects</span>
+                                <span class="update-project-tag">78 Applications Reviewed</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bridge Management Bureau -->
+                    <div id="bridge-mgmt" class="bureau-panel">
+                        <div class="bureau-info">
+                            <strong>Bridge Management Bureau</strong>
+                            <div class="bureau-contact">Contact: 515-239-1363 | Lead: Paul Assman</div>
+                        </div>
+
+                        <div class="bureau-update">
+                            <div class="update-header">
+                                <div class="update-title">Historic Bridge Condition Milestone Achieved</div>
+                                <div class="update-date">Nov 8, 2025</div>
+                            </div>
+                            <div class="update-content">
+                                Successfully reduced poor condition bridges to 26, down from 256 in 2006. This represents a 90% improvement over 19 years. Lansing Bridge replacement progressing with demolition of old span beginning November 1. Gordon Drive Bridge design at 95% complete, letting scheduled for January 2026.
+                            </div>
+                            <div class="update-projects">
+                                <span class="update-project-tag">26 Poor Bridges (Goal Met)</span>
+                                <span class="update-project-tag">Lansing Bridge - 55%</span>
+                                <span class="update-project-tag">Gordon Drive - Design 95%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Modal Transportation Bureau -->
+                    <div id="modal-transport" class="bureau-panel">
+                        <div class="bureau-info">
+                            <strong>Modal Transportation Bureau</strong>
+                            <div class="bureau-contact">Contact: 515-239-1669 | Divisions: Transit, Rail, Aviation</div>
+                        </div>
+
+                        <div class="bureau-update">
+                            <div class="update-header">
+                                <div class="update-title">State Rail Plan Final Review</div>
+                                <div class="update-date">Nov 8, 2025</div>
+                            </div>
+                            <div class="update-content">
+                                Rail Plan update 90% complete following public comment period. Incorporated feedback from Class I railroads and agricultural shippers. Aviation program distributed $6.7M for airport improvements across 25 facilities. Transit systems reporting increased ridership in urban areas, challenges remain in rural service delivery.
+                            </div>
+                            <div class="update-projects">
+                                <span class="update-project-tag">Rail Plan - 90%</span>
+                                <span class="update-project-tag">Aviation - $6.7M FY26</span>
+                                <span class="update-project-tag">35 Transit Systems Active</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Maintenance Division -->
+                    <div id="maintenance" class="bureau-panel">
+                        <div class="bureau-info">
+                            <strong>Maintenance Division</strong>
+                            <div class="bureau-contact">Contact: 515-239-1355 | 100+ Garages Statewide</div>
+                        </div>
+
+                        <div class="bureau-update">
+                            <div class="update-header">
+                                <div class="update-title">Winter Operations Readiness</div>
+                                <div class="update-date">Nov 8, 2025</div>
+                            </div>
+                            <div class="update-content">
+                                Completed pre-winter equipment inspections across all districts. Salt/sand inventory at 94% capacity (285,000 tons). Hired 78 seasonal operators, 22 positions remaining. First winter weather drill scheduled November 7. New brine-making facilities operational in Districts 2 and 5.
+                            </div>
+                            <div class="update-projects">
+                                <span class="update-project-tag">285,000 Tons Salt Ready</span>
+                                <span class="update-project-tag">78 Seasonal Staff Hired</span>
+                                <span class="update-project-tag">Equipment 100% Ready</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Location & Environment Bureau -->
+                    <div id="location-env" class="bureau-panel">
+                        <div class="bureau-info">
+                            <strong>Location & Environment Bureau</strong>
+                            <div class="bureau-contact">Contact: 515-239-1035 | Environmental & NEPA Compliance</div>
+                        </div>
+
+                        <div class="bureau-update">
+                            <div class="update-header">
+                                <div class="update-title">Environmental Reviews & Carbon Strategy</div>
+                                <div class="update-date">Nov 8, 2025</div>
+                            </div>
+                            <div class="update-content">
+                                Completed NEPA reviews for 12 major projects in October. Carbon Reduction Strategy implementation showing 3% reduction in construction emissions through material substitutions. Living Roadway Trust Fund approved $1.2M for pollinator habitat projects along I-35 and I-80 corridors.
+                            </div>
+                            <div class="update-projects">
+                                <span class="update-project-tag">12 NEPA Reviews</span>
+                                <span class="update-project-tag">3% Carbon Reduction</span>
+                                <span class="update-project-tag">$1.2M Pollinator Projects</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right of Way Bureau -->
+                    <div id="right-of-way" class="bureau-panel">
+                        <div class="bureau-info">
+                            <strong>Right of Way Bureau</strong>
+                            <div class="bureau-contact">Contact: 515-239-1216 | Property Acquisition & Management</div>
+                        </div>
+
+                        <div class="bureau-update">
+                            <div class="update-header">
+                                <div class="update-title">Q4 Acquisition Progress</div>
+                                <div class="update-date">Nov 8, 2025</div>
+                            </div>
+                            <div class="update-content">
+                                Completed 43 property acquisitions for FY2026 projects. US 30 Bypass right-of-way 98% complete with two remaining parcels in negotiation. Initiated early acquisition for three FY2027 projects to avoid construction delays. Federal reimbursement rate at 92% for completed acquisitions.
+                            </div>
+                            <div class="update-projects">
+                                <span class="update-project-tag">43 Properties Acquired</span>
+                                <span class="update-project-tag">US 30 ROW - 98%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Materials Bureau -->
+                    <div id="materials" class="bureau-panel">
+                        <div class="bureau-info">
+                            <strong>Materials Bureau</strong>
+                            <div class="bureau-contact">Contact: 515-239-1226 | Testing & Quality Assurance</div>
+                        </div>
+
+                        <div class="bureau-update">
+                            <div class="update-header">
+                                <div class="update-title">Pavement Performance & Innovation</div>
+                                <div class="update-date">Nov 8, 2025</div>
+                            </div>
+                            <div class="update-content">
+                                Testing of high-performance concrete on I-80 showing 15% longer life expectancy. Warm-mix asphalt trials reducing emissions by 20% while maintaining quality standards. Completed certification of 127 contractor quality control technicians for 2026 construction season.
+                            </div>
+                            <div class="update-projects">
+                                <span class="update-project-tag">15% Pavement Life Increase</span>
+                                <span class="update-project-tag">20% Emission Reduction</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- New & Emerging Transportation Technologies -->
+                    <div id="new-tech" class="bureau-panel">
+                        <div class="bureau-info">
+                            <strong>New & Emerging Transportation Technologies Office</strong>
+                            <div class="bureau-contact">Contact: Transportation Development Division | Innovation Lead</div>
+                        </div>
+
+                        <div class="bureau-update">
+                            <div class="update-header">
+                                <div class="update-title">SMV Alert System Pilot Success</div>
+                                <div class="update-date">Nov 8, 2025</div>
+                            </div>
+                            <div class="update-content">
+                                Slow Moving Vehicle Alert System pilot on IA-5/US-65 reached 85% completion. Field tests demonstrated 1-2 minute message latency with 97% accuracy. Three implementation alternatives prepared for Executive Leadership review. Partnership with John Deere expanding to include connected vehicle data sharing. Preparing Transportation 4.0 innovation showcase for December.
+                            </div>
+                            <div class="update-projects">
+                                <span class="update-project-tag">SMV Pilot - 85%</span>
+                                <span class="update-project-tag">97% Alert Accuracy</span>
+                                <span class="update-project-tag">Connected Vehicle Testing</span>
+                            </div>
+                        </div>
+
+                        <div class="bureau-update">
+                            <div class="update-header">
+                                <div class="update-title">Plan Tracker Digital Innovation</div>
+                                <div class="update-date">Oct 25, 2025</div>
+                            </div>
+                            <div class="update-content">
+                                Launched interactive 2050 Transportation Plan Tracker with real-time GIS integration. Platform enables transparent progress monitoring across 142 plan objectives. Biweekly bureau updates feature added for enhanced stakeholder communication. Working with IT Services Division on API development for automated progress reporting.
+                            </div>
+                            <div class="update-projects">
+                                <span class="update-project-tag">Plan Tracker Launch</span>
+                                <span class="update-project-tag">GIS Integration</span>
+                                <span class="update-project-tag">API Development</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="section-header">
                 <div>
                     <h3 class="section-title">Project Objectives</h3>
                     <p class="section-meta" id="projectCount">Showing 40 projects</p>
                 </div>
-                <div class="search-box">
-                    <span class="search-icon">🔍</span>
-                    <input type="text" class="search-input" id="searchInput" placeholder="Search projects..." oninput="filterProjects()">
+                <div style="display: flex; gap: 0.75rem; align-items: center;">
+                    <button onclick="toggleCompareMode()" id="compareModeBtn" style="padding: 0.75rem 1rem; background: white; border: 2px solid #e5e7eb; border-radius: 8px; font-weight: 600; cursor: pointer; color: #6b7280; transition: all 0.2s;">
+                        ⚖️ Compare Projects
+                    </button>
+                    <button onclick="showSavePresetDialog()" style="padding: 0.75rem 1rem; background: white; border: 2px solid #e5e7eb; border-radius: 8px; font-weight: 600; cursor: pointer; color: #6b7280;">
+                        💾 Save Filter
+                    </button>
+                    <div class="search-box">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" class="search-input" id="searchInput" placeholder="Search projects..." oninput="filterProjects()">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Saved Filter Presets -->
+            <div id="savedPresets" style="display: none; margin-bottom: 1rem; padding: 1rem; background: #f0f9ff; border-radius: 8px; border: 1px solid #bae6fd;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                    <strong style="color: #03617A;">📌 Saved Filters</strong>
+                    <button onclick="document.getElementById('savedPresets').style.display='none'" style="background: none; border: none; cursor: pointer; font-size: 1.25rem; color: #6b7280;">×</button>
+                </div>
+                <div id="presetsList" style="display: flex; gap: 0.5rem; flex-wrap: wrap;"></div>
+            </div>
+
+            <!-- Comparison Mode Banner -->
+            <div id="compareBanner" style="display: none; margin-bottom: 1rem; padding: 1rem; background: #fef3c7; border-radius: 8px; border: 1px solid #fcd34d;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <strong style="color: #92400e;">⚖️ Comparison Mode Active</strong>
+                        <span id="compareCount" style="margin-left: 0.5rem; color: #92400e;">(0 selected)</span>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button onclick="showComparison()" id="showCompareBtn" style="display: none; padding: 0.5rem 1rem; background: #03617A; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">
+                            Compare Selected
+                        </button>
+                        <button onclick="toggleCompareMode()" style="padding: 0.5rem 1rem; background: white; border: 1px solid #fcd34d; border-radius: 6px; font-weight: 600; cursor: pointer; color: #92400e;">
+                            Exit Compare
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -946,6 +1485,14 @@
                     <button class="filter-chip" data-filter="Modal Plan" onclick="filterByCategory('Modal Plan')">Modal Plans</button>
                     <button class="filter-chip" data-filter="Funding Program" onclick="filterByCategory('Funding Program')">Funding Programs</button>
                     <button class="filter-chip" data-filter="System Plan" onclick="filterByCategory('System Plan')">System Plans</button>
+                </div>
+                <div class="filter-group" style="border-top: 1px solid #e5e7eb; padding-top: 0.75rem; margin-top: 0.75rem;">
+                    <span style="font-size: 0.75rem; font-weight: 600; color: #6b7280; margin-right: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">Core Values:</span>
+                    <button class="filter-chip" data-core-value="safety-first" onclick="filterByCoreValue('safety-first')">🛡️ Safety First</button>
+                    <button class="filter-chip" data-core-value="people-matter" onclick="filterByCoreValue('people-matter')">👥 People Matter</button>
+                    <button class="filter-chip" data-core-value="customer-focused" onclick="filterByCoreValue('customer-focused')">🎯 Customer Focused</button>
+                    <button class="filter-chip" data-core-value="servant-leadership" onclick="filterByCoreValue('servant-leadership')">🤝 Servant Leadership</button>
+                    <button class="filter-chip" data-core-value="integrity" onclick="filterByCoreValue('integrity')">✓ Integrity</button>
                 </div>
                 <div class="filter-group">
                     <button class="filter-chip" data-status="completed" onclick="filterByStatus('completed')">Completed</button>
@@ -983,16 +1530,56 @@
         <!-- Charts Section -->
         <div id="chartsSection" class="content-section">
             <div class="section-header">
-                <h3 class="section-title">Analytics & Insights</h3>
+                <div>
+                    <h3 class="section-title">Analytics & Insights</h3>
+                    <p class="section-meta">Real-time visualization of project progress and metrics</p>
+                </div>
+                <div style="display: flex; gap: 0.75rem;">
+                    <button onclick="exportToCSV()" style="padding: 0.75rem 1.5rem; background: #03617A; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.5rem;">
+                        📊 Export CSV
+                    </button>
+                    <button onclick="exportToPDF()" style="padding: 0.75rem 1.5rem; background: #19405B; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.5rem;">
+                        📄 Export PDF
+                    </button>
+                </div>
             </div>
+
+            <!-- Key Metrics Cards -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+                <div style="background: linear-gradient(135deg, #03617A 0%, #19405B 100%); color: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    <div style="font-size: 0.875rem; opacity: 0.9; margin-bottom: 0.5rem;">Overall Progress</div>
+                    <div id="overallProgressMetric" style="font-size: 2.5rem; font-weight: 800;">79%</div>
+                </div>
+                <div style="background: white; border: 2px solid #e5e7eb; padding: 1.5rem; border-radius: 12px;">
+                    <div style="font-size: 0.875rem; color: #6b7280; margin-bottom: 0.5rem;">Total Projects</div>
+                    <div id="totalProjectsMetric" style="font-size: 2.5rem; font-weight: 800; color: #03617A;">0</div>
+                </div>
+                <div style="background: white; border: 2px solid #e5e7eb; padding: 1.5rem; border-radius: 12px;">
+                    <div style="font-size: 0.875rem; color: #6b7280; margin-bottom: 0.5rem;">Completed</div>
+                    <div id="completedProjectsMetric" style="font-size: 2.5rem; font-weight: 800; color: #10b981;">0</div>
+                </div>
+                <div style="background: white; border: 2px solid #e5e7eb; padding: 1.5rem; border-radius: 12px;">
+                    <div style="font-size: 0.875rem; color: #6b7280; margin-bottom: 0.5rem;">Ongoing</div>
+                    <div id="ongoingProjectsMetric" style="font-size: 2.5rem; font-weight: 800; color: #f59e0b;">0</div>
+                </div>
+            </div>
+
             <div class="charts-grid">
                 <div class="chart-card">
                     <h4 class="chart-title">Completion by Category</h4>
-                    <div id="categoryChart"></div>
+                    <canvas id="categoryChart" style="max-height: 300px;"></canvas>
                 </div>
                 <div class="chart-card">
                     <h4 class="chart-title">Status Distribution</h4>
-                    <div id="statusChart"></div>
+                    <canvas id="statusChart" style="max-height: 300px;"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h4 class="chart-title">Core Values Alignment</h4>
+                    <canvas id="coreValuesChart" style="max-height: 300px;"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h4 class="chart-title">Progress Distribution</h4>
+                    <canvas id="progressChart" style="max-height: 300px;"></canvas>
                 </div>
             </div>
         </div>
@@ -1718,7 +2305,7 @@
                         </div>
                         <div class="projects-grid">
                             ${categoryProjects.map(project => `
-                                <div class="project-card" onclick="viewProject(${project.id})">
+                                <div class="project-card" data-core-values="${project.core_values || ''}" onclick="viewProject(${project.id})">
                                     <div class="card-header">
                                         <div class="status-badge ${getStatusClass(project.status)}">
                                             ${getStatusLabel(project.status)}
@@ -3338,6 +3925,635 @@
         window.addEventListener('load', () => {
             window.scrollTo(0, 0);
         });
+
+        // Bureau tab switching function
+        function switchBureauTab(bureauId) {
+            // Update active tab
+            document.querySelectorAll('.bureau-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Show selected bureau content
+            document.querySelectorAll('.bureau-panel').forEach(panel => {
+                panel.style.display = 'none';
+            });
+            document.getElementById(bureauId).style.display = 'block';
+        }
+
+        // Core values filtering function
+        let activeCoreValue = null;
+
+        function filterByCoreValue(coreValue) {
+            const button = event.target;
+
+            // Toggle active state
+            if (activeCoreValue === coreValue) {
+                // Deactivate if clicking the same value
+                activeCoreValue = null;
+                button.classList.remove('active');
+            } else {
+                // Remove active from all core value buttons
+                document.querySelectorAll('[data-core-value]').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+
+                // Activate clicked button
+                activeCoreValue = coreValue;
+                button.classList.add('active');
+            }
+
+            // Apply filters
+            filterProjects();
+        }
+
+        // Update the existing filterProjects function to include core values
+        const originalFilterProjects = filterProjects;
+        filterProjects = function() {
+            originalFilterProjects();
+
+            // Additional core value filtering
+            if (activeCoreValue) {
+                const projects = document.querySelectorAll('.project-card');
+                projects.forEach(project => {
+                    if (project.style.display !== 'none') {
+                        // Check if project has the core value tag
+                        const hasCoreValue = project.dataset.coreValues &&
+                                            project.dataset.coreValues.includes(activeCoreValue);
+                        if (!hasCoreValue) {
+                            project.style.display = 'none';
+                        }
+                    }
+                });
+            }
+
+            // Update project count
+            updateProjectCount();
+        };
+
+        // ============================================
+        // ANALYTICS & CHARTS
+        // ============================================
+
+        let chartInstances = {};
+
+        function initializeAnalytics() {
+            if (!allProjects || allProjects.length === 0) return;
+
+            // Update metrics
+            updateMetrics();
+
+            // Create charts
+            createCategoryChart();
+            createStatusChart();
+            createCoreValuesChart();
+            createProgressChart();
+        }
+
+        function updateMetrics() {
+            const total = allProjects.length;
+            const completed = allProjects.filter(p => p.status === 'completed').length;
+            const ongoing = allProjects.filter(p => p.status === 'ongoing').length;
+            const avgProgress = Math.round(allProjects.reduce((sum, p) => sum + (p.completion_percentage || 0), 0) / total);
+
+            document.getElementById('totalProjectsMetric').textContent = total;
+            document.getElementById('completedProjectsMetric').textContent = completed;
+            document.getElementById('ongoingProjectsMetric').textContent = ongoing;
+            document.getElementById('overallProgressMetric').textContent = avgProgress + '%';
+        }
+
+        function createCategoryChart() {
+            const ctx = document.getElementById('categoryChart');
+            if (!ctx) return;
+
+            // Group by category
+            const categoryData = {};
+            allProjects.forEach(p => {
+                if (!categoryData[p.category]) {
+                    categoryData[p.category] = { count: 0, totalProgress: 0 };
+                }
+                categoryData[p.category].count++;
+                categoryData[p.category].totalProgress += (p.completion_percentage || 0);
+            });
+
+            const labels = Object.keys(categoryData);
+            const data = labels.map(cat => Math.round(categoryData[cat].totalProgress / categoryData[cat].count));
+
+            if (chartInstances.category) chartInstances.category.destroy();
+            chartInstances.category = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Average Completion %',
+                        data: data,
+                        backgroundColor: '#03617A',
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createStatusChart() {
+            const ctx = document.getElementById('statusChart');
+            if (!ctx) return;
+
+            const statusCounts = {
+                'completed': 0,
+                'ongoing': 0,
+                'draft': 0
+            };
+
+            allProjects.forEach(p => {
+                statusCounts[p.status] = (statusCounts[p.status] || 0) + 1;
+            });
+
+            if (chartInstances.status) chartInstances.status.destroy();
+            chartInstances.status = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Completed', 'Ongoing', 'Draft'],
+                    datasets: [{
+                        data: [statusCounts.completed, statusCounts.ongoing, statusCounts.draft],
+                        backgroundColor: ['#10b981', '#f59e0b', '#6b7280'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        function createCoreValuesChart() {
+            const ctx = document.getElementById('coreValuesChart');
+            if (!ctx) return;
+
+            const coreValueCounts = {
+                'safety-first': 0,
+                'people-matter': 0,
+                'customer-focused': 0,
+                'servant-leadership': 0,
+                'integrity': 0
+            };
+
+            allProjects.forEach(p => {
+                if (p.core_values) {
+                    const values = p.core_values.split(',');
+                    values.forEach(v => {
+                        const val = v.trim();
+                        if (coreValueCounts.hasOwnProperty(val)) {
+                            coreValueCounts[val]++;
+                        }
+                    });
+                }
+            });
+
+            if (chartInstances.coreValues) chartInstances.coreValues.destroy();
+            chartInstances.coreValues = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['Safety First', 'People Matter', 'Customer Focused', 'Servant Leadership', 'Integrity'],
+                    datasets: [{
+                        label: 'Projects Tagged',
+                        data: [
+                            coreValueCounts['safety-first'],
+                            coreValueCounts['people-matter'],
+                            coreValueCounts['customer-focused'],
+                            coreValueCounts['servant-leadership'],
+                            coreValueCounts['integrity']
+                        ],
+                        backgroundColor: 'rgba(3, 97, 122, 0.2)',
+                        borderColor: '#03617A',
+                        pointBackgroundColor: '#03617A',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: '#03617A'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function createProgressChart() {
+            const ctx = document.getElementById('progressChart');
+            if (!ctx) return;
+
+            // Group projects by completion range
+            const ranges = {
+                '0-25%': 0,
+                '26-50%': 0,
+                '51-75%': 0,
+                '76-99%': 0,
+                '100%': 0
+            };
+
+            allProjects.forEach(p => {
+                const completion = p.completion_percentage || 0;
+                if (completion === 0) ranges['0-25%']++;
+                else if (completion <= 25) ranges['0-25%']++;
+                else if (completion <= 50) ranges['26-50%']++;
+                else if (completion <= 75) ranges['51-75%']++;
+                else if (completion < 100) ranges['76-99%']++;
+                else ranges['100%']++;
+            });
+
+            if (chartInstances.progress) chartInstances.progress.destroy();
+            chartInstances.progress = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(ranges),
+                    datasets: [{
+                        label: 'Number of Projects',
+                        data: Object.values(ranges),
+                        backgroundColor: ['#ef4444', '#f59e0b', '#eab308', '#84cc16', '#10b981'],
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // ============================================
+        // EXPORT FUNCTIONS
+        // ============================================
+
+        function exportToCSV() {
+            if (!allProjects || allProjects.length === 0) {
+                alert('No projects to export');
+                return;
+            }
+
+            // CSV headers
+            const headers = ['Project Name', 'Category', 'Status', 'Completion %', 'Responsible', 'Core Values', 'Reference', 'Description'];
+
+            // Build CSV content
+            const csvContent = [
+                headers.join(','),
+                ...allProjects.map(p => [
+                    `"${p.name}"`,
+                    `"${p.category}"`,
+                    `"${p.status}"`,
+                    p.completion_percentage || 0,
+                    `"${p.responsible}"`,
+                    `"${p.core_values || ''}"`,
+                    `"${p.reference || ''}"`,
+                    `"${(p.description || '').replace(/"/g, '""')}"`
+                ].join(','))
+            ].join('\n');
+
+            // Download file
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `Iowa_DOT_Plan_Tracker_${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function exportToPDF() {
+            // Simple print-friendly PDF export
+            window.print();
+        }
+
+        // Initialize analytics when switching to charts tab
+        const originalSwitchTab = switchTab;
+        switchTab = function(tabName) {
+            originalSwitchTab(tabName);
+            if (tabName === 'charts') {
+                setTimeout(() => initializeAnalytics(), 100);
+            }
+        };
+
+        // ============================================
+        // PWA SUPPORT
+        // ============================================
+
+        let deferredPrompt;
+
+        // Register service worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(registration => {
+                        console.log('[PWA] Service Worker registered:', registration);
+                    })
+                    .catch(err => {
+                        console.log('[PWA] Service Worker registration failed:', err);
+                    });
+            });
+        }
+
+        // Handle PWA install prompt
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('installBtn').style.display = 'block';
+        });
+
+        function installPWA() {
+            if (!deferredPrompt) return;
+
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === 'accepted') {
+                    console.log('[PWA] User accepted the install prompt');
+                }
+                deferredPrompt = null;
+                document.getElementById('installBtn').style.display = 'none';
+            });
+        }
+
+        // Detect if app is installed
+        window.addEventListener('appinstalled', () => {
+            console.log('[PWA] App installed successfully');
+            document.getElementById('installBtn').style.display = 'none';
+        });
+
+        // ============================================
+        // SAVED FILTER PRESETS
+        // ============================================
+
+        function loadPresets() {
+            const presets = JSON.parse(localStorage.getItem('filterPresets') || '[]');
+            const container = document.getElementById('presetsList');
+
+            if (presets.length > 0) {
+                document.getElementById('savedPresets').style.display = 'block';
+            }
+
+            container.innerHTML = presets.map((preset, index) => `
+                <div style="display: flex; align-items: center; gap: 0.5rem; background: white; padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid #e5e7eb;">
+                    <button onclick="applyPreset(${index})" style="background: none; border: none; cursor: pointer; font-weight: 600; color: #03617A;">
+                        ${preset.name}
+                    </button>
+                    <button onclick="deletePreset(${index})" style="background: none; border: none; cursor: pointer; color: #ef4444; font-size: 1.125rem;">×</button>
+                </div>
+            `).join('');
+        }
+
+        function showSavePresetDialog() {
+            const name = prompt('Name this filter preset:');
+            if (!name) return;
+
+            const currentFilters = {
+                name: name,
+                category: currentCategory || 'all',
+                status: currentStatus || null,
+                coreValue: activeCoreValue,
+                searchTerm: document.getElementById('searchInput').value
+            };
+
+            const presets = JSON.parse(localStorage.getItem('filterPresets') || '[]');
+            presets.push(currentFilters);
+            localStorage.setItem('filterPresets', JSON.stringify(presets));
+
+            loadPresets();
+        }
+
+        function applyPreset(index) {
+            const presets = JSON.parse(localStorage.getItem('filterPresets') || '[]');
+            const preset = presets[index];
+
+            if (preset.category !== 'all') {
+                filterByCategory(preset.category);
+            }
+            if (preset.status) {
+                filterByStatus(preset.status);
+            }
+            if (preset.coreValue) {
+                // Simulate click on core value button
+                const btn = document.querySelector(`[data-core-value="${preset.coreValue}"]`);
+                if (btn) btn.click();
+            }
+            if (preset.searchTerm) {
+                document.getElementById('searchInput').value = preset.searchTerm;
+                filterProjects();
+            }
+        }
+
+        function deletePreset(index) {
+            const presets = JSON.parse(localStorage.getItem('filterPresets') || '[]');
+            presets.splice(index, 1);
+            localStorage.setItem('filterPresets', JSON.stringify(presets));
+            loadPresets();
+        }
+
+        // Load presets on page load
+        setTimeout(() => loadPresets(), 1000);
+
+        // ============================================
+        // PROJECT COMPARISON MODE
+        // ============================================
+
+        let compareMode = false;
+        let selectedProjects = [];
+
+        function toggleCompareMode() {
+            compareMode = !compareMode;
+            selectedProjects = [];
+
+            const banner = document.getElementById('compareBanner');
+            const btn = document.getElementById('compareModeBtn');
+
+            if (compareMode) {
+                banner.style.display = 'block';
+                btn.style.background = '#03617A';
+                btn.style.color = 'white';
+                btn.style.borderColor = '#03617A';
+            } else {
+                banner.style.display = 'none';
+                btn.style.background = 'white';
+                btn.style.color = '#6b7280';
+                btn.style.borderColor = '#e5e7eb';
+
+                // Remove checkmarks from cards
+                document.querySelectorAll('.compare-checkbox').forEach(el => el.remove());
+            }
+
+            updateCompareCount();
+        }
+
+        function selectForComparison(projectId) {
+            const index = selectedProjects.indexOf(projectId);
+            if (index > -1) {
+                selectedProjects.splice(index, 1);
+            } else {
+                if (selectedProjects.length >= 4) {
+                    alert('You can compare up to 4 projects at once');
+                    return;
+                }
+                selectedProjects.push(projectId);
+            }
+            updateCompareCount();
+        }
+
+        function updateCompareCount() {
+            document.getElementById('compareCount').textContent = `(${selectedProjects.length} selected)`;
+            document.getElementById('showCompareBtn').style.display = selectedProjects.length >= 2 ? 'block' : 'none';
+        }
+
+        function showComparison() {
+            if (selectedProjects.length < 2) {
+                alert('Select at least 2 projects to compare');
+                return;
+            }
+
+            const projects = selectedProjects.map(id => allProjects.find(p => p.id === id)).filter(Boolean);
+
+            const comparisonHTML = `
+                <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 2rem;" onclick="this.remove()">
+                    <div style="background: white; border-radius: 12px; max-width: 1200px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 2rem;" onclick="event.stopPropagation()">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                            <h2 style="color: #111827; font-size: 1.5rem; font-weight: 700;">Project Comparison</h2>
+                            <button onclick="this.closest('[style*=\\'position: fixed\\']').remove()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #6b7280;">×</button>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: repeat(${projects.length}, 1fr); gap: 1rem;">
+                            ${projects.map(p => `
+                                <div style="border: 2px solid #e5e7eb; border-radius: 8px; padding: 1rem;">
+                                    <h3 style="font-size: 1rem; font-weight: 700; color: #03617A; margin-bottom: 1rem;">${p.name}</h3>
+
+                                    <div style="margin-bottom: 0.75rem;">
+                                        <strong style="font-size: 0.875rem; color: #6b7280;">Completion:</strong>
+                                        <div style="font-size: 1.5rem; font-weight: 800; color: #03617A;">${p.completion_percentage || 0}%</div>
+                                        <div style="background: #e5e7eb; height: 8px; border-radius: 4px; margin-top: 0.5rem;">
+                                            <div style="background: #03617A; height: 8px; border-radius: 4px; width: ${p.completion_percentage || 0}%;"></div>
+                                        </div>
+                                    </div>
+
+                                    <div style="margin-bottom: 0.75rem;">
+                                        <strong style="font-size: 0.875rem; color: #6b7280;">Status:</strong>
+                                        <div style="margin-top: 0.25rem;">
+                                            <span style="padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600; background: ${p.status === 'completed' ? '#d1fae5' : p.status === 'ongoing' ? '#fef3c7' : '#f3f4f6'}; color: ${p.status === 'completed' ? '#065f46' : p.status === 'ongoing' ? '#92400e' : '#6b7280'};">
+                                                ${p.status.toUpperCase()}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div style="margin-bottom: 0.75rem;">
+                                        <strong style="font-size: 0.875rem; color: #6b7280;">Category:</strong>
+                                        <div style="font-size: 0.875rem; margin-top: 0.25rem;">${p.category}</div>
+                                    </div>
+
+                                    <div style="margin-bottom: 0.75rem;">
+                                        <strong style="font-size: 0.875rem; color: #6b7280;">Responsible:</strong>
+                                        <div style="font-size: 0.875rem; margin-top: 0.25rem;">${p.responsible}</div>
+                                    </div>
+
+                                    ${p.core_values ? `
+                                        <div style="margin-bottom: 0.75rem;">
+                                            <strong style="font-size: 0.875rem; color: #6b7280;">Core Values:</strong>
+                                            <div style="font-size: 0.75rem; margin-top: 0.25rem;">${p.core_values.split(',').join(', ')}</div>
+                                        </div>
+                                    ` : ''}
+
+                                    <div>
+                                        <strong style="font-size: 0.875rem; color: #6b7280;">Description:</strong>
+                                        <p style="font-size: 0.875rem; line-height: 1.6; margin-top: 0.25rem; color: #374151;">${p.description}</p>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.body.insertAdjacentHTML('beforeend', comparisonHTML);
+        }
+
+        // ============================================
+        // CALENDAR EXPORT
+        // ============================================
+
+        function exportToCalendar(projectId) {
+            const project = allProjects.find(p => p.id === projectId);
+            if (!project || !project.target_completion_date) {
+                alert('This project does not have a target completion date');
+                return;
+            }
+
+            const icsContent = `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Iowa DOT//Plan Tracker//EN
+BEGIN:VEVENT
+UID:project-${project.id}@iowadot.gov
+DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').split('.')[0]}Z
+DTSTART:${project.target_completion_date.replace(/[-]/g, '')}
+SUMMARY:${project.name} - Target Completion
+DESCRIPTION:${project.description}
+LOCATION:Iowa
+STATUS:TENTATIVE
+END:VEVENT
+END:VCALENDAR`;
+
+            const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `${project.name.replace(/[^a-z0-9]/gi, '_')}.ics`;
+            link.click();
+        }
+
+        // Update project card rendering to add compare checkboxes and calendar export
+        const originalViewProject = viewProject;
+        viewProject = function(projectId) {
+            if (compareMode) {
+                selectForComparison(projectId);
+                // Toggle visual indicator
+                event.target.closest('.project-card').style.border = selectedProjects.includes(projectId) ? '3px solid #03617A' : '';
+            } else {
+                originalViewProject(projectId);
+            }
+        };
     </script>
     <script src="major-project-popups.js"></script>
 </body>
