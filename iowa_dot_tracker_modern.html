@@ -340,35 +340,84 @@
 
         /* Category Section */
         .category-section {
-            margin-bottom: 3rem;
+            margin-bottom: 1.5rem;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s;
+        }
+
+        .category-section:hover {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
         .category-header {
             display: flex;
             align-items: center;
+            justify-content: space-between;
             gap: 1rem;
-            padding-bottom: 1rem;
-            border-bottom: 3px solid #03617A;
-            margin-bottom: 1.5rem;
+            padding: 1.25rem 1.5rem;
+            background: linear-gradient(135deg, #03617A 0%, #19405B 100%);
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s;
+        }
+
+        .category-header:hover {
+            background: linear-gradient(135deg, #025066 0%, #03617A 100%);
+        }
+
+        .category-header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex: 1;
+        }
+
+        .category-chevron {
+            font-size: 1.25rem;
+            transition: transform 0.3s ease;
+            color: white;
+            font-weight: bold;
+        }
+
+        .category-section.collapsed .category-chevron {
+            transform: rotate(-90deg);
         }
 
         .category-title {
-            font-size: 1.5rem;
+            font-size: 1.25rem;
             font-weight: 700;
-            color: #111827;
+            color: white;
+            margin: 0;
         }
 
         .category-badge {
-            background: #BBE2DA;
-            color: #19405B;
-            padding: 0.375rem 0.75rem;
-            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
             font-size: 0.875rem;
             font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .category-content {
+            max-height: 10000px;
+            overflow: hidden;
+            transition: max-height 0.4s ease, opacity 0.3s ease;
+            opacity: 1;
+        }
+
+        .category-section.collapsed .category-content {
+            max-height: 0;
+            opacity: 0;
         }
 
         /* Project Cards */
         .projects-grid {
+            padding: 1.5rem;
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
             gap: 1.5rem;
@@ -406,6 +455,32 @@
             justify-content: space-between;
             align-items: start;
             margin-bottom: 1rem;
+        }
+
+        .favorite-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.25rem;
+            opacity: 0.4;
+            transition: all 0.2s;
+            line-height: 1;
+        }
+
+        .favorite-btn:hover {
+            opacity: 1;
+            transform: scale(1.2);
+        }
+
+        .favorite-btn.favorited {
+            opacity: 1;
+            animation: starPop 0.3s ease;
+        }
+
+        @keyframes starPop {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.3); }
         }
 
         .completion-section {
@@ -839,8 +914,14 @@
         body.dark-theme .project-title,
         body.dark-theme .section-title,
         body.dark-theme .category-title,
-        body.dark-theme .logo-text h1 {
+        body.dark-theme .logo-text h1,
+        body.dark-theme .hero h1 {
             color: #f9fafb;
+        }
+
+        body.dark-theme .hero p,
+        body.dark-theme .logo-text p {
+            color: #d1d5db;
         }
 
         body.dark-theme .filter-chip {
@@ -1096,12 +1177,14 @@
             <a class="nav-tab active" onclick="switchTab('home')">Home</a>
             <a class="nav-tab" onclick="switchTab('timeline')">Timeline</a>
             <a class="nav-tab" onclick="switchTab('charts')">Charts</a>
+            <a class="nav-tab" onclick="switchTab('aistrategy')">🤖 AI Strategy</a>
+            <a class="nav-tab" onclick="switchTab('tools')">Advanced Tools</a>
             <a class="nav-tab" onclick="switchTab('map')">Project Map</a>
         </div>
     </nav>
 
     <!-- Hero Section -->
-    <section class="hero">
+    <section class="hero" id="heroSection">
         <div class="hero-content">
             <h2>Iowa DOT 2050 Plan Tracker</h2>
             <p>A comprehensive initiative to track the implementation of Iowa's Long-Range Transportation Plan objectives and modal plans</p>
@@ -1120,31 +1203,33 @@
                 </a>
             </div>
 
-            <div class="stats-grid">
-                <div class="stat-box" onclick="showAllProjects()" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
-                    <div class="stat-label">Total Projects 🔍</div>
-                    <div class="stat-value" id="totalProjects">40</div>
-                    <div class="stat-subtext">Plans & initiatives being tracked</div>
+            <div id="homeStatsSection">
+                <div class="stats-grid">
+                    <div class="stat-box" onclick="showAllProjects()" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+                        <div class="stat-label">Total Projects 🔍</div>
+                        <div class="stat-value" id="totalProjects">40</div>
+                        <div class="stat-subtext">Plans & initiatives being tracked</div>
+                    </div>
+                    <div class="stat-box" onclick="showCategoryBreakdown()" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+                        <div class="stat-label">Categories 📊</div>
+                        <div class="stat-value" id="totalCategories">20</div>
+                        <div class="stat-subtext">Different project types</div>
+                    </div>
+                    <div class="stat-box" onclick="showBureauBreakdown()" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+                        <div class="stat-label">Iowa DOT Bureaus 🏛️</div>
+                        <div class="stat-value" id="totalBureaus">15+</div>
+                        <div class="stat-subtext">Working on these initiatives</div>
+                    </div>
                 </div>
-                <div class="stat-box" onclick="showCategoryBreakdown()" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
-                    <div class="stat-label">Categories 📊</div>
-                    <div class="stat-value" id="totalCategories">20</div>
-                    <div class="stat-subtext">Different project types</div>
-                </div>
-                <div class="stat-box" onclick="showBureauBreakdown()" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
-                    <div class="stat-label">Iowa DOT Bureaus 🏛️</div>
-                    <div class="stat-value" id="totalBureaus">15+</div>
-                    <div class="stat-subtext">Working on these initiatives</div>
-                </div>
-            </div>
 
-            <div class="overall-progress">
-                <div class="progress-header">
-                    <span class="progress-label">Overall Progress</span>
-                    <span class="progress-percentage" id="overallPercentage">79%</span>
-                </div>
-                <div class="progress-bar-wrapper">
-                    <div class="progress-bar-fill" id="overallProgressBar" style="width: 79%"></div>
+                <div class="overall-progress">
+                    <div class="progress-header">
+                        <span class="progress-label">Overall Progress</span>
+                        <span class="progress-percentage" id="overallPercentage">79%</span>
+                    </div>
+                    <div class="progress-bar-wrapper">
+                        <div class="progress-bar-fill" id="overallProgressBar" style="width: 79%"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1438,15 +1523,59 @@
                     <p class="section-meta" id="projectCount">Showing 40 projects</p>
                 </div>
                 <div style="display: flex; gap: 0.75rem; align-items: center;">
+                    <button onclick="expandAllCategories()" style="padding: 0.75rem 1rem; background: white; border: 2px solid #e5e7eb; border-radius: 8px; font-weight: 600; cursor: pointer; color: #6b7280; transition: all 0.2s;">
+                        ▼ Expand All
+                    </button>
+                    <button onclick="collapseAllCategories()" style="padding: 0.75rem 1rem; background: white; border: 2px solid #e5e7eb; border-radius: 8px; font-weight: 600; cursor: pointer; color: #6b7280; transition: all 0.2s;">
+                        ▶ Collapse All
+                    </button>
                     <button onclick="toggleCompareMode()" id="compareModeBtn" style="padding: 0.75rem 1rem; background: white; border: 2px solid #e5e7eb; border-radius: 8px; font-weight: 600; cursor: pointer; color: #6b7280; transition: all 0.2s;">
                         ⚖️ Compare Projects
                     </button>
                     <button onclick="showSavePresetDialog()" style="padding: 0.75rem 1rem; background: white; border: 2px solid #e5e7eb; border-radius: 8px; font-weight: 600; cursor: pointer; color: #6b7280;">
                         💾 Save Filter
                     </button>
-                    <div class="search-box">
-                        <span class="search-icon">🔍</span>
-                        <input type="text" class="search-input" id="searchInput" placeholder="Search projects..." oninput="filterProjects()">
+                    <div style="position: relative;">
+                        <div class="search-box">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" class="search-input" id="searchInput" placeholder="Search: bridge AND (safety OR interstate)" oninput="advancedSearch()" onfocus="showSearchHelp()">
+                            <button onclick="toggleAdvancedSearch()" style="position: absolute; right: 0.5rem; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #6b7280; font-size: 1.25rem;" title="Advanced Search">⚙️</button>
+                        </div>
+                        <!-- Advanced Search Panel -->
+                        <div id="advancedSearchPanel" style="display: none; position: absolute; top: 100%; right: 0; background: white; border: 2px solid #e5e7eb; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); padding: 1rem; width: 400px; z-index: 1000; margin-top: 0.5rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                <strong style="color: #111827;">Advanced Search</strong>
+                                <button onclick="toggleAdvancedSearch()" style="background: none; border: none; font-size: 1.25rem; cursor: pointer; color: #6b7280;">×</button>
+                            </div>
+
+                            <div style="margin-bottom: 1rem;">
+                                <label style="font-size: 0.875rem; font-weight: 600; color: #6b7280; display: block; margin-bottom: 0.25rem;">Search in:</label>
+                                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                    <label style="display: flex; align-items: center; gap: 0.25rem; font-size: 0.875rem;">
+                                        <input type="checkbox" id="searchName" checked onchange="advancedSearch()"> Name
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 0.25rem; font-size: 0.875rem;">
+                                        <input type="checkbox" id="searchDesc" checked onchange="advancedSearch()"> Description
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 0.25rem; font-size: 0.875rem;">
+                                        <input type="checkbox" id="searchCategory" onchange="advancedSearch()"> Category
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 0.25rem; font-size: 0.875rem;">
+                                        <input type="checkbox" id="searchResponsible" onchange="advancedSearch()"> Responsible
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div style="background: #f9fafb; padding: 0.75rem; border-radius: 6px; font-size: 0.75rem; color: #6b7280;">
+                                <strong style="color: #111827;">Tips:</strong>
+                                <ul style="margin: 0.5rem 0 0 1.25rem; line-height: 1.6;">
+                                    <li><code>bridge AND safety</code> - Both words</li>
+                                    <li><code>highway OR interstate</code> - Either word</li>
+                                    <li><code>NOT construction</code> - Exclude word</li>
+                                    <li><code>"exact phrase"</code> - Exact match</li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1481,6 +1610,7 @@
             <div class="filters">
                 <div class="filter-group">
                     <button class="filter-chip active" data-filter="all" onclick="filterByCategory('all')">All</button>
+                    <button class="filter-chip" data-filter="favorites" onclick="filterByCategory('favorites')">⭐ Favorites <span id="favoritesCount"></span></button>
                     <button class="filter-chip" data-filter="Construction Project" onclick="filterByCategory('Construction Project')">🚧 Construction</button>
                     <button class="filter-chip" data-filter="Modal Plan" onclick="filterByCategory('Modal Plan')">Modal Plans</button>
                     <button class="filter-chip" data-filter="Funding Program" onclick="filterByCategory('Funding Program')">Funding Programs</button>
@@ -1534,7 +1664,15 @@
                     <h3 class="section-title">Analytics & Insights</h3>
                     <p class="section-meta">Real-time visualization of project progress and metrics</p>
                 </div>
-                <div style="display: flex; gap: 0.75rem;">
+                <div style="display: flex; gap: 0.75rem; align-items: center;">
+                    <div style="display: flex; background: #f3f4f6; border-radius: 8px; padding: 0.25rem;">
+                        <button id="chartViewAll" class="chart-view-toggle active" onclick="toggleChartView('all')" style="padding: 0.5rem 1rem; background: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; color: #03617A; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                            All Projects
+                        </button>
+                        <button id="chartViewFavorites" class="chart-view-toggle" onclick="toggleChartView('favorites')" style="padding: 0.5rem 1rem; background: transparent; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; color: #6b7280;">
+                            ⭐ My Favorites <span id="chartFavoritesCount"></span>
+                        </button>
+                    </div>
                     <button onclick="exportToCSV()" style="padding: 0.75rem 1.5rem; background: #03617A; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.5rem;">
                         📊 Export CSV
                     </button>
@@ -1581,6 +1719,150 @@
                     <h4 class="chart-title">Progress Distribution</h4>
                     <canvas id="progressChart" style="max-height: 300px;"></canvas>
                 </div>
+                <div class="chart-card">
+                    <h4 class="chart-title">Overall Progress Gauge</h4>
+                    <canvas id="gaugeChart" style="max-height: 300px;"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h4 class="chart-title">Top 10 Most Complete Projects</h4>
+                    <canvas id="topProjectsChart" style="max-height: 350px;"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h4 class="chart-title">Category Status Breakdown</h4>
+                    <canvas id="stackedCategoryChart" style="max-height: 300px;"></canvas>
+                </div>
+                <div class="chart-card" style="grid-column: 1 / -1;">
+                    <h4 class="chart-title">Project Timeline - Upcoming Completions</h4>
+                    <canvas id="timelineChart" style="max-height: 400px;"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Floating Action Buttons -->
+        <div style="position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 12px; z-index: 1000;">
+            <button onclick="openAddProjectModal()" style="background: #03617A; color: white; border: none; padding: 16px 24px; border-radius: 50px; cursor: pointer; font-size: 16px; font-weight: 600; box-shadow: 0 4px 12px rgba(3,97,122,0.3); transition: all 0.2s; display: flex; align-items: center; gap: 8px;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                <span style="font-size: 20px;">+</span> Add Project
+            </button>
+            <button onclick="openBiweeklyUpdateModal()" style="background: #10b981; color: white; border: none; padding: 16px 24px; border-radius: 50px; cursor: pointer; font-size: 16px; font-weight: 600; box-shadow: 0 4px 12px rgba(16,185,129,0.3); transition: all 0.2s; display: flex; align-items: center; gap: 8px;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                <span style="font-size: 20px;">📝</span> Submit Update
+            </button>
+        </div>
+
+        <!-- Add Project Modal -->
+        <div id="addProjectModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 10000; justify-content: center; align-items: center; padding: 20px;">
+            <div style="background: white; border-radius: 12px; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 32px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+                <h2 style="margin: 0 0 24px 0; color: #03617A;">Add New Project</h2>
+                <form id="addProjectForm" onsubmit="submitNewProject(event)">
+                    <div style="display: flex; flex-direction: column; gap: 16px;">
+                        <div>
+                            <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #374151;">Project Name *</label>
+                            <input type="text" name="name" required style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #374151;">Category *</label>
+                            <select name="category" required style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
+                                <option value="">Select category...</option>
+                                <option value="Modal Plan">Modal Plan</option>
+                                <option value="Policy Program">Policy Program</option>
+                                <option value="System Plan">System Plan</option>
+                                <option value="Funding Program">Funding Program</option>
+                                <option value="Strategic Plan">Strategic Plan</option>
+                                <option value="Construction Project">Construction Project</option>
+                                <option value="Study">Study</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #374151;">Description</label>
+                            <textarea name="description" rows="4" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;"></textarea>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                            <div>
+                                <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #374151;">Status</label>
+                                <select name="status" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
+                                    <option value="Draft">Draft</option>
+                                    <option value="Ongoing">Ongoing</option>
+                                    <option value="In Progress">In Progress</option>
+                                    <option value="Completed">Completed</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #374151;">Completion %</label>
+                                <input type="number" name="completion_percentage" min="0" max="100" value="0" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
+                            </div>
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #374151;">Responsible Party</label>
+                            <input type="text" name="responsible" placeholder="e.g., Iowa DOT Systems Planning" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                            <div>
+                                <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #374151;">Start Date</label>
+                                <input type="text" name="start_date" placeholder="YYYY or YYYY-MM-DD" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
+                            </div>
+                            <div>
+                                <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #374151;">Target Completion</label>
+                                <input type="text" name="target_completion_date" placeholder="YYYY or YYYY-MM-DD" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
+                            </div>
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #374151;">Location (click map to set)</label>
+                            <div style="display: flex; gap: 8px;">
+                                <input type="number" id="newProjectLat" name="latitude" placeholder="Latitude" step="any" style="flex: 1; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
+                                <input type="number" id="newProjectLng" name="longitude" placeholder="Longitude" step="any" style="flex: 1; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
+                                <button type="button" onclick="enableMapClickMode()" style="padding: 10px 16px; background: #6b7280; color: white; border: none; border-radius: 6px; cursor: pointer; white-space: nowrap;">Pick on Map</button>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 8px;">
+                            <button type="button" onclick="closeAddProjectModal()" style="padding: 10px 24px; background: #e5e7eb; color: #374151; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Cancel</button>
+                            <button type="submit" style="padding: 10px 24px; background: #03617A; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Create Project</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Biweekly Update Modal -->
+        <div id="biweeklyUpdateModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 10000; justify-content: center; align-items: center; padding: 20px;">
+            <div style="background: white; border-radius: 12px; max-width: 700px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 32px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+                <h2 style="margin: 0 0 12px 0; color: #03617A;">Submit Biweekly Update</h2>
+                <p style="margin: 0 0 24px 0; color: #6b7280; font-size: 14px;">Upload a Word document (.docx) or paste text below. AI will parse it and extract project updates automatically.</p>
+                <form id="biweeklyUpdateForm" onsubmit="submitBiweeklyUpdate(event)">
+                    <div style="display: flex; flex-direction: column; gap: 16px;">
+                        <!-- File Upload Zone -->
+                        <div>
+                            <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #374151;">Upload Word Document</label>
+                            <div id="fileDropZone" onclick="document.getElementById('docxFileInput').click()" style="border: 2px dashed #d1d5db; border-radius: 8px; padding: 32px; text-align: center; cursor: pointer; background: #f9fafb; transition: all 0.2s;" onmouseover="this.style.borderColor='#03617A'; this.style.background='#f0f9ff'" onmouseout="this.style.borderColor='#d1d5db'; this.style.background='#f9fafb'">
+                                <div style="font-size: 48px; margin-bottom: 8px;">📄</div>
+                                <p style="margin: 0 0 4px 0; font-weight: 600; color: #374151;">Click to upload or drag and drop</p>
+                                <p style="margin: 0; font-size: 13px; color: #6b7280;">Word documents (.docx, .doc) up to 10MB</p>
+                                <input type="file" id="docxFileInput" accept=".docx,.doc" style="display: none;" onchange="handleFileUpload(event)">
+                                <p id="uploadedFileName" style="margin: 12px 0 0 0; font-size: 14px; color: #10b981; font-weight: 600; display: none;"></p>
+                            </div>
+                        </div>
+
+                        <!-- OR Divider -->
+                        <div style="display: flex; align-items: center; gap: 16px; margin: 8px 0;">
+                            <div style="flex: 1; height: 1px; background: #d1d5db;"></div>
+                            <span style="color: #6b7280; font-weight: 600; font-size: 14px;">OR</span>
+                            <div style="flex: 1; height: 1px; background: #d1d5db;"></div>
+                        </div>
+
+                        <div>
+                            <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #374151;">Paste Update Text</label>
+                            <textarea id="updateTextArea" name="updateText" rows="8" placeholder="Example:&#10;&#10;Iowa State Rail Plan is now 100% complete!&#10;&#10;Iowa Bicycle and Pedestrian Plan updated to 85% completion.&#10;&#10;NEW PROJECT: Iowa EV Charging Network&#10;Category: Modal Plan&#10;Status: Draft, 10% complete" style="width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; font-family: monospace;"></textarea>
+                        </div>
+                        <div id="updatePreview" style="display: none; background: #f9fafb; border: 1px solid #d1d5db; border-radius: 6px; padding: 16px;">
+                            <h4 style="margin: 0 0 12px 0; color: #374151;">Preview Changes</h4>
+                            <div id="updatePreviewContent"></div>
+                        </div>
+                        <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 8px;">
+                            <button type="button" onclick="closeBiweeklyUpdateModal()" style="padding: 10px 24px; background: #e5e7eb; color: #374151; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Cancel</button>
+                            <button type="button" id="parseButton" onclick="parseBiweeklyUpdate()" style="padding: 10px 24px; background: #eab308; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">Preview Updates</button>
+                            <button type="submit" id="applyButton" style="padding: 10px 24px; background: #10b981; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; display: none;">Apply Updates</button>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
 
@@ -1636,9 +1918,130 @@
         </div>
 
         <!-- Floating Chat Button -->
-        <button id="chatToggleBtn" onclick="toggleChatPanel()" style="position: fixed; bottom: 2rem; right: 2rem; width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #03617A 0%, #19405B 100%); color: white; border: none; font-size: 1.5rem; cursor: pointer; box-shadow: 0 4px 12px rgba(3,97,122,0.4); z-index: 9998; transition: all 0.3s; display: flex; align-items: center; justify-content: center;" onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 6px 16px rgba(3,97,122,0.5)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 12px rgba(3,97,122,0.4)'">
+        <button id="chatToggleBtn" onclick="toggleChatPanel()" style="position: fixed; bottom: 2rem; left: 2rem; width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #03617A 0%, #19405B 100%); color: white; border: none; font-size: 1.5rem; cursor: pointer; box-shadow: 0 4px 12px rgba(3,97,122,0.4); z-index: 9998; transition: all 0.3s; display: flex; align-items: center; justify-content: center;" onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 6px 16px rgba(3,97,122,0.5)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 12px rgba(3,97,122,0.4)'">
             💬
         </button>
+
+        <!-- Advanced Tools Section -->
+        <div id="toolsSection" class="content-section">
+            <div class="section-header">
+                <div>
+                    <h3 class="section-title">Advanced Planning Tools</h3>
+                    <p class="section-meta">AI-powered tools for predictive analysis, dependency mapping, conflict detection, and plan generation</p>
+                </div>
+            </div>
+
+            <!-- Tools Grid -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 2rem; margin-bottom: 2rem;">
+
+                <!-- Tool 1: Predictive Delay Analysis -->
+                <div style="background: white; border-radius: 12px; border: 1px solid #e5e7eb; padding: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                    <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+                        <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #03617A 0%, #19405B 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                            🔮
+                        </div>
+                        <div>
+                            <h4 style="font-size: 1.25rem; font-weight: 700; color: #111827; margin-bottom: 0.25rem;">Predictive Delay Analysis</h4>
+                            <p style="font-size: 0.875rem; color: #6b7280;">Forecast project delays 60-180 days in advance</p>
+                        </div>
+                    </div>
+                    <p style="color: #4b5563; margin-bottom: 1.5rem; line-height: 1.6;">
+                        Uses machine learning to analyze project velocity, update frequency, seasonal patterns, and stakeholder engagement to predict potential delays before they happen.
+                    </p>
+                    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                        <button onclick="generateAllPredictions()" class="btn-primary" style="padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #03617A 0%, #19405B 100%); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                            Generate Predictions
+                        </button>
+                        <button onclick="showHighRiskProjects()" class="btn-secondary" style="padding: 0.75rem 1.5rem; background: white; color: #03617A; border: 2px solid #03617A; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                            View High-Risk Projects
+                        </button>
+                    </div>
+                    <div id="predictionsResults" style="margin-top: 1.5rem;"></div>
+                </div>
+
+                <!-- Tool 2: Dependency Extraction -->
+                <div style="background: white; border-radius: 12px; border: 1px solid #e5e7eb; padding: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                    <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+                        <div style="width: 48px; height: 48px; background: #19405B; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                            🔗
+                        </div>
+                        <div>
+                            <h4 style="font-size: 1.25rem; font-weight: 700; color: #111827; margin-bottom: 0.25rem;">Dependency Extraction</h4>
+                            <p style="font-size: 0.875rem; color: #6b7280;">Auto-extract project relationships from PDFs</p>
+                        </div>
+                    </div>
+                    <p style="color: #4b5563; margin-bottom: 1.5rem; line-height: 1.6;">
+                        Automatically reads planning documents and extracts project dependencies using NLP, then calculates critical paths to identify bottlenecks.
+                    </p>
+                    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;">
+                        <input type="file" id="pdfUpload" accept=".pdf" style="display: none;" onchange="handlePDFUpload(event)">
+                        <button onclick="document.getElementById('pdfUpload').click()" class="btn-primary" style="padding: 0.75rem 1.5rem; background: #19405B; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                            Upload Planning Document
+                        </button>
+                        <button onclick="showDependencyGraph()" class="btn-secondary" style="padding: 0.75rem 1.5rem; background: white; color: #19405B; border: 2px solid #19405B; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                            View Dependency Graph
+                        </button>
+                    </div>
+                    <div id="dependencyResults" style="margin-top: 1.5rem;"></div>
+                </div>
+
+                <!-- Tool 3: Spatial Conflict Detection -->
+                <div style="background: white; border-radius: 12px; border: 1px solid #e5e7eb; padding: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                    <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+                        <div style="width: 48px; height: 48px; background: #0891b2; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                            🗺️
+                        </div>
+                        <div>
+                            <h4 style="font-size: 1.25rem; font-weight: 700; color: #111827; margin-bottom: 0.25rem;">Spatial Conflict Detection</h4>
+                            <p style="font-size: 0.875rem; color: #6b7280;">Detect conflicts with regulatory zones</p>
+                        </div>
+                    </div>
+                    <p style="color: #4b5563; margin-bottom: 1.5rem; line-height: 1.6;">
+                        Checks project locations against wetlands, historic sites, protected areas, and other regulatory layers. Auto-generates required permits.
+                    </p>
+                    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                        <button onclick="checkAllSpatialConflicts()" class="btn-primary" style="padding: 0.75rem 1.5rem; background: #0891b2; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                            Check All Projects
+                        </button>
+                        <button onclick="showConflictMap()" class="btn-secondary" style="padding: 0.75rem 1.5rem; background: white; color: #0891b2; border: 2px solid #0891b2; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                            View Conflict Map
+                        </button>
+                    </div>
+                    <div id="spatialResults" style="margin-top: 1.5rem;"></div>
+                </div>
+
+                <!-- Tool 4: Plan Generator -->
+                <div style="background: white; border-radius: 12px; border: 1px solid #e5e7eb; padding: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                    <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+                        <div style="width: 48px; height: 48px; background: #0d9488; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                            ✨
+                        </div>
+                        <div>
+                            <h4 style="font-size: 1.25rem; font-weight: 700; color: #111827; margin-bottom: 0.25rem;">AI Plan Generator</h4>
+                            <p style="font-size: 0.875rem; color: #6b7280;">Generate next planning cycle recommendations</p>
+                        </div>
+                    </div>
+                    <p style="color: #4b5563; margin-bottom: 1.5rem; line-height: 1.6;">
+                        Analyzes gaps in current planning (geographic, modal, budget) and uses AI to generate smart recommendations for the next long-range plan.
+                    </p>
+                    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                        <button onclick="analyzeGaps()" class="btn-primary" style="padding: 0.75rem 1.5rem; background: #0d9488; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                            Analyze Gaps
+                        </button>
+                        <button onclick="generateRecommendations()" class="btn-secondary" style="padding: 0.75rem 1.5rem; background: white; color: #0d9488; border: 2px solid #0d9488; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                            Generate Recommendations
+                        </button>
+                    </div>
+                    <div id="planGeneratorResults" style="margin-top: 1.5rem;"></div>
+                </div>
+            </div>
+
+            <!-- Results Area -->
+            <div id="toolsResults" style="background: white; border-radius: 12px; border: 1px solid #e5e7eb; padding: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); display: none;">
+                <h4 style="font-size: 1.125rem; font-weight: 700; color: #111827; margin-bottom: 1rem;">Results</h4>
+                <div id="toolsResultsContent"></div>
+            </div>
+        </div>
 
         <!-- Map Section -->
         <div id="mapSection" class="content-section">
@@ -1743,6 +2146,235 @@
                        onmouseout="this.style.background='#03617A'">
                         Open 511
                     </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Strategy Section -->
+        <div id="aistrategySection" class="content-section">
+            <div class="section-header">
+                <div>
+                    <h3 class="section-title">🤖 Iowa DOT AI Strategic Plan</h3>
+                    <p class="section-meta">AI & Digital Infrastructure for Safer, Smarter Operations - Aligned with IA AI Initiative</p>
+                </div>
+                <div style="display: flex; gap: 0.75rem; align-items: center;">
+                    <span style="background: #03617A; color: white; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.875rem; font-weight: 600;">
+                        FY 2026-2028
+                    </span>
+                </div>
+            </div>
+
+            <!-- Breadcrumb / Context -->
+            <div style="background: #f0f9ff; border-left: 4px solid #03617A; padding: 1rem 1.5rem; margin-bottom: 2rem; border-radius: 8px;">
+                <p style="font-size: 0.875rem; color: #025066; font-weight: 600; margin-bottom: 0.25rem;">📍 Part of Iowa in Motion 2050 Long-Range Transportation Plan</p>
+                <p style="font-size: 0.875rem; color: #03617A; line-height: 1.6;">
+                    This AI Strategy & Use-Case Inventory is housed under the Long Range Plan's <strong>Digital Infrastructure & AI goal area</strong>.
+                    This page provides a deeper, living view of how artificial intelligence supports long-range goals around safety, operations,
+                    and organizational excellence. It will be updated as pilots, policies, and production systems evolve.
+                </p>
+            </div>
+
+            <!-- Strategic Overview -->
+            <div style="background: linear-gradient(135deg, #03617A 0%, #19405B 100%); border-radius: 12px; padding: 2.5rem; margin-bottom: 2rem; color: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <div style="font-size: 0.875rem; opacity: 0.9; margin-bottom: 1rem; font-weight: 600;">FY 2026–2028 • Iowa + AI • Living Digital Document</div>
+                <h2 style="font-size: 1.75rem; font-weight: 700; margin-bottom: 1rem;">Strategic Vision</h2>
+                <p style="font-size: 1.125rem; line-height: 1.8; opacity: 0.95;">
+                    Use trustworthy Artificial Intelligence (AI) and strong data foundations to improve safety, operations, staff capacity,
+                    and customer service at Iowa DOT, aligned with the State of Iowa IA AI initiative and the Iowa DOT business plan.
+                </p>
+                <div style="display: flex; gap: 2rem; margin-top: 2rem; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 200px;">
+                        <div style="font-size: 2rem; font-weight: 700; margin-bottom: 0.25rem;">6</div>
+                        <div style="opacity: 0.9;">Strategic Initiatives</div>
+                    </div>
+                    <div style="flex: 1; min-width: 200px;">
+                        <div style="font-size: 2rem; font-weight: 700; margin-bottom: 0.25rem;">32%</div>
+                        <div style="opacity: 0.9;">Avg Completion</div>
+                    </div>
+                    <div style="flex: 1; min-width: 200px;">
+                        <div style="font-size: 2rem; font-weight: 700; margin-bottom: 0.25rem;">3</div>
+                        <div style="opacity: 0.9;">Pilots Active</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Initiatives Grid -->
+            <div style="margin-bottom: 3rem;">
+                <h3 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1.5rem; color: #111827;">Strategic Initiatives</h3>
+                <div id="aiInitiativesGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.5rem;">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Use Cases by Stage -->
+            <div style="margin-bottom: 3rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h3 style="font-size: 1.5rem; font-weight: 700; color: #111827;">AI Use Cases by Stage</h3>
+                    <button onclick="openAddUseCaseModal()" style="padding: 0.75rem 1.5rem; background: #03617A; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; transition: background 0.2s;">
+                        ➕ Add Use Case
+                    </button>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+                    <!-- In Practice -->
+                    <div style="background: #dcfce7; border: 2px solid #16a34a; border-radius: 12px; padding: 1.5rem;">
+                        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+                            <div style="width: 40px; height: 40px; background: #16a34a; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
+                                ✅
+                            </div>
+                            <div>
+                                <h4 style="font-size: 1.125rem; font-weight: 700; color: #15803d;">In Practice</h4>
+                                <p style="font-size: 0.875rem; color: #166534;">Live & operational</p>
+                            </div>
+                        </div>
+                        <div id="useCasesInPractice" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Piloted -->
+                    <div style="background: #fef3c7; border: 2px solid #eab308; border-radius: 12px; padding: 1.5rem;">
+                        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+                            <div style="width: 40px; height: 40px; background: #eab308; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
+                                🧪
+                            </div>
+                            <div>
+                                <h4 style="font-size: 1.125rem; font-weight: 700; color: #a16207;">Piloted</h4>
+                                <p style="font-size: 0.875rem; color: #a16207;">Testing & evaluation</p>
+                            </div>
+                        </div>
+                        <div id="useCasesPiloted" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Aspirational -->
+                    <div style="background: #e0e7ff; border: 2px solid #6366f1; border-radius: 12px; padding: 1.5rem;">
+                        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+                            <div style="width: 40px; height: 40px; background: #6366f1; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
+                                🔮
+                            </div>
+                            <div>
+                                <h4 style="font-size: 1.125rem; font-weight: 700; color: #4338ca;">Aspirational</h4>
+                                <p style="font-size: 0.875rem; color: #4338ca;">Future exploration</p>
+                            </div>
+                        </div>
+                        <div id="useCasesAspirational" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Governance & IA AI Alignment -->
+            <div style="background: white; border-radius: 12px; border: 1px solid #e5e7eb; padding: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 24 24' fill='none' stroke='%2303617A' stroke-width='2'%3E%3Cpath d='M12 2L2 7l10 5 10-5-10-5z'/%3E%3Cpath d='M2 17l10 5 10-5M2 12l10 5 10-5'/%3E%3C/svg%3E" alt="IA AI" style="width: 48px; height: 48px;">
+                    <div>
+                        <h3 style="font-size: 1.25rem; font-weight: 700; color: #111827;">Aligned with IA AI Initiative</h3>
+                        <p style="font-size: 0.875rem; color: #6b7280;">Iowa DOT is a flagship partner in Iowa's statewide AI strategy</p>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+                    <div>
+                        <h4 style="font-weight: 600; margin-bottom: 0.5rem; color: #111827;">Governance</h4>
+                        <p style="font-size: 0.875rem; color: #6b7280; line-height: 1.6;">
+                            Established risk tiers, approval workflows, and ethical guardrails for all AI use
+                        </p>
+                    </div>
+                    <div>
+                        <h4 style="font-weight: 600; margin-bottom: 0.5rem; color: #111827;">Transparency</h4>
+                        <p style="font-size: 0.875rem; color: #6b7280; line-height: 1.6;">
+                            Living HTML strategy document accessible to leadership, staff, and partners
+                        </p>
+                    </div>
+                    <div>
+                        <h4 style="font-weight: 600; margin-bottom: 0.5rem; color: #111827;">Human-in-Loop</h4>
+                        <p style="font-size: 0.875rem; color: #6b7280; line-height: 1.6;">
+                            All AI outputs require human review and validation before implementation
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Long Range Plan Crosswalk -->
+            <div id="lr-crosswalk" style="background: white; border-radius: 12px; border: 1px solid #e5e7eb; padding: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-top: 2rem;">
+                <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+                    <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #03617A 0%, #19405B 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                        🔗
+                    </div>
+                    <div>
+                        <h3 style="font-size: 1.5rem; font-weight: 700; color: #111827;">How AI Supports the Long Range Plan</h3>
+                        <p style="font-size: 0.875rem; color: #6b7280;">The initiatives on this page connect directly to goal areas in Iowa in Motion 2050</p>
+                    </div>
+                </div>
+
+                <div style="background: #f9fafb; border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;">
+                    <p style="font-size: 0.875rem; color: #374151; line-height: 1.8; margin-bottom: 1rem;">
+                        The Long Range Plan is our north star for what we want the transportation system to be in the coming decades.
+                        This AI page provides a deeper, living view of how artificial intelligence supports those long-range goals,
+                        especially around safety, operations, digital infrastructure, and organizational excellence.
+                    </p>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+                    <!-- Connection Cards -->
+                    <div style="background: #dcfce7; border-left: 4px solid #16a34a; padding: 1.25rem; border-radius: 8px;">
+                        <div style="font-weight: 700; color: #15803d; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <span>🛡️</span>
+                            <span>Safety & Operations</span>
+                        </div>
+                        <p style="font-size: 0.875rem; color: #166534; line-height: 1.6;">
+                            <strong>Operations AI (AI-OPS-1)</strong> — Incident detection, work-zone impact forecasting, and traveler information support
+                        </p>
+                    </div>
+
+                    <div style="background: #fef3c7; border-left: 4px solid #eab308; padding: 1.25rem; border-radius: 8px;">
+                        <div style="font-weight: 700; color: #a16207; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <span>🏗️</span>
+                            <span>Project Delivery & Stewardship</span>
+                        </div>
+                        <p style="font-size: 0.875rem; color: #92400e; line-height: 1.6;">
+                            <strong>Construction & Compliance AI (AI-CONST-1)</strong> — Daily Work Report assistance, poster checks, and construction documentation
+                        </p>
+                    </div>
+
+                    <div style="background: #e0e7ff; border-left: 4px solid #6366f1; padding: 1.25rem; border-radius: 8px;">
+                        <div style="font-weight: 700; color: #4338ca; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <span>🌐</span>
+                            <span>Digital Infrastructure & AI</span>
+                        </div>
+                        <p style="font-size: 0.875rem; color: #4338ca; line-height: 1.6;">
+                            <strong>Governance & Guardrails (AI-GOV-1)</strong>, AI workspaces, and enterprise use-case inventory
+                        </p>
+                    </div>
+
+                    <div style="background: #fce7f3; border-left: 4px solid #ec4899; padding: 1.25rem; border-radius: 8px;">
+                        <div style="font-weight: 700; color: #be185d; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <span>⚙️</span>
+                            <span>System Stewardship & Resilience</span>
+                        </div>
+                        <p style="font-size: 0.875rem; color: #be185d; line-height: 1.6;">
+                            <strong>Winter Ops & Asset Management AI (AI-WINTER-1)</strong> — Aspirational AI for winter operations and predictive asset management
+                        </p>
+                    </div>
+
+                    <div style="background: #dbeafe; border-left: 4px solid #0284c7; padding: 1.25rem; border-radius: 8px;">
+                        <div style="font-weight: 700; color: #0c4a6e; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <span>✨</span>
+                            <span>Organizational Excellence</span>
+                        </div>
+                        <p style="font-size: 0.875rem; color: #075985; line-height: 1.6;">
+                            <strong>AI Productivity Tools (AI-PROD-1)</strong> — Document assistants, meeting summaries, and knowledge tools that free up staff time
+                        </p>
+                    </div>
+                </div>
+
+                <div style="margin-top: 1.5rem; padding: 1rem; background: #f3f4f6; border-radius: 8px;">
+                    <p style="font-size: 0.875rem; color: #6b7280; line-height: 1.6;">
+                        💡 <strong>For Long Range Plan placards:</strong> Each placard that has an AI component includes a 🔗 <strong>AI</strong> chip
+                        that links to the relevant section on this page. Click through to see the real projects, use cases, and guardrails behind the strategy.
+                    </p>
                 </div>
             </div>
         </div>
@@ -2139,6 +2771,8 @@
     <script>
         let allProjects = [];
         let currentFilter = 'all';
+        let favorites = JSON.parse(localStorage.getItem('projectFavorites') || '[]');
+        let chartView = 'all'; // 'all' or 'favorites'
         let currentStatusFilter = 'all';
         let currentProjectId = null;
         let currentSortOrder = 'plan-order';
@@ -2221,13 +2855,33 @@
             document.querySelectorAll('.nav-tab').forEach(tab => {
                 tab.classList.remove('active');
             });
-            event.target.classList.add('active');
+            if (event && event.target) {
+                event.target.classList.add('active');
+            }
 
             // Update active section
             document.querySelectorAll('.content-section').forEach(section => {
                 section.classList.remove('active');
             });
             document.getElementById(tabName + 'Section').classList.add('active');
+
+            // Show/hide the hero section - only show on home tab
+            const heroSection = document.getElementById('heroSection');
+            if (heroSection) {
+                heroSection.style.display = (tabName === 'home') ? 'block' : 'none';
+            }
+
+            // Show/hide the stats section - only show on home tab
+            const homeStatsSection = document.getElementById('homeStatsSection');
+            if (homeStatsSection) {
+                homeStatsSection.style.display = (tabName === 'home') ? 'block' : 'none';
+            }
+
+            // Load AI data when switching to AI Strategy tab
+            if (tabName === 'aistrategy') {
+                loadAIInitiatives();
+                loadAIUseCases();
+            }
 
             // Fix map rendering when switching to map tab
             if (tabName === 'map' && projectMap) {
@@ -2255,10 +2909,172 @@
             }
         }
 
+        // Load AI Initiatives
+        async function loadAIInitiatives() {
+            try {
+                const response = await fetch('/api/projects?category=AI%20Strategy');
+                const data = await response.json();
+
+                if (data.success) {
+                    renderAIInitiatives(data.projects);
+                }
+            } catch (error) {
+                console.error('Error loading AI initiatives:', error);
+            }
+        }
+
+        // Render AI Initiatives
+        function renderAIInitiatives(initiatives) {
+            const container = document.getElementById('aiInitiativesGrid');
+            if (!container) return;
+
+            container.innerHTML = initiatives.map(initiative => `
+                <div style="background: white; border-radius: 12px; border: 1px solid #e5e7eb; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); cursor: pointer; transition: all 0.2s;"
+                     onclick="viewProject(${initiative.id})"
+                     onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 4px 6px rgba(0,0,0,0.1)'"
+                     onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.1)'">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                        <div style="flex: 1;">
+                            <div style="font-size: 0.75rem; font-weight: 600; color: #6b7280; margin-bottom: 0.5rem;">${initiative.reference || ''}</div>
+                            <h4 style="font-size: 1.125rem; font-weight: 700; color: #111827; margin-bottom: 0.5rem;">${initiative.name}</h4>
+                        </div>
+                        <div style="background: ${getStatusColor(initiative.status)}; color: white; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600; white-space: nowrap;">
+                            ${initiative.status}
+                        </div>
+                    </div>
+                    <p style="font-size: 0.875rem; color: #6b7280; line-height: 1.6; margin-bottom: 1rem;">
+                        ${initiative.description.substring(0, 150)}...
+                    </p>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="font-size: 0.875rem; color: #6b7280;">
+                            <strong>Lead:</strong> ${initiative.responsible}
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <div style="flex: 1; height: 6px; background: #e5e7eb; border-radius: 3px; overflow: hidden; min-width: 80px;">
+                                <div style="height: 100%; background: linear-gradient(90deg, #03617A, #BBE2DA); width: ${initiative.completion_percentage}%;"></div>
+                            </div>
+                            <span style="font-weight: 700; color: #03617A;">${initiative.completion_percentage}%</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Get status color for AI initiatives
+        function getStatusColor(status) {
+            const s = status.toLowerCase();
+            if (s.includes('practice') || s.includes('ongoing')) return '#16a34a';
+            if (s.includes('pilot')) return '#eab308';
+            if (s.includes('draft') || s.includes('aspirational')) return '#6366f1';
+            if (s.includes('progress')) return '#0ea5e9';
+            return '#6b7280';
+        }
+
+        // Load AI Use Cases
+        async function loadAIUseCases() {
+            try {
+                const response = await fetch('/api/ai/use-cases');
+                const data = await response.json();
+
+                if (data.success) {
+                    renderAIUseCases(data.useCases);
+                }
+            } catch (error) {
+                console.error('Error loading AI use cases:', error);
+                // If API doesn't exist yet, show placeholder
+                renderPlaceholderUseCases();
+            }
+        }
+
+        // Render AI Use Cases by Stage
+        function renderAIUseCases(useCases) {
+            const inPractice = useCases.filter(uc => uc.stage === 'in-practice');
+            const piloted = useCases.filter(uc => uc.stage === 'piloted');
+            const aspirational = useCases.filter(uc => uc.stage === 'aspirational');
+
+            renderUseCaseList('useCasesInPractice', inPractice);
+            renderUseCaseList('useCasesPiloted', piloted);
+            renderUseCaseList('useCasesAspirational', aspirational);
+        }
+
+        function renderUseCaseList(containerId, useCases) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+
+            if (useCases.length === 0) {
+                container.innerHTML = '<p style="font-size: 0.875rem; color: #9ca3af; font-style: italic;">No use cases yet</p>';
+                return;
+            }
+
+            container.innerHTML = useCases.map(uc => `
+                <div style="background: white; border-radius: 8px; padding: 1rem; border: 1px solid rgba(0,0,0,0.1);">
+                    <div style="font-weight: 600; color: #111827; margin-bottom: 0.25rem;">${uc.name}</div>
+                    <div style="font-size: 0.875rem; color: #6b7280; margin-bottom: 0.5rem;">${uc.business_area}</div>
+                    ${uc.video_url ? `
+                        <button onclick="showAIVideo('${uc.video_url}', '${uc.name}')"
+                                style="font-size: 0.75rem; background: #ef4444; color: white; border: none; padding: 0.25rem 0.75rem; border-radius: 6px; cursor: pointer; margin-top: 0.5rem;">
+                            ▶ Watch Demo
+                        </button>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        // Placeholder use cases (until API is ready)
+        function renderPlaceholderUseCases() {
+            const placeholderData = {
+                'useCasesInPractice': [
+                    { name: 'Incident Detection (TIMELI)', business_area: 'Traffic Management / TMC' },
+                    { name: 'AI Governance Framework', business_area: 'Enterprise' }
+                ],
+                'useCasesPiloted': [
+                    { name: 'AI Document Assistant', business_area: 'Multiple Divisions' },
+                    { name: 'DWR Auto-Draft', business_area: 'Construction & Materials' }
+                ],
+                'useCasesAspirational': [
+                    { name: 'Work Zone Impact Forecasting', business_area: 'TSMO' },
+                    { name: 'Predictive Pavement Models', business_area: 'Asset Management' }
+                ]
+            };
+
+            Object.entries(placeholderData).forEach(([containerId, cases]) => {
+                renderUseCaseList(containerId, cases);
+            });
+        }
+
+        // Show AI Video Modal
+        function showAIVideo(videoUrl, title) {
+            // Extract YouTube video ID
+            const videoId = videoUrl.includes('youtu.be')
+                ? videoUrl.split('/').pop()
+                : new URL(videoUrl).searchParams.get('v');
+
+            const modal = document.createElement('div');
+            modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 10000;';
+            modal.innerHTML = `
+                <div style="background: white; border-radius: 12px; padding: 2rem; max-width: 800px; width: 90%;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h3 style="font-size: 1.25rem; font-weight: 700;">${title}</h3>
+                        <button onclick="this.closest('div').parentElement.remove()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #6b7280;">×</button>
+                    </div>
+                    <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+                        <iframe src="https://www.youtube.com/embed/${videoId}"
+                                frameborder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowfullscreen
+                                style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></iframe>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+        }
+
         // Load Projects
         async function loadProjects() {
             try {
                 allProjects = await window.IowaDOTTracker.fetchProjects();
+                updateFavoritesCount();
                 renderProjects(allProjects);
                 updateStats();
                 renderTimeline(allProjects);
@@ -2292,24 +3108,33 @@
             });
 
             let html = '';
-            Object.entries(grouped).forEach(([category, categoryProjects]) => {
+            Object.entries(grouped).forEach(([category, categoryProjects], index) => {
                 const avgCompletion = Math.round(
                     categoryProjects.reduce((sum, p) => sum + (p.completion_percentage || 0), 0) / categoryProjects.length
                 );
 
                 html += `
-                    <div class="category-section">
-                        <div class="category-header">
-                            <h3 class="category-title">${category}</h3>
-                            <span class="category-badge">${categoryProjects.length} projects • ${avgCompletion}% avg</span>
+                    <div class="category-section collapsed" data-category="${category}">
+                        <div class="category-header" onclick="toggleCategory(this)">
+                            <div class="category-header-left">
+                                <span class="category-chevron">▼</span>
+                                <h3 class="category-title">${category}</h3>
+                            </div>
+                            <span class="category-badge">${categoryProjects.length} project${categoryProjects.length !== 1 ? 's' : ''} • ${avgCompletion}% avg</span>
                         </div>
-                        <div class="projects-grid">
+                        <div class="category-content">
+                            <div class="projects-grid">
                             ${categoryProjects.map(project => `
                                 <div class="project-card" data-core-values="${project.core_values || ''}" onclick="viewProject(${project.id})">
                                     <div class="card-header">
                                         <div class="status-badge ${getStatusClass(project.status)}">
                                             ${getStatusLabel(project.status)}
                                         </div>
+                                        <button class="favorite-btn ${isFavorite(project.id) ? 'favorited' : ''}"
+                                                onclick="event.stopPropagation(); toggleFavorite(${project.id})"
+                                                title="${isFavorite(project.id) ? 'Remove from favorites' : 'Add to favorites'}">
+                                            ${isFavorite(project.id) ? '⭐' : '☆'}
+                                        </button>
                                     </div>
                                     <div class="completion-section">
                                         <div class="completion-badge">${project.completion_percentage || 0}%</div>
@@ -2338,6 +3163,7 @@
                                     </div>
                                 </div>
                             `).join('')}
+                            </div>
                         </div>
                     </div>
                 `;
@@ -2363,6 +3189,26 @@
             if (s.includes('ongoing') || s.includes('operational') || s.includes('in use') || s.includes('in effect')) return 'ONGOING';
             if (s.includes('draft') || s.includes('in progress') || s.includes('in-progress')) return 'IN PROGRESS';
             return 'NOT STARTED';
+        }
+
+        // Toggle Category Collapse
+        function toggleCategory(header) {
+            const section = header.closest('.category-section');
+            section.classList.toggle('collapsed');
+        }
+
+        // Expand All Categories
+        function expandAllCategories() {
+            document.querySelectorAll('.category-section').forEach(section => {
+                section.classList.remove('collapsed');
+            });
+        }
+
+        // Collapse All Categories
+        function collapseAllCategories() {
+            document.querySelectorAll('.category-section').forEach(section => {
+                section.classList.add('collapsed');
+            });
         }
 
         // Filter Projects
@@ -2393,6 +3239,109 @@
             }
 
             renderProjects(filtered);
+        }
+
+        // ============================================
+        // FAVORITES SYSTEM
+        // ============================================
+
+        function isFavorite(projectId) {
+            return favorites.includes(projectId);
+        }
+
+        function toggleFavorite(projectId) {
+            if (isFavorite(projectId)) {
+                favorites = favorites.filter(id => id !== projectId);
+            } else {
+                favorites.push(projectId);
+            }
+            localStorage.setItem('projectFavorites', JSON.stringify(favorites));
+            updateFavoritesCount();
+            renderProjects(getCurrentFilteredProjects());
+
+            // Update charts if on Charts tab
+            const chartsTab = document.querySelector('[data-tab="charts"]');
+            if (chartsTab && chartsTab.classList.contains('active')) {
+                initializeAnalytics();
+            }
+        }
+
+        function updateFavoritesCount() {
+            const countElement = document.getElementById('favoritesCount');
+            if (countElement) {
+                countElement.textContent = favorites.length > 0 ? `(${favorites.length})` : '';
+            }
+
+            // Also update chart favorites count
+            const chartCountElement = document.getElementById('chartFavoritesCount');
+            if (chartCountElement) {
+                chartCountElement.textContent = favorites.length > 0 ? `(${favorites.length})` : '';
+            }
+        }
+
+        function toggleChartView(view) {
+            chartView = view;
+
+            // Update button styles
+            const allBtn = document.getElementById('chartViewAll');
+            const favBtn = document.getElementById('chartViewFavorites');
+
+            if (view === 'all') {
+                allBtn.style.background = 'white';
+                allBtn.style.color = '#03617A';
+                allBtn.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
+                favBtn.style.background = 'transparent';
+                favBtn.style.color = '#6b7280';
+                favBtn.style.boxShadow = 'none';
+            } else {
+                favBtn.style.background = 'white';
+                favBtn.style.color = '#03617A';
+                favBtn.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
+                allBtn.style.background = 'transparent';
+                allBtn.style.color = '#6b7280';
+                allBtn.style.boxShadow = 'none';
+            }
+
+            // Regenerate charts with new filter
+            renderCharts();
+        }
+
+        function getChartProjects() {
+            if (chartView === 'favorites') {
+                return allProjects.filter(p => isFavorite(p.id));
+            }
+            return allProjects;
+        }
+
+        function getCurrentFilteredProjects() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            let filtered = allProjects;
+
+            if (currentFilter === 'favorites') {
+                filtered = filtered.filter(p => isFavorite(p.id));
+            } else if (currentFilter !== 'all') {
+                filtered = filtered.filter(p => p.category === currentFilter);
+            }
+
+            if (currentStatusFilter !== 'all') {
+                filtered = filtered.filter(p => {
+                    const status = p.status.toLowerCase();
+                    if (currentStatusFilter === 'completed') return status.includes('completed');
+                    if (currentStatusFilter === 'ongoing') return status.includes('ongoing') || status.includes('operational');
+                    if (currentStatusFilter === 'draft') return status.includes('draft');
+                    return true;
+                });
+            }
+
+            if (searchTerm) {
+                filtered = filtered.filter(p =>
+                    p.name.toLowerCase().includes(searchTerm) ||
+                    p.description.toLowerCase().includes(searchTerm) ||
+                    p.responsible.toLowerCase().includes(searchTerm)
+                );
+            }
+
+            return filtered;
         }
 
         // Filter by Category
@@ -2478,6 +3427,18 @@
         function renderCharts() {
             renderCategoryChart();
             renderStatusChart();
+
+            // Also update all the advanced charts in the Charts tab
+            if (document.getElementById('categoryChart')) {
+                createCategoryChart();
+                createStatusChart();
+                createCoreValuesChart();
+                createProgressChart();
+                createGaugeChart();
+                createTopProjectsChart();
+                createStackedCategoryChart();
+                createTimelineChart();
+            }
         }
 
         // Render Category Completion Chart
@@ -2486,7 +3447,8 @@
 
             // Group by category and calculate averages
             const categoryData = {};
-            allProjects.forEach(project => {
+            const projects = getChartProjects();
+            projects.forEach(project => {
                 if (!categoryData[project.category]) {
                     categoryData[project.category] = { total: 0, count: 0 };
                 }
@@ -2526,12 +3488,13 @@
 
             // Count by status
             const statusData = {};
-            allProjects.forEach(project => {
+            const projects = getChartProjects();
+            projects.forEach(project => {
                 const status = getStatusLabel(project.status);
                 statusData[status] = (statusData[status] || 0) + 1;
             });
 
-            const total = allProjects.length;
+            const total = projects.length;
             const statuses = Object.entries(statusData)
                 .map(([status, count]) => ({
                     status,
@@ -3744,6 +4707,26 @@
 
             // Add cluster group to map
             projectMap.addLayer(markerClusterGroup);
+
+            // Add click handler for assigning project locations
+            projectMap.on('click', function(e) {
+                if (mapClickModeEnabled) {
+                    // Set coordinates in the Add Project form
+                    document.getElementById('newProjectLat').value = e.latlng.lat.toFixed(6);
+                    document.getElementById('newProjectLng').value = e.latlng.lng.toFixed(6);
+
+                    // Disable map click mode
+                    mapClickModeEnabled = false;
+
+                    // Show confirmation
+                    alert(`Location set to: ${e.latlng.lat.toFixed(6)}, ${e.latlng.lng.toFixed(6)}\n\nYou can now complete the project details and submit.`);
+
+                    // Switch back to Home tab to show the Add Project form
+                    if (document.querySelector('.tab[data-tab="home"]')) {
+                        document.querySelector('.tab[data-tab="home"]').click();
+                    }
+                }
+            });
         }
 
         function addProjectMarkers() {
@@ -4008,13 +4991,18 @@
             createStatusChart();
             createCoreValuesChart();
             createProgressChart();
+            createGaugeChart();
+            createTopProjectsChart();
+            createStackedCategoryChart();
+            createTimelineChart();
         }
 
         function updateMetrics() {
-            const total = allProjects.length;
-            const completed = allProjects.filter(p => p.status === 'completed').length;
-            const ongoing = allProjects.filter(p => p.status === 'ongoing').length;
-            const avgProgress = Math.round(allProjects.reduce((sum, p) => sum + (p.completion_percentage || 0), 0) / total);
+            const projects = getChartProjects();
+            const total = projects.length;
+            const completed = projects.filter(p => p.status === 'completed').length;
+            const ongoing = projects.filter(p => p.status === 'ongoing').length;
+            const avgProgress = total > 0 ? Math.round(projects.reduce((sum, p) => sum + (p.completion_percentage || 0), 0) / total) : 0;
 
             document.getElementById('totalProjectsMetric').textContent = total;
             document.getElementById('completedProjectsMetric').textContent = completed;
@@ -4028,7 +5016,8 @@
 
             // Group by category
             const categoryData = {};
-            allProjects.forEach(p => {
+            const projects = getChartProjects();
+            projects.forEach(p => {
                 if (!categoryData[p.category]) {
                     categoryData[p.category] = { count: 0, totalProgress: 0 };
                 }
@@ -4082,7 +5071,8 @@
                 'draft': 0
             };
 
-            allProjects.forEach(p => {
+            const projects = getChartProjects();
+            projects.forEach(p => {
                 statusCounts[p.status] = (statusCounts[p.status] || 0) + 1;
             });
 
@@ -4121,7 +5111,8 @@
                 'integrity': 0
             };
 
-            allProjects.forEach(p => {
+            const projects = getChartProjects();
+            projects.forEach(p => {
                 if (p.core_values) {
                     const values = p.core_values.split(',');
                     values.forEach(v => {
@@ -4180,7 +5171,8 @@
                 '100%': 0
             };
 
-            allProjects.forEach(p => {
+            const projects = getChartProjects();
+            projects.forEach(p => {
                 const completion = p.completion_percentage || 0;
                 if (completion === 0) ranges['0-25%']++;
                 else if (completion <= 25) ranges['0-25%']++;
@@ -4218,6 +5210,596 @@
                     }
                 }
             });
+        }
+
+        function createGaugeChart() {
+            const ctx = document.getElementById('gaugeChart');
+            if (!ctx) return;
+
+            // Calculate overall progress
+            const projects = getChartProjects();
+            const avgProgress = projects.length > 0 ? Math.round(projects.reduce((sum, p) => sum + (p.completion_percentage || 0), 0) / projects.length) : 0;
+            const remaining = 100 - avgProgress;
+
+            // Color based on progress
+            let gaugeColor;
+            if (avgProgress >= 75) gaugeColor = '#10b981'; // Green
+            else if (avgProgress >= 50) gaugeColor = '#eab308'; // Yellow
+            else if (avgProgress >= 25) gaugeColor = '#f59e0b'; // Orange
+            else gaugeColor = '#ef4444'; // Red
+
+            if (chartInstances.gauge) chartInstances.gauge.destroy();
+            chartInstances.gauge = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Completed', 'Remaining'],
+                    datasets: [{
+                        data: [avgProgress, remaining],
+                        backgroundColor: [gaugeColor, '#e5e7eb'],
+                        borderWidth: 0,
+                        circumference: 180,
+                        rotation: 270
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { enabled: false }
+                    }
+                },
+                plugins: [{
+                    afterDraw: (chart) => {
+                        const ctx = chart.ctx;
+                        const centerX = chart.width / 2;
+                        const centerY = chart.height / 1.5;
+
+                        // Draw percentage text
+                        ctx.save();
+                        ctx.font = 'bold 48px Arial';
+                        ctx.fillStyle = gaugeColor;
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText(avgProgress + '%', centerX, centerY);
+
+                        // Draw label
+                        ctx.font = '16px Arial';
+                        ctx.fillStyle = '#6b7280';
+                        ctx.fillText('Overall Progress', centerX, centerY + 35);
+                        ctx.restore();
+                    }
+                }]
+            });
+        }
+
+        function createTopProjectsChart() {
+            const ctx = document.getElementById('topProjectsChart');
+            if (!ctx) return;
+
+            // Sort by completion percentage and take top 10
+            const projects = getChartProjects();
+            const topProjects = [...projects]
+                .sort((a, b) => (b.completion_percentage || 0) - (a.completion_percentage || 0))
+                .slice(0, 10);
+
+            const labels = topProjects.map(p => {
+                // Truncate long names for better display
+                return p.name.length > 40 ? p.name.substring(0, 37) + '...' : p.name;
+            });
+            const data = topProjects.map(p => p.completion_percentage || 0);
+
+            // Color code by completion level
+            const colors = data.map(val => {
+                if (val === 100) return '#10b981'; // Green
+                if (val >= 75) return '#84cc16'; // Light green
+                if (val >= 50) return '#eab308'; // Yellow
+                if (val >= 25) return '#f59e0b'; // Orange
+                return '#ef4444'; // Red
+            });
+
+            if (chartInstances.topProjects) chartInstances.topProjects.destroy();
+            chartInstances.topProjects = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Completion %',
+                        data: data,
+                        backgroundColor: colors,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    indexAxis: 'y', // Horizontal bars
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                title: (context) => {
+                                    // Show full project name in tooltip
+                                    return topProjects[context[0].dataIndex].name;
+                                },
+                                label: (context) => {
+                                    return 'Completion: ' + context.parsed.x + '%';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                callback: (value) => value + '%'
+                            }
+                        },
+                        y: {
+                            ticks: {
+                                font: { size: 11 }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createStackedCategoryChart() {
+            const ctx = document.getElementById('stackedCategoryChart');
+            if (!ctx) return;
+
+            // Group by category and status
+            const categoryStatusData = {};
+            const projects = getChartProjects();
+            projects.forEach(p => {
+                if (!categoryStatusData[p.category]) {
+                    categoryStatusData[p.category] = { draft: 0, ongoing: 0, completed: 0 };
+                }
+
+                const status = p.status.toLowerCase();
+                if (status.includes('completed')) categoryStatusData[p.category].completed++;
+                else if (status.includes('ongoing') || status.includes('progress')) categoryStatusData[p.category].ongoing++;
+                else categoryStatusData[p.category].draft++;
+            });
+
+            const categories = Object.keys(categoryStatusData);
+            const draftData = categories.map(cat => categoryStatusData[cat].draft);
+            const ongoingData = categories.map(cat => categoryStatusData[cat].ongoing);
+            const completedData = categories.map(cat => categoryStatusData[cat].completed);
+
+            if (chartInstances.stackedCategory) chartInstances.stackedCategory.destroy();
+            chartInstances.stackedCategory = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: categories,
+                    datasets: [
+                        {
+                            label: 'Completed',
+                            data: completedData,
+                            backgroundColor: '#10b981',
+                            borderRadius: 4
+                        },
+                        {
+                            label: 'Ongoing',
+                            data: ongoingData,
+                            backgroundColor: '#eab308',
+                            borderRadius: 4
+                        },
+                        {
+                            label: 'Draft',
+                            data: draftData,
+                            backgroundColor: '#6b7280',
+                            borderRadius: 4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                footer: (tooltipItems) => {
+                                    const categoryIndex = tooltipItems[0].dataIndex;
+                                    const category = categories[categoryIndex];
+                                    const total = draftData[categoryIndex] + ongoingData[categoryIndex] + completedData[categoryIndex];
+                                    return 'Total: ' + total + ' projects';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            stacked: true
+                        },
+                        y: {
+                            stacked: true,
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createTimelineChart() {
+            const ctx = document.getElementById('timelineChart');
+            if (!ctx) return;
+
+            // Filter projects with target completion dates and sort by date
+            const projects = getChartProjects();
+            const projectsWithDates = projects
+                .filter(p => p.target_completion_date || p.actual_completion_date)
+                .map(p => {
+                    const dateStr = p.actual_completion_date || p.target_completion_date;
+                    // Parse date (handle YYYY or YYYY-MM-DD format)
+                    let dateObj;
+                    if (dateStr.length === 4) {
+                        // Just year
+                        dateObj = new Date(parseInt(dateStr), 5, 1); // Mid-year
+                    } else {
+                        dateObj = new Date(dateStr);
+                    }
+                    return { ...p, parsedDate: dateObj, dateStr };
+                })
+                .filter(p => !isNaN(p.parsedDate.getTime()))
+                .sort((a, b) => a.parsedDate - b.parsedDate)
+                .slice(0, 15); // Show next 15 projects
+
+            if (projectsWithDates.length === 0) {
+                // No timeline data
+                ctx.parentElement.innerHTML = '<p style="text-align: center; color: #6b7280; padding: 40px;">No projects with target dates found. Add dates to projects to see timeline.</p>';
+                return;
+            }
+
+            const labels = projectsWithDates.map(p => {
+                const name = p.name.length > 35 ? p.name.substring(0, 32) + '...' : p.name;
+                return name;
+            });
+
+            const data = projectsWithDates.map(p => p.completion_percentage || 0);
+
+            // Color by completion and status
+            const colors = projectsWithDates.map(p => {
+                if (p.status.toLowerCase().includes('completed')) return '#10b981';
+                if (p.completion_percentage >= 75) return '#84cc16';
+                if (p.completion_percentage >= 50) return '#eab308';
+                if (p.completion_percentage >= 25) return '#f59e0b';
+                return '#ef4444';
+            });
+
+            if (chartInstances.timeline) chartInstances.timeline.destroy();
+            chartInstances.timeline = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Completion %',
+                        data: data,
+                        backgroundColor: colors,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                title: (context) => {
+                                    return projectsWithDates[context[0].dataIndex].name;
+                                },
+                                afterTitle: (context) => {
+                                    const proj = projectsWithDates[context[0].dataIndex];
+                                    const targetDate = proj.actual_completion_date || proj.target_completion_date;
+                                    return 'Target: ' + targetDate;
+                                },
+                                label: (context) => {
+                                    const proj = projectsWithDates[context[0].dataIndex];
+                                    return [
+                                        'Completion: ' + context.parsed.x + '%',
+                                        'Status: ' + proj.status
+                                    ];
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                callback: (value) => value + '%'
+                            }
+                        },
+                        y: {
+                            ticks: {
+                                font: { size: 11 }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // ============================================
+        // ADD PROJECT & BIWEEKLY UPDATE FUNCTIONS
+        // ============================================
+
+        let mapClickModeEnabled = false;
+        let parsedUpdateData = null;
+
+        function openAddProjectModal() {
+            document.getElementById('addProjectModal').style.display = 'flex';
+        }
+
+        function closeAddProjectModal() {
+            document.getElementById('addProjectModal').style.display = 'none';
+            document.getElementById('addProjectForm').reset();
+            mapClickModeEnabled = false;
+        }
+
+        function enableMapClickMode() {
+            if (!projectMap) {
+                alert('Please switch to the Map tab first to enable map clicking.');
+                return;
+            }
+            mapClickModeEnabled = true;
+            alert('Click anywhere on the map to set the project location. The coordinates will be filled automatically.');
+
+            // Switch to map tab
+            if (document.querySelector('.tab[data-tab="map"]')) {
+                document.querySelector('.tab[data-tab="map"]').click();
+            }
+        }
+
+        async function submitNewProject(event) {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
+
+            const projectData = {
+                name: formData.get('name'),
+                category: formData.get('category'),
+                description: formData.get('description') || '',
+                status: formData.get('status') || 'Draft',
+                completion_percentage: parseInt(formData.get('completion_percentage')) || 0,
+                responsible: formData.get('responsible') || '',
+                start_date: formData.get('start_date') || null,
+                target_completion_date: formData.get('target_completion_date') || null,
+                latitude: formData.get('latitude') ? parseFloat(formData.get('latitude')) : null,
+                longitude: formData.get('longitude') ? parseFloat(formData.get('longitude')) : null,
+                approved: 1
+            };
+
+            try {
+                const response = await fetch('/api/projects', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(projectData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('Project created successfully!');
+                    closeAddProjectModal();
+                    // Reload projects
+                    loadProjects();
+                } else {
+                    alert('Error creating project: ' + result.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to create project. Please try again.');
+            }
+        }
+
+        function openBiweeklyUpdateModal() {
+            document.getElementById('biweeklyUpdateModal').style.display = 'flex';
+        }
+
+        function closeBiweeklyUpdateModal() {
+            document.getElementById('biweeklyUpdateModal').style.display = 'none';
+            document.getElementById('biweeklyUpdateForm').reset();
+            document.getElementById('updatePreview').style.display = 'none';
+            document.getElementById('parseButton').style.display = 'inline-block';
+            document.getElementById('applyButton').style.display = 'none';
+            parsedUpdateData = null;
+        }
+
+        async function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            try {
+                // Show uploading status
+                document.getElementById('uploadedFileName').textContent = `Uploading ${file.name}...`;
+                document.getElementById('uploadedFileName').style.display = 'block';
+                document.getElementById('uploadedFileName').style.color = '#eab308';
+
+                // Create FormData and upload
+                const formData = new FormData();
+                formData.append('file', file);
+
+                const response = await fetch('/api/updates/upload-docx', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Populate textarea with extracted text
+                    document.getElementById('updateTextArea').value = result.text;
+
+                    // Show success message
+                    document.getElementById('uploadedFileName').textContent = `✓ Extracted text from ${result.filename}`;
+                    document.getElementById('uploadedFileName').style.color = '#10b981';
+                } else {
+                    throw new Error(result.error || 'Upload failed');
+                }
+            } catch (error) {
+                console.error('Upload error:', error);
+                document.getElementById('uploadedFileName').textContent = `✗ Error: ${error.message}`;
+                document.getElementById('uploadedFileName').style.color = '#ef4444';
+                alert('Failed to process file: ' + error.message);
+            }
+        }
+
+        // Add drag-and-drop support
+        document.addEventListener('DOMContentLoaded', () => {
+            const dropZone = document.getElementById('fileDropZone');
+            if (!dropZone) return;
+
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropZone.addEventListener(eventName, () => {
+                    dropZone.style.borderColor = '#03617A';
+                    dropZone.style.background = '#f0f9ff';
+                }, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, () => {
+                    dropZone.style.borderColor = '#d1d5db';
+                    dropZone.style.background = '#f9fafb';
+                }, false);
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                if (files.length > 0) {
+                    document.getElementById('docxFileInput').files = files;
+                    handleFileUpload({ target: { files } });
+                }
+            }, false);
+        });
+
+        async function parseBiweeklyUpdate() {
+            const form = document.getElementById('biweeklyUpdateForm');
+            const updateText = document.getElementById('updateTextArea').value;
+
+            if (!updateText.trim()) {
+                alert('Please enter update text');
+                return;
+            }
+
+            try {
+                document.getElementById('parseButton').disabled = true;
+                document.getElementById('parseButton').textContent = 'Parsing...';
+
+                const response = await fetch('/api/updates/parse', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ updateText })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    parsedUpdateData = result.data.parsed;
+                    displayUpdatePreview(result.data.preview);
+                    document.getElementById('updatePreview').style.display = 'block';
+                    document.getElementById('parseButton').style.display = 'none';
+                    document.getElementById('applyButton').style.display = 'inline-block';
+                } else {
+                    alert('Error parsing update: ' + (result.error || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to parse update. Please try again.');
+            } finally {
+                document.getElementById('parseButton').disabled = false;
+                document.getElementById('parseButton').textContent = 'Preview Updates';
+            }
+        }
+
+        function displayUpdatePreview(preview) {
+            let html = '<div style="font-size: 14px;">';
+
+            html += `<p style="margin: 0 0 12px 0; font-weight: 600; color: #374151;">Total Changes: ${preview.total}</p>`;
+
+            if (preview.to_create && preview.to_create.length > 0) {
+                html += '<div style="margin-bottom: 16px;"><strong style="color: #10b981;">✅ ${preview.to_create.length} New Projects:</strong><ul style="margin: 8px 0; padding-left: 20px;">';
+                preview.to_create.forEach(p => {
+                    html += `<li>${p.name} (${p.category}, ${p.completion}%)</li>`;
+                });
+                html += '</ul></div>';
+            }
+
+            if (preview.to_update && preview.to_update.length > 0) {
+                html += '<div><strong style="color: #eab308;">📝 ${preview.to_update.length} Updates:</strong><ul style="margin: 8px 0; padding-left: 20px;">';
+                preview.to_update.forEach(u => {
+                    html += `<li>${u.name}`;
+                    if (u.new_completion !== undefined) {
+                        html += ` → ${u.new_completion}%`;
+                    }
+                    if (u.new_status) {
+                        html += ` (${u.new_status})`;
+                    }
+                    html += ` <span style="font-size: 12px; color: #6b7280;">[Confidence: ${Math.round(u.confidence * 100)}%]</span></li>`;
+                });
+                html += '</ul></div>';
+            }
+
+            html += '</div>';
+            document.getElementById('updatePreviewContent').innerHTML = html;
+        }
+
+        async function submitBiweeklyUpdate(event) {
+            event.preventDefault();
+
+            if (!parsedUpdateData) {
+                alert('Please preview updates first');
+                return;
+            }
+
+            try {
+                document.getElementById('applyButton').disabled = true;
+                document.getElementById('applyButton').textContent = 'Applying...';
+
+                const response = await fetch('/api/updates/apply', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ parsedData: parsedUpdateData })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert(`✅ Updates applied!\n\nCreated: ${result.results.created.length}\nUpdated: ${result.results.updated.length}\nErrors: ${result.results.errors.length}`);
+                    closeBiweeklyUpdateModal();
+                    // Reload projects
+                    loadProjects();
+                } else {
+                    alert('Error applying updates: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to apply updates. Please try again.');
+            } finally {
+                document.getElementById('applyButton').disabled = false;
+                document.getElementById('applyButton').textContent = 'Apply Updates';
+            }
         }
 
         // ============================================
@@ -4554,7 +6136,577 @@ END:VCALENDAR`;
                 originalViewProject(projectId);
             }
         };
+
+        // ============================================
+        // ADVANCED BOOLEAN SEARCH
+        // ============================================
+
+        function toggleAdvancedSearch() {
+            const panel = document.getElementById('advancedSearchPanel');
+            if (panel) {
+                panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+            }
+        }
+
+        function showSearchHelp() {
+            // Optional: Could show tooltip or highlight the tips section
+            // For now, just ensure the search executes
+        }
+
+        function advancedSearch() {
+            const searchTerm = document.getElementById('searchInput').value.trim();
+
+            // If no search term, show all projects (fall back to other filters)
+            if (!searchTerm) {
+                applyAllFilters();
+                return;
+            }
+
+            // Get which fields to search
+            const searchName = document.getElementById('searchName')?.checked ?? true;
+            const searchDesc = document.getElementById('searchDesc')?.checked ?? true;
+            const searchCategory = document.getElementById('searchCategory')?.checked ?? false;
+            const searchResponsible = document.getElementById('searchResponsible')?.checked ?? false;
+
+            // Parse the search term for Boolean operators and exact phrases
+            const results = allProjects.filter(project => {
+                return evaluateBooleanSearch(searchTerm, project, {
+                    searchName,
+                    searchDesc,
+                    searchCategory,
+                    searchResponsible
+                });
+            });
+
+            // Hide all cards first
+            const allCards = document.querySelectorAll('.project-card');
+            allCards.forEach(card => {
+                card.style.display = 'none';
+            });
+
+            // Show only matching results
+            results.forEach(project => {
+                const card = document.querySelector(`[data-project-id="${project.id}"]`);
+                if (card) {
+                    card.style.display = '';
+                }
+            });
+
+            // Update result count if you have one
+            updateProjectCount(results.length);
+        }
+
+        function evaluateBooleanSearch(searchTerm, project, fields) {
+            // Extract exact phrases (in quotes)
+            const phrases = [];
+            let modifiedTerm = searchTerm.replace(/"([^"]+)"/g, (match, phrase) => {
+                phrases.push(phrase.toLowerCase());
+                return `__PHRASE_${phrases.length - 1}__`;
+            });
+
+            // Split into tokens while preserving AND, OR, NOT operators
+            const tokens = modifiedTerm.split(/\s+/).filter(t => t.length > 0);
+
+            // Build searchable content based on selected fields
+            let searchableContent = '';
+            if (fields.searchName) searchableContent += (project.name || '').toLowerCase() + ' ';
+            if (fields.searchDesc) searchableContent += (project.description || '').toLowerCase() + ' ';
+            if (fields.searchCategory) searchableContent += (project.category || '').toLowerCase() + ' ';
+            if (fields.searchResponsible) searchableContent += (project.responsible || '').toLowerCase() + ' ';
+
+            // Replace phrase placeholders with actual phrases for matching
+            let evaluatedContent = searchableContent;
+
+            // Process tokens with Boolean logic
+            let result = true;
+            let currentOperator = 'AND'; // Default operator
+            let pendingNot = false;
+
+            for (let i = 0; i < tokens.length; i++) {
+                const token = tokens[i];
+                const upperToken = token.toUpperCase();
+
+                if (upperToken === 'AND') {
+                    currentOperator = 'AND';
+                    continue;
+                } else if (upperToken === 'OR') {
+                    currentOperator = 'OR';
+                    continue;
+                } else if (upperToken === 'NOT') {
+                    pendingNot = true;
+                    continue;
+                }
+
+                // Handle phrase placeholders
+                let searchValue = token.toLowerCase();
+                if (searchValue.startsWith('__phrase_')) {
+                    const phraseIndex = parseInt(searchValue.match(/__phrase_(\d+)__/)[1]);
+                    searchValue = phrases[phraseIndex];
+                }
+
+                // Check if the term exists in content
+                const found = evaluatedContent.includes(searchValue);
+
+                // Apply NOT operator if pending
+                const matchResult = pendingNot ? !found : found;
+                pendingNot = false;
+
+                // Apply current Boolean operator
+                if (i === 0 || currentOperator === 'AND') {
+                    result = result && matchResult;
+                } else if (currentOperator === 'OR') {
+                    result = result || matchResult;
+                }
+
+                // Reset to default operator
+                if (currentOperator === 'OR') {
+                    currentOperator = 'AND';
+                }
+            }
+
+            return result;
+        }
+
+        function updateProjectCount(count) {
+            // Update the project count display if it exists
+            const countElement = document.getElementById('projectCount');
+            if (countElement) {
+                countElement.textContent = count;
+            }
+        }
+
+        function applyAllFilters() {
+            // Reset to show all projects and apply other active filters
+            const allCards = document.querySelectorAll('.project-card');
+            allCards.forEach(card => {
+                card.style.display = '';
+            });
+
+            // Re-apply category and status filters if they exist
+            if (typeof filterByCategory === 'function' && currentCategory && currentCategory !== 'all') {
+                filterByCategory(currentCategory);
+            }
+            if (typeof filterByStatus === 'function' && currentStatus) {
+                filterByStatus(currentStatus);
+            }
+            if (typeof filterByCoreValue === 'function' && activeCoreValue) {
+                filterByCoreValue(activeCoreValue);
+            }
+        }
+
+        // ============================================
+        // ADVANCED TOOLS INTEGRATION
+        // ============================================
+
+        // Tool 1: Predictive Delay Analysis
+        async function generateAllPredictions() {
+            const resultDiv = document.getElementById('predictionsResults');
+            resultDiv.innerHTML = '<div style="text-align: center; padding: 1rem;"><div class="spinner" style="margin: 0 auto;"></div><p style="color: #6b7280; margin-top: 1rem;">Analyzing projects...</p></div>';
+
+            try {
+                const response = await fetch('/api/patent/predictions/generate-all', {
+                    method: 'POST'
+                });
+                const data = await response.json();
+
+                resultDiv.innerHTML = `
+                    <div style="background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 1rem;">
+                        <p style="color: #166534; font-weight: 600;">✓ Generated ${data.predictions?.length || 0} predictions</p>
+                        <p style="color: #15803d; font-size: 0.875rem; margin-top: 0.5rem;">
+                            ${data.highRisk || 0} high-risk projects identified
+                        </p>
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 1rem;">
+                        <p style="color: #991b1b; font-weight: 600;">Error: ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function showHighRiskProjects() {
+            const resultDiv = document.getElementById('predictionsResults');
+            resultDiv.innerHTML = '<div style="text-align: center; padding: 1rem;"><div class="spinner" style="margin: 0 auto;"></div></div>';
+
+            try {
+                const response = await fetch('/api/patent/predictions/high-risk');
+                const data = await response.json();
+
+                if (data.predictions && data.predictions.length > 0) {
+                    resultDiv.innerHTML = `
+                        <h5 style="font-weight: 700; color: #111827; margin-bottom: 1rem;">High-Risk Projects (${data.predictions.length})</h5>
+                        ${data.predictions.map(p => `
+                            <div style="background: #fef2f2; border-left: 4px solid #ef4444; padding: 1rem; margin-bottom: 0.75rem; border-radius: 4px;">
+                                <div style="font-weight: 600; color: #991b1b; margin-bottom: 0.5rem;">${p.project_name || 'Project #' + p.project_id}</div>
+                                <div style="display: flex; gap: 1rem; font-size: 0.875rem; color: #6b7280;">
+                                    <span>Delay Probability: <strong style="color: #ef4444;">${Math.round(p.delay_probability * 100)}%</strong></span>
+                                    <span>Predicted Delay: <strong>${p.predicted_delay_days} days</strong></span>
+                                </div>
+                                ${p.risk_factors ? `<div style="font-size: 0.8rem; color: #9ca3af; margin-top: 0.5rem;">Factors: ${p.risk_factors.join(', ')}</div>` : ''}
+                            </div>
+                        `).join('')}
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div style="background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 1rem; text-align: center;">
+                            <p style="color: #166534; font-weight: 600;">✓ No high-risk projects found!</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 1rem;">
+                        <p style="color: #991b1b; font-weight: 600;">Error loading predictions</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Tool 2: Dependency Extraction
+        async function handlePDFUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const resultDiv = document.getElementById('dependencyResults');
+            resultDiv.innerHTML = '<div style="text-align: center; padding: 1rem;"><div class="spinner" style="margin: 0 auto;"></div><p style="color: #6b7280; margin-top: 1rem;">Extracting dependencies from ' + file.name + '...</p></div>';
+
+            const formData = new FormData();
+            formData.append('pdf', file);
+
+            try {
+                const response = await fetch('/api/patent/dependencies/extract-pdf', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+
+                resultDiv.innerHTML = `
+                    <div style="background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 1rem;">
+                        <p style="color: #166534; font-weight: 600;">✓ Extracted ${data.dependencies?.length || 0} dependencies</p>
+                        <p style="color: #15803d; font-size: 0.875rem; margin-top: 0.5rem;">
+                            Critical path: ${data.criticalPathLength || 0} projects
+                        </p>
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 1rem;">
+                        <p style="color: #991b1b; font-weight: 600;">Error: ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function showDependencyGraph() {
+            const resultDiv = document.getElementById('dependencyResults');
+            resultDiv.innerHTML = '<div style="text-align: center; padding: 1rem;"><div class="spinner" style="margin: 0 auto;"></div></div>';
+
+            try {
+                const response = await fetch('/api/patent/dependencies/graph');
+                const data = await response.json();
+
+                if (data.dependencies && data.dependencies.length > 0) {
+                    resultDiv.innerHTML = `
+                        <h5 style="font-weight: 700; color: #111827; margin-bottom: 1rem;">Project Dependencies (${data.dependencies.length})</h5>
+                        ${data.dependencies.map(d => `
+                            <div style="background: #f3f4f6; padding: 0.75rem; margin-bottom: 0.5rem; border-radius: 4px; font-size: 0.875rem;">
+                                <strong>${d.source_project}</strong> → <strong>${d.target_project}</strong>
+                                <span style="color: #6b7280; margin-left: 1rem;">(${d.dependency_type})</span>
+                            </div>
+                        `).join('')}
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div style="background: #fef3c7; border: 1px solid #fde68a; border-radius: 8px; padding: 1rem; text-align: center;">
+                            <p style="color: #92400e;">No dependencies found. Upload a planning document to extract dependencies.</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 1rem;">
+                        <p style="color: #991b1b; font-weight: 600;">Error loading dependencies</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Tool 3: Spatial Conflict Detection
+        async function checkAllSpatialConflicts() {
+            const resultDiv = document.getElementById('spatialResults');
+            resultDiv.innerHTML = '<div style="text-align: center; padding: 1rem;"><div class="spinner" style="margin: 0 auto;"></div><p style="color: #6b7280; margin-top: 1rem;">Checking spatial conflicts...</p></div>';
+
+            try {
+                // Check conflicts for all projects with coordinates
+                const projectsWithCoords = allProjects.filter(p => p.latitude && p.longitude);
+                let totalConflicts = 0;
+
+                for (const project of projectsWithCoords) {
+                    const response = await fetch(`/api/patent/spatial/check-conflicts/${project.id}`, {
+                        method: 'POST'
+                    });
+                    const data = await response.json();
+                    totalConflicts += data.conflicts?.length || 0;
+                }
+
+                resultDiv.innerHTML = `
+                    <div style="background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 1rem;">
+                        <p style="color: #166534; font-weight: 600;">✓ Checked ${projectsWithCoords.length} projects</p>
+                        <p style="color: #15803d; font-size: 0.875rem; margin-top: 0.5rem;">
+                            ${totalConflicts} potential conflicts detected
+                        </p>
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 1rem;">
+                        <p style="color: #991b1b; font-weight: 600;">Error: ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function showConflictMap() {
+            const resultDiv = document.getElementById('spatialResults');
+            resultDiv.innerHTML = `
+                <div style="background: #dbeafe; border: 1px solid #93c5fd; border-radius: 8px; padding: 1rem; text-align: center;">
+                    <p style="color: #1e40af;">View conflicts on the <a href="#" onclick="switchTab('map'); return false;" style="color: #2563eb; font-weight: 600; text-decoration: underline;">Project Map</a> tab</p>
+                </div>
+            `;
+        }
+
+        // Tool 4: Plan Generator
+        async function analyzeGaps() {
+            const resultDiv = document.getElementById('planGeneratorResults');
+            resultDiv.innerHTML = '<div style="text-align: center; padding: 1rem;"><div class="spinner" style="margin: 0 auto;"></div><p style="color: #6b7280; margin-top: 1rem;">Analyzing planning gaps...</p></div>';
+
+            try {
+                const response = await fetch('/api/patent/plan-generator/analyze-gaps', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ plan_cycle: '2025-2045' })
+                });
+                const data = await response.json();
+
+                if (data.gaps && data.gaps.length > 0) {
+                    const gapsByType = data.gaps.reduce((acc, gap) => {
+                        acc[gap.gap_type] = (acc[gap.gap_type] || 0) + 1;
+                        return acc;
+                    }, {});
+
+                    resultDiv.innerHTML = `
+                        <div style="background: #fef3c7; border: 1px solid #fde68a; border-radius: 8px; padding: 1rem;">
+                            <p style="color: #78350f; font-weight: 600; margin-bottom: 0.75rem;">Found ${data.gaps.length} planning gaps:</p>
+                            <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; font-size: 0.875rem;">
+                                ${Object.entries(gapsByType).map(([type, count]) => `
+                                    <span style="background: white; padding: 0.25rem 0.75rem; border-radius: 4px; color: #92400e;">
+                                        ${type}: ${count}
+                                    </span>
+                                `).join('')}
+                            </div>
+                            ${data.gaps.slice(0, 3).map(gap => `
+                                <div style="margin-top: 0.75rem; padding: 0.75rem; background: white; border-radius: 4px; font-size: 0.875rem;">
+                                    <strong style="color: #78350f;">${gap.gap_description}</strong>
+                                    <div style="color: #92400e; margin-top: 0.25rem;">Area: ${gap.affected_area} | Severity: ${gap.severity}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div style="background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 1rem; text-align: center;">
+                            <p style="color: #166534; font-weight: 600;">✓ No significant gaps found in current planning</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 1rem;">
+                        <p style="color: #991b1b; font-weight: 600;">Error: ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function generateRecommendations() {
+            const resultDiv = document.getElementById('planGeneratorResults');
+            resultDiv.innerHTML = '<div style="text-align: center; padding: 1rem;"><div class="spinner" style="margin: 0 auto;"></div><p style="color: #6b7280; margin-top: 1rem;">Generating AI recommendations...</p></div>';
+
+            try {
+                const response = await fetch('/api/patent/plan-generator/generate-recommendations', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ plan_cycle: '2025-2045', count: 5 })
+                });
+                const data = await response.json();
+
+                if (data.recommendations && data.recommendations.length > 0) {
+                    resultDiv.innerHTML = `
+                        <h5 style="font-weight: 700; color: #111827; margin-bottom: 1rem;">AI-Generated Recommendations (${data.recommendations.length})</h5>
+                        ${data.recommendations.map((rec, idx) => `
+                            <div style="background: #f0fdf4; border-left: 4px solid #10b981; padding: 1rem; margin-bottom: 0.75rem; border-radius: 4px;">
+                                <div style="font-weight: 600; color: #065f46; margin-bottom: 0.5rem;">${idx + 1}. ${rec.project_name}</div>
+                                <div style="font-size: 0.875rem; color: #6b7280; margin-bottom: 0.5rem;">${rec.description}</div>
+                                <div style="display: flex; gap: 1rem; font-size: 0.8rem;">
+                                    <span style="background: white; padding: 0.25rem 0.5rem; border-radius: 4px; color: #059669;">${rec.category}</span>
+                                    <span style="color: #9ca3af;">Priority: ${Math.round((rec.priority_score || 0) * 100)}%</span>
+                                </div>
+                            </div>
+                        `).join('')}
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div style="background: #fef3c7; border: 1px solid #fde68a; border-radius: 8px; padding: 1rem; text-align: center;">
+                            <p style="color: #92400e;">Run gap analysis first to generate targeted recommendations</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 1rem;">
+                        <p style="color: #991b1b; font-weight: 600;">Error: ${error.message}</p>
+                        ${error.message.includes('OpenAI') ? '<p style="color: #6b7280; font-size: 0.875rem; margin-top: 0.5rem;">Note: This feature requires an OpenAI API key to be configured.</p>' : ''}
+                    </div>
+                `;
+            }
+        }
     </script>
+
+    <!-- AI Use Case Modal -->
+    <div id="addUseCaseModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; overflow-y: auto;">
+        <div style="max-width: 600px; margin: 2rem auto; background: white; border-radius: 12px; padding: 2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h3 style="font-size: 1.5rem; font-weight: 700;">Add AI Use Case</h3>
+                <button onclick="closeAddUseCaseModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #6b7280;">×</button>
+            </div>
+
+            <form id="useCaseForm" onsubmit="saveUseCase(event)">
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #111827;">Use Case Name*</label>
+                    <input type="text" id="useCaseName" required style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 1rem;">
+                </div>
+
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #111827;">Stage*</label>
+                    <select id="useCaseStage" required style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 1rem;">
+                        <option value="in-practice">In Practice</option>
+                        <option value="piloted">Piloted</option>
+                        <option value="aspirational">Aspirational</option>
+                    </select>
+                </div>
+
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #111827;">Business Area*</label>
+                    <input type="text" id="useCaseBusinessArea" required placeholder="e.g., Traffic Management / TMC" style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 1rem;">
+                </div>
+
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #111827;">Link to Initiative (optional)</label>
+                    <select id="useCaseInitiative" style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 1rem;">
+                        <option value="">None</option>
+                        <option value="AI-GOV-1">AI-GOV-1 - Governance & Guardrails</option>
+                        <option value="AI-PROD-1">AI-PROD-1 - Productivity Tools</option>
+                        <option value="AI-OPS-1">AI-OPS-1 - Operations AI</option>
+                        <option value="AI-CONST-1">AI-CONST-1 - Construction AI</option>
+                        <option value="AI-WINTER-1">AI-WINTER-1 - Winter Ops AI</option>
+                        <option value="AI-COMM-1">AI-COMM-1 - IA AI Alignment</option>
+                    </select>
+                </div>
+
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #111827;">Description</label>
+                    <textarea id="useCaseDescription" rows="3" placeholder="Brief description of the use case..." style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 1rem; resize: vertical;"></textarea>
+                </div>
+
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #111827;">Timeline</label>
+                    <input type="text" id="useCaseTimeline" placeholder="e.g., FY 2025-2026" style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 1rem;">
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #111827;">Video URL (YouTube)</label>
+                    <input type="url" id="useCaseVideoUrl" placeholder="https://youtu.be/... or https://youtube.com/watch?v=..." style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 1rem;">
+                    <p style="font-size: 0.875rem; color: #6b7280; margin-top: 0.5rem;">Unlisted YouTube videos work great to save database storage</p>
+                </div>
+
+                <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                    <button type="button" onclick="closeAddUseCaseModal()" style="padding: 0.75rem 1.5rem; background: #f3f4f6; color: #111827; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                        Cancel
+                    </button>
+                    <button type="submit" style="padding: 0.75rem 1.5rem; background: #03617A; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: background 0.2s;">
+                        Save Use Case
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Open Add Use Case Modal
+        function openAddUseCaseModal() {
+            document.getElementById('addUseCaseModal').style.display = 'block';
+        }
+
+        // Close Add Use Case Modal
+        function closeAddUseCaseModal() {
+            document.getElementById('addUseCaseModal').style.display = 'none';
+            document.getElementById('useCaseForm').reset();
+        }
+
+        // Save Use Case
+        async function saveUseCase(event) {
+            event.preventDefault();
+
+            const name = document.getElementById('useCaseName').value;
+            const stage = document.getElementById('useCaseStage').value;
+            const stageLabels = {
+                'in-practice': 'In Practice',
+                'piloted': 'Piloted',
+                'aspirational': 'Aspirational'
+            };
+            const business_area = document.getElementById('useCaseBusinessArea').value;
+            const lr_tracker_id = document.getElementById('useCaseInitiative').value || null;
+            const description = document.getElementById('useCaseDescription').value || null;
+            const timeline = document.getElementById('useCaseTimeline').value || null;
+            const video_url = document.getElementById('useCaseVideoUrl').value || null;
+
+            try {
+                const response = await fetch('/api/ai/use-cases', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name,
+                        stage,
+                        stage_label: stageLabels[stage],
+                        business_area,
+                        lr_tracker_id,
+                        description,
+                        timeline,
+                        video_url
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('✅ Use case added successfully!');
+                    closeAddUseCaseModal();
+                    // Reload use cases
+                    loadAIUseCases();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error saving use case:', error);
+                alert('Failed to save use case. Please try again.');
+            }
+        }
+    </script>
+
     <script src="major-project-popups.js"></script>
 </body>
 </html>

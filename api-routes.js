@@ -4,6 +4,7 @@ const { OpenAI } = require('openai');
 const multer = require('multer');
 const fs = require('fs');
 const sharp = require('sharp');
+const mammoth = require('mammoth');
 
 // Database connection
 const DB_PATH = path.join(__dirname, 'iowa-dot-tracker.db');
@@ -131,7 +132,7 @@ function setupApiRoutes(app) {
 
         try {
             // Get current values
-            const current = await dbGet('SELECT status, completion_percentage FROM projects WHERE id = ?', [project_id]);
+            const current = await dbGet('SELECT * FROM projects WHERE id = ?', [project_id]);
             if (!current) {
                 return res.status(404).json({ success: false, error: 'Project not found' });
             }
@@ -154,6 +155,42 @@ function setupApiRoutes(app) {
                 INSERT INTO activity_log (user_id, project_id, activity_type, activity_data)
                 VALUES (?, ?, 'status_update', ?)
             `, [user_id || 1, project_id, JSON.stringify({ old_status: current.status, new_status: status, old_completion: current.completion_percentage, new_completion: completion_percentage })]);
+
+            // EMAIL NOTIFICATIONS - Send to all subscribers
+            const subscribers = await dbAll('SELECT email FROM project_subscriptions WHERE project_id = ? AND active = 1', [project_id]);
+
+            if (subscribers.length > 0) {
+                const { sendProjectUpdateNotification } = require('./email-service');
+                const updatedProject = { ...current, status, completion_percentage };
+
+                let updateType, updateDetails;
+
+                // Determine notification type
+                if (current.status !== status) {
+                    updateType = 'status_change';
+                    updateDetails = { old_status: current.status, new_status: status };
+                } else if (current.completion_percentage !== completion_percentage) {
+                    updateType = 'completion_change';
+                    updateDetails = { old_completion: current.completion_percentage, new_completion: completion_percentage };
+                }
+
+                // Check for milestone (25%, 50%, 75%, 100%)
+                const milestones = [25, 50, 75, 100];
+                const crossedMilestone = milestones.find(m =>
+                    current.completion_percentage < m && completion_percentage >= m
+                );
+
+                if (crossedMilestone) {
+                    updateType = 'milestone';
+                    updateDetails = { milestone: `${crossedMilestone}% Complete` };
+                }
+
+                if (updateType) {
+                    // Send notifications asynchronously (don't wait)
+                    sendProjectUpdateNotification(subscribers, updatedProject, updateType, updateDetails)
+                        .catch(err => console.error('Failed to send email notifications:', err));
+                }
+            }
 
             res.json({ success: true, message: 'Project status updated' });
         } catch (err) {
@@ -799,10 +836,32 @@ Remember: You're representing Iowa DOT, so be professional, accurate, and helpfu
 
             const file_path = `/uploads/projects/${compressedFilename}`;
 
-            const result = await dbRun(`
-                INSERT INTO project_photos (project_id, file_path, file_name, caption, uploaded_by)
-                VALUES (?, ?, ?, ?, ?)
-            `, [project_id, file_path, req.file.originalname, caption || '', uploaded_by || 'Anonymous']);
+            console.log(`[PHOTO UPLOAD] Compression successful. Saving to database:`);
+            console.log(`  - project_id: ${project_id}`);
+            console.log(`  - file_path: ${file_path}`);
+            console.log(`  - file_name: ${req.file.originalname}`);
+            console.log(`  - caption: ${caption || ''}`);
+            console.log(`  - uploaded_by: ${uploaded_by || 'Anonymous'}`);
+
+            let result;
+            try {
+                result = await dbRun(`
+                    INSERT INTO project_photos (project_id, file_path, file_name, caption, uploaded_by)
+                    VALUES (?, ?, ?, ?, ?)
+                `, [project_id, file_path, req.file.originalname, caption || '', uploaded_by || 'Anonymous']);
+
+                console.log(`[PHOTO UPLOAD] ✓ Database insert successful. Photo ID: ${result.id}`);
+            } catch (dbError) {
+                console.error(`[PHOTO UPLOAD] ✗ Database insert failed:`, dbError);
+                // Delete the uploaded file since DB insert failed
+                try {
+                    fs.unlinkSync(compressedPath);
+                    console.log(`[PHOTO UPLOAD] Cleaned up orphaned file: ${compressedFilename}`);
+                } catch (unlinkErr) {
+                    console.error(`[PHOTO UPLOAD] Failed to clean up file:`, unlinkErr);
+                }
+                throw dbError;
+            }
 
             res.json({
                 success: true,
@@ -813,11 +872,25 @@ Remember: You're representing Iowa DOT, so be professional, accurate, and helpfu
                     file_name: req.file.originalname,
                     caption,
                     uploaded_by: uploaded_by || 'Anonymous'
-                }
+                },
+                message: 'Photo uploaded successfully!'
             });
         } catch (err) {
-            console.error('Error uploading photo:', err);
-            res.status(500).json({ success: false, error: 'Failed to upload photo' });
+            console.error('[PHOTO UPLOAD] ✗ Upload failed:', err);
+
+            // Provide more specific error messages
+            let errorMessage = 'Failed to upload photo';
+            if (err.message && err.message.includes('unsupported image format')) {
+                errorMessage = 'Unsupported image format. Please upload a JPEG, PNG, GIF, or WebP image.';
+            } else if (err.message && err.message.includes('SQLITE')) {
+                errorMessage = 'Database error. Please try again or contact support.';
+            }
+
+            res.status(500).json({
+                success: false,
+                error: errorMessage,
+                details: process.env.NODE_ENV === 'development' ? err.message : undefined
+            });
         }
     });
 
@@ -1078,6 +1151,385 @@ Remember: You're representing Iowa DOT, so be professional, accurate, and helpfu
         } catch (err) {
             console.error('Error approving photo:', err);
             res.status(500).json({ success: false, error: 'Failed to approve photo' });
+        }
+    });
+
+    // ============================================
+    // BIWEEKLY UPDATE PARSER ENDPOINTS
+    // ============================================
+
+    const { parseUpdateWithGPT, applyParsedUpdates, previewParsedUpdates } = require('./update-parser-service');
+
+    // Configure multer for DOCX file uploads (in-memory storage)
+    const docxUpload = multer({
+        storage: multer.memoryStorage(),
+        limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+        fileFilter: (req, file, cb) => {
+            const allowedTypes = [
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // .docx
+                'application/msword' // .doc
+            ];
+            if (allowedTypes.includes(file.mimetype)) {
+                cb(null, true);
+            } else {
+                cb(new Error('Only Word documents (.docx, .doc) are allowed'));
+            }
+        }
+    });
+
+    // POST - Upload DOCX file and extract text
+    app.post('/api/updates/upload-docx', docxUpload.single('file'), async (req, res) => {
+        try {
+            if (!req.file) {
+                return res.status(400).json({ success: false, error: 'No file uploaded' });
+            }
+
+            // Extract text from DOCX using mammoth
+            const result = await mammoth.extractRawText({ buffer: req.file.buffer });
+            const extractedText = result.value;
+
+            if (!extractedText || extractedText.trim().length === 0) {
+                return res.status(400).json({
+                    success: false,
+                    error: 'No text could be extracted from the document'
+                });
+            }
+
+            // Return extracted text
+            res.json({
+                success: true,
+                text: extractedText,
+                filename: req.file.originalname,
+                size: req.file.size
+            });
+        } catch (error) {
+            console.error('Error processing DOCX file:', error);
+            res.status(500).json({
+                success: false,
+                error: 'Failed to process document: ' + error.message
+            });
+        }
+    });
+
+    // POST - Parse biweekly update text and preview changes
+    app.post('/api/updates/parse', async (req, res) => {
+        const { updateText } = req.body;
+
+        if (!updateText || updateText.trim().length === 0) {
+            return res.status(400).json({ success: false, error: 'Update text is required' });
+        }
+
+        try {
+            // Get all existing projects for matching
+            const existingProjects = await dbAll('SELECT * FROM projects WHERE approved = 1 ORDER BY name');
+
+            // Parse with GPT-4
+            const parseResult = await parseUpdateWithGPT(updateText, existingProjects);
+
+            if (!parseResult.success) {
+                return res.status(503).json(parseResult);
+            }
+
+            // Generate preview of what would change
+            const preview = await previewParsedUpdates(parseResult.data, existingProjects);
+
+            res.json({
+                success: true,
+                data: {
+                    parsed: parseResult.data,
+                    preview: preview,
+                    message: 'Update parsed successfully. Review changes before applying.'
+                }
+            });
+
+        } catch (err) {
+            console.error('Error parsing update:', err);
+            res.status(500).json({ success: false, error: 'Failed to parse update' });
+        }
+    });
+
+    // POST - Apply parsed updates to database
+    app.post('/api/updates/apply', async (req, res) => {
+        const { parsedData } = req.body;
+
+        if (!parsedData || !parsedData.updates) {
+            return res.status(400).json({ success: false, error: 'Parsed data is required' });
+        }
+
+        try {
+            // Apply updates to database
+            const result = await applyParsedUpdates(parsedData, dbRun, dbGet);
+
+            res.json(result);
+
+        } catch (err) {
+            console.error('Error applying updates:', err);
+            res.status(500).json({ success: false, error: 'Failed to apply updates' });
+        }
+    });
+
+    // POST - Parse and apply in one step (with confirmation)
+    app.post('/api/updates/parse-and-apply', async (req, res) => {
+        const { updateText, autoApply } = req.body;
+
+        if (!updateText || updateText.trim().length === 0) {
+            return res.status(400).json({ success: false, error: 'Update text is required' });
+        }
+
+        try {
+            // Get all existing projects
+            const existingProjects = await dbAll('SELECT * FROM projects WHERE approved = 1 ORDER BY name');
+
+            // Parse with GPT-4
+            const parseResult = await parseUpdateWithGPT(updateText, existingProjects);
+
+            if (!parseResult.success) {
+                return res.status(503).json(parseResult);
+            }
+
+            if (autoApply) {
+                // Apply immediately
+                const applyResult = await applyParsedUpdates(parseResult.data, dbRun, dbGet);
+
+                res.json({
+                    success: true,
+                    data: {
+                        parsed: parseResult.data,
+                        applied: applyResult.results,
+                        message: applyResult.message
+                    }
+                });
+            } else {
+                // Just return preview
+                const preview = await previewParsedUpdates(parseResult.data, existingProjects);
+
+                res.json({
+                    success: true,
+                    data: {
+                        parsed: parseResult.data,
+                        preview: preview,
+                        message: 'Ready to apply. Set autoApply=true to confirm.'
+                    }
+                });
+            }
+
+        } catch (err) {
+            console.error('Error processing update:', err);
+            res.status(500).json({ success: false, error: 'Failed to process update' });
+        }
+    });
+
+    // ============================================
+    // GOOGLE SHEETS INTEGRATION ENDPOINTS
+    // ============================================
+
+    const { exportToGoogleSheets, importFromGoogleSheets, createNewSpreadsheet, exportStatsToSheet } = require('./sheets-service');
+
+    // POST - Export all projects to Google Sheets
+    app.post('/api/google-sheets/export', async (req, res) => {
+        const { spreadsheetId } = req.body;
+
+        if (!spreadsheetId) {
+            return res.status(400).json({ success: false, error: 'Spreadsheet ID is required' });
+        }
+
+        try {
+            const projects = await dbAll('SELECT * FROM projects WHERE approved = 1 ORDER BY name');
+            const result = await exportToGoogleSheets(projects, spreadsheetId);
+
+            res.json(result);
+        } catch (err) {
+            console.error('Error exporting to Google Sheets:', err);
+            res.status(500).json({ success: false, error: 'Failed to export to Google Sheets' });
+        }
+    });
+
+    // POST - Import projects from Google Sheets
+    app.post('/api/google-sheets/import', async (req, res) => {
+        const { spreadsheetId } = req.body;
+
+        if (!spreadsheetId) {
+            return res.status(400).json({ success: false, error: 'Spreadsheet ID is required' });
+        }
+
+        try {
+            const result = await importFromGoogleSheets(spreadsheetId);
+
+            if (!result.success) {
+                return res.json(result);
+            }
+
+            // Update projects in database (optional - could be used for bidirectional sync)
+            // For now, just return the imported data
+            res.json(result);
+        } catch (err) {
+            console.error('Error importing from Google Sheets:', err);
+            res.status(500).json({ success: false, error: 'Failed to import from Google Sheets' });
+        }
+    });
+
+    // POST - Create a new Google Spreadsheet
+    app.post('/api/google-sheets/create', async (req, res) => {
+        const { title } = req.body;
+
+        try {
+            const result = await createNewSpreadsheet(title || 'Iowa DOT 2050 Plan Tracker');
+
+            if (result.success) {
+                // Automatically export current data to new spreadsheet
+                const projects = await dbAll('SELECT * FROM projects WHERE approved = 1 ORDER BY name');
+                await exportToGoogleSheets(projects, result.spreadsheetId);
+
+                // Export stats too
+                const stats = await dbGet(`
+                    SELECT
+                        COUNT(*) as total,
+                        AVG(completion_percentage) as avg_completion
+                    FROM projects WHERE approved = 1
+                `);
+
+                const categoryBreakdown = await dbAll('SELECT category, COUNT(*) as count, AVG(completion_percentage) as avg_completion FROM projects WHERE approved = 1 GROUP BY category');
+                const statusBreakdown = await dbAll('SELECT status, COUNT(*) as count FROM projects WHERE approved = 1 GROUP BY status');
+
+                await exportStatsToSheet(result.spreadsheetId, {
+                    total_projects: stats.total,
+                    avg_completion: Math.round(stats.avg_completion || 0),
+                    weighted_completion: 0,
+                    total_weight: 0,
+                    category_breakdown: categoryBreakdown,
+                    status_breakdown: statusBreakdown
+                });
+            }
+
+            res.json(result);
+        } catch (err) {
+            console.error('Error creating Google Spreadsheet:', err);
+            res.status(500).json({ success: false, error: 'Failed to create spreadsheet' });
+        }
+    });
+
+    // ============================================
+    // EMAIL SUBSCRIPTION ENDPOINTS
+    // ============================================
+
+    const crypto = require('crypto');
+    const { sendProjectUpdateNotification, sendWelcomeNotification } = require('./email-service');
+
+    // POST - Subscribe to project updates
+    app.post('/api/projects/:id/subscribe', async (req, res) => {
+        const { email } = req.body;
+        const project_id = req.params.id;
+
+        if (!email || !email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+            return res.status(400).json({ success: false, error: 'Valid email address is required' });
+        }
+
+        try {
+            // Check if already subscribed
+            const existing = await dbGet(
+                'SELECT * FROM project_subscriptions WHERE project_id = ? AND email = ?',
+                [project_id, email]
+            );
+
+            if (existing && existing.active) {
+                return res.json({ success: true, message: 'Already subscribed to this project', alreadySubscribed: true });
+            }
+
+            // Generate unsubscribe token
+            const unsubscribe_token = crypto.randomBytes(32).toString('hex');
+
+            // Default preferences: all notifications enabled
+            const preferences = JSON.stringify({
+                status: true,
+                completion: true,
+                comments: true,
+                milestones: true
+            });
+
+            if (existing && !existing.active) {
+                // Reactivate subscription
+                await dbRun(
+                    'UPDATE project_subscriptions SET active = 1, subscribed_at = CURRENT_TIMESTAMP WHERE id = ?',
+                    [existing.id]
+                );
+            } else {
+                // Create new subscription
+                await dbRun(`
+                    INSERT INTO project_subscriptions (project_id, email, unsubscribe_token, preferences)
+                    VALUES (?, ?, ?, ?)
+                `, [project_id, email, unsubscribe_token, preferences]);
+            }
+
+            // Get project details
+            const project = await dbGet('SELECT * FROM projects WHERE id = ?', [project_id]);
+
+            // Send welcome email
+            await sendWelcomeNotification(email, project);
+
+            res.json({ success: true, message: 'Successfully subscribed! Check your email for confirmation.' });
+        } catch (err) {
+            console.error('Error creating subscription:', err);
+            res.status(500).json({ success: false, error: 'Failed to subscribe' });
+        }
+    });
+
+    // GET - Check if email is subscribed to a project
+    app.get('/api/projects/:id/subscription/:email', async (req, res) => {
+        try {
+            const subscription = await dbGet(
+                'SELECT * FROM project_subscriptions WHERE project_id = ? AND email = ? AND active = 1',
+                [req.params.id, req.params.email]
+            );
+
+            res.json({ success: true, subscribed: !!subscription });
+        } catch (err) {
+            console.error('Error checking subscription:', err);
+            res.status(500).json({ success: false, error: 'Failed to check subscription' });
+        }
+    });
+
+    // POST - Unsubscribe from project
+    app.post('/api/unsubscribe', async (req, res) => {
+        const { email, project_id, token } = req.body;
+
+        try {
+            let query = 'UPDATE project_subscriptions SET active = 0 WHERE ';
+            let params = [];
+
+            if (token) {
+                query += 'unsubscribe_token = ?';
+                params = [token];
+            } else if (email && project_id) {
+                query += 'email = ? AND project_id = ?';
+                params = [email, project_id];
+            } else {
+                return res.status(400).json({ success: false, error: 'Email and project_id, or token required' });
+            }
+
+            await dbRun(query, params);
+
+            res.json({ success: true, message: 'Successfully unsubscribed' });
+        } catch (err) {
+            console.error('Error unsubscribing:', err);
+            res.status(500).json({ success: false, error: 'Failed to unsubscribe' });
+        }
+    });
+
+    // GET - Get all subscriptions for a user email
+    app.get('/api/subscriptions/:email', async (req, res) => {
+        try {
+            const subscriptions = await dbAll(`
+                SELECT ps.*, p.name as project_name, p.category, p.status, p.completion_percentage
+                FROM project_subscriptions ps
+                JOIN projects p ON ps.project_id = p.id
+                WHERE ps.email = ? AND ps.active = 1
+                ORDER BY ps.subscribed_at DESC
+            `, [req.params.email]);
+
+            res.json({ success: true, data: subscriptions });
+        } catch (err) {
+            console.error('Error fetching subscriptions:', err);
+            res.status(500).json({ success: false, error: 'Failed to fetch subscriptions' });
         }
     });
 
