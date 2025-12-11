@@ -3007,15 +3007,36 @@
             }
 
             container.innerHTML = useCases.map(uc => `
-                <div style="background: white; border-radius: 8px; padding: 1rem; border: 1px solid rgba(0,0,0,0.1);">
-                    <div style="font-weight: 600; color: #111827; margin-bottom: 0.25rem;">${uc.name}</div>
-                    <div style="font-size: 0.875rem; color: #6b7280; margin-bottom: 0.5rem;">${uc.business_area}</div>
-                    ${uc.video_url ? `
-                        <button onclick="showAIVideo('${uc.video_url}', '${uc.name}')"
-                                style="font-size: 0.75rem; background: #ef4444; color: white; border: none; padding: 0.25rem 0.75rem; border-radius: 6px; cursor: pointer; margin-top: 0.5rem;">
-                            ▶ Watch Demo
+                <div style="background: white; border-radius: 8px; padding: 1rem; border: 1px solid rgba(0,0,0,0.1); position: relative;">
+                    <div style="position: absolute; top: 0.75rem; right: 0.75rem; display: flex; gap: 0.5rem;">
+                        <button onclick="editUseCase(${uc.id})"
+                                style="background: #03617A; color: white; border: none; padding: 0.25rem 0.5rem; border-radius: 4px; cursor: pointer; font-size: 0.75rem; font-weight: 600;"
+                                title="Edit this use case">
+                            ✏️ Edit
                         </button>
-                    ` : ''}
+                        <button onclick="deleteUseCase(${uc.id}, '${uc.name.replace(/'/g, "\\'")}')"
+                                style="background: #dc2626; color: white; border: none; padding: 0.25rem 0.5rem; border-radius: 4px; cursor: pointer; font-size: 0.75rem; font-weight: 600;"
+                                title="Delete this use case">
+                            🗑️
+                        </button>
+                    </div>
+                    <div style="font-weight: 600; color: #111827; margin-bottom: 0.25rem; padding-right: 120px;">${uc.name}</div>
+                    <div style="font-size: 0.875rem; color: #6b7280; margin-bottom: 0.5rem;">${uc.business_area}</div>
+                    ${uc.timeline ? `<div style="font-size: 0.75rem; color: #9ca3af; margin-bottom: 0.5rem;">⏱️ ${uc.timeline}</div>` : ''}
+                    ${uc.description ? `<div style="font-size: 0.875rem; color: #4b5563; margin: 0.5rem 0; line-height: 1.4;">${uc.description}</div>` : ''}
+                    <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem;">
+                        ${uc.video_url ? `
+                            <button onclick="showAIVideo('${uc.video_url}', '${uc.name.replace(/'/g, "\\'")}')"
+                                    style="font-size: 0.75rem; background: #ef4444; color: white; border: none; padding: 0.4rem 0.75rem; border-radius: 6px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 0.25rem;">
+                                ▶ Watch Demo
+                            </button>
+                        ` : `
+                            <button onclick="editUseCase(${uc.id})"
+                                    style="font-size: 0.75rem; background: #f3f4f6; color: #6b7280; border: 1px solid #d1d5db; padding: 0.4rem 0.75rem; border-radius: 6px; cursor: pointer;">
+                                + Add Video
+                            </button>
+                        `}
+                    </div>
                 </div>
             `).join('');
         }
@@ -6645,17 +6666,82 @@ END:VCALENDAR`;
 
     <script>
         // Open Add Use Case Modal
+        // Global variable to track if we're editing (holds the use case ID)
+        let editingUseCaseId = null;
+
         function openAddUseCaseModal() {
+            editingUseCaseId = null;
+            document.getElementById('addUseCaseModal').querySelector('h3').textContent = 'Add New AI Use Case';
+            document.getElementById('useCaseForm').reset();
             document.getElementById('addUseCaseModal').style.display = 'block';
+        }
+
+        // Edit Use Case
+        async function editUseCase(useCaseId) {
+            try {
+                const response = await fetch(`/api/ai/use-cases/${useCaseId}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    const uc = data.useCase;
+                    editingUseCaseId = useCaseId;
+
+                    // Update modal title
+                    document.getElementById('addUseCaseModal').querySelector('h3').textContent = 'Edit AI Use Case';
+
+                    // Pre-fill form
+                    document.getElementById('useCaseName').value = uc.name || '';
+                    document.getElementById('useCaseStage').value = uc.stage || 'in-practice';
+                    document.getElementById('useCaseBusinessArea').value = uc.business_area || '';
+                    document.getElementById('useCaseInitiative').value = uc.lr_tracker_id || '';
+                    document.getElementById('useCaseDescription').value = uc.description || '';
+                    document.getElementById('useCaseTimeline').value = uc.timeline || '';
+                    document.getElementById('useCaseVideoUrl').value = uc.video_url || '';
+
+                    // Show modal
+                    document.getElementById('addUseCaseModal').style.display = 'block';
+                } else {
+                    alert('Error loading use case: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error loading use case:', error);
+                alert('Failed to load use case. Please try again.');
+            }
+        }
+
+        // Delete Use Case
+        async function deleteUseCase(useCaseId, useCaseName) {
+            if (!confirm(`Are you sure you want to delete "${useCaseName}"?\n\nThis action cannot be undone.`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/ai/use-cases/${useCaseId}`, {
+                    method: 'DELETE'
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('✅ Use case deleted successfully!');
+                    loadAIUseCases();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error deleting use case:', error);
+                alert('Failed to delete use case. Please try again.');
+            }
         }
 
         // Close Add Use Case Modal
         function closeAddUseCaseModal() {
             document.getElementById('addUseCaseModal').style.display = 'none';
             document.getElementById('useCaseForm').reset();
+            editingUseCaseId = null;
         }
 
-        // Save Use Case
+        // Save Use Case (handles both add and edit)
         async function saveUseCase(event) {
             event.preventDefault();
 
@@ -6672,28 +6758,35 @@ END:VCALENDAR`;
             const timeline = document.getElementById('useCaseTimeline').value || null;
             const video_url = document.getElementById('useCaseVideoUrl').value || null;
 
+            const payload = {
+                name,
+                stage,
+                stage_label: stageLabels[stage],
+                business_area,
+                lr_tracker_id,
+                description,
+                timeline,
+                video_url
+            };
+
             try {
-                const response = await fetch('/api/ai/use-cases', {
-                    method: 'POST',
+                const url = editingUseCaseId
+                    ? `/api/ai/use-cases/${editingUseCaseId}`
+                    : '/api/ai/use-cases';
+                const method = editingUseCaseId ? 'PATCH' : 'POST';
+
+                const response = await fetch(url, {
+                    method: method,
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({
-                        name,
-                        stage,
-                        stage_label: stageLabels[stage],
-                        business_area,
-                        lr_tracker_id,
-                        description,
-                        timeline,
-                        video_url
-                    })
+                    body: JSON.stringify(payload)
                 });
 
                 const data = await response.json();
 
                 if (data.success) {
-                    alert('✅ Use case added successfully!');
+                    alert(editingUseCaseId ? '✅ Use case updated successfully!' : '✅ Use case added successfully!');
                     closeAddUseCaseModal();
                     // Reload use cases
                     loadAIUseCases();
