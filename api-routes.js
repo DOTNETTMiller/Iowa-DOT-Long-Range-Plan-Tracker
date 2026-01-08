@@ -272,6 +272,49 @@ function setupApiRoutes(app) {
         }
     });
 
+    // PUT - Update entire project (for Kanban drag-and-drop)
+    app.put('/api/projects/:id', async (req, res) => {
+        const project_id = req.params.id;
+        const updates = req.body;
+
+        try {
+            // Build dynamic UPDATE query based on provided fields
+            const allowedFields = ['name', 'description', 'status', 'completion_percentage', 'category', 'project_type', 'responsible', 'url', 'reference', 'priority_level', 'program_status'];
+            const updateFields = [];
+            const updateValues = [];
+
+            Object.keys(updates).forEach(key => {
+                if (allowedFields.includes(key) && updates[key] !== undefined) {
+                    updateFields.push(`${key} = ?`);
+                    updateValues.push(updates[key]);
+                }
+            });
+
+            if (updateFields.length === 0) {
+                return res.status(400).json({ success: false, error: 'No valid fields to update' });
+            }
+
+            updateValues.push(project_id);
+
+            await dbRun(`
+                UPDATE projects
+                SET ${updateFields.join(', ')}, updated_at = CURRENT_TIMESTAMP
+                WHERE id = ?
+            `, updateValues);
+
+            // Log activity
+            await dbRun(`
+                INSERT INTO activity_log (user_id, project_id, activity_type, activity_data)
+                VALUES (?, ?, 'project_updated', ?)
+            `, [updates.user_id || 1, project_id, JSON.stringify(updates)]);
+
+            res.json({ success: true, message: 'Project updated successfully' });
+        } catch (err) {
+            console.error('Error updating project:', err);
+            res.status(500).json({ success: false, error: 'Failed to update project' });
+        }
+    });
+
     // PATCH - Update project details (plan page, division, bureau)
     app.patch('/api/projects/:id/details', async (req, res) => {
         const { plan_page, division, bureau, status, user_id } = req.body;
