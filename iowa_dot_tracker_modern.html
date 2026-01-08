@@ -29,6 +29,9 @@
     <!-- Chart.js for Analytics Dashboard -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
+    <!-- Socket.IO for Real-Time Collaboration -->
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+
     <style>
         * {
             margin: 0;
@@ -481,6 +484,11 @@
         @keyframes starPop {
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.3); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
 
         .completion-section {
@@ -1337,6 +1345,11 @@
             <a class="nav-tab" onclick="switchTab('map')">Project Map</a>
             <a class="nav-tab" onclick="switchTab('export')">📥 Export</a>
             <div style="margin-left: auto; display: flex; gap: 0.75rem; align-items: center;">
+                <div id="onlineUsers" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.875rem; display: flex; align-items: center; gap: 0.5rem;" title="Users currently viewing">
+                    <span style="width: 8px; height: 8px; background: #10b981; border-radius: 50%; animation: pulse 2s infinite;"></span>
+                    <span id="onlineUserCount">0</span>
+                    <span>online</span>
+                </div>
                 <button onclick="toggleDarkMode()" id="darkModeToggle" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-size: 0.875rem; display: flex; align-items: center; gap: 0.5rem;">
                     <span id="darkModeIcon">🌙</span>
                     <span id="darkModeText">Dark</span>
@@ -3590,6 +3603,93 @@
         let currentTypeFilter = 'all-types'; // 'all-types', 'discrete', 'ongoing', 'strategic'
         let currentProjectId = null;
         let currentSortOrder = 'plan-order';
+
+        // ============================================
+        // WEBSOCKET REAL-TIME COLLABORATION
+        // ============================================
+
+        // Initialize Socket.IO connection
+        const socket = io();
+        let currentUser = {
+            name: 'User ' + Math.floor(Math.random() * 1000)
+        };
+
+        // Connect to server
+        socket.on('connect', () => {
+            console.log('Connected to real-time server');
+            socket.emit('user_join', currentUser);
+        });
+
+        // Handle users update
+        socket.on('users_update', (users) => {
+            document.getElementById('onlineUserCount').textContent = users.length;
+            console.log(`${users.length} users online`);
+        });
+
+        // Handle project updates from other users
+        socket.on('project_updated', (projectData) => {
+            console.log('Project updated by another user:', projectData);
+
+            // Show notification
+            showRealtimeNotification(`Project "${projectData.name}" was updated by another user`);
+
+            // Refresh project data to stay in sync
+            setTimeout(() => loadProjects(), 500);
+        });
+
+        // Handle activity notifications
+        socket.on('activity_notification', (data) => {
+            console.log('Activity notification:', data);
+        });
+
+        // Show real-time notification
+        function showRealtimeNotification(message) {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 80px;
+                right: 20px;
+                background: linear-gradient(135deg, #03617A 0%, #19405B 100%);
+                color: white;
+                padding: 1rem 1.5rem;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                z-index: 10000;
+                animation: slideInRight 0.3s ease-out;
+                max-width: 300px;
+                font-size: 0.875rem;
+            `;
+            notification.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="font-size: 1.25rem;">🔄</span>
+                    <span>${message}</span>
+                </div>
+            `;
+
+            document.body.appendChild(notification);
+
+            // Remove after 4 seconds
+            setTimeout(() => {
+                notification.style.animation = 'slideOutRight 0.3s ease-out';
+                setTimeout(() => notification.remove(), 300);
+            }, 4000);
+        }
+
+        // Broadcast project update to other users
+        function broadcastProjectUpdate(project) {
+            if (socket && socket.connected) {
+                socket.emit('project_update', {
+                    id: project.id,
+                    name: project.name,
+                    user: currentUser.name
+                });
+            }
+        }
+
+        // ============================================
+        // END WEBSOCKET
+        // ============================================
 
         // Theme Toggle
         function toggleTheme() {
