@@ -3610,14 +3610,14 @@
 
         // Initialize Socket.IO connection
         const socket = io();
-        let currentUser = {
+        let socketUser = {
             name: 'User ' + Math.floor(Math.random() * 1000)
         };
 
         // Connect to server
         socket.on('connect', () => {
             console.log('Connected to real-time server');
-            socket.emit('user_join', currentUser);
+            socket.emit('user_join', socketUser);
         });
 
         // Handle users update
@@ -3682,7 +3682,7 @@
                 socket.emit('project_update', {
                     id: project.id,
                     name: project.name,
-                    user: currentUser.name
+                    user: socketUser.name
                 });
             }
         }
