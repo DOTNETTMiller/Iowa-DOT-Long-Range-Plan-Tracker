@@ -7996,8 +7996,22 @@
         }
 
         function exportToPDF() {
-            // Simple print-friendly PDF export
-            window.print();
+            // Generate professional PDF report using backend
+            const currentFilter = document.getElementById('categoryFilter')?.value;
+            let url = '/api/reports/pdf';
+
+            // Add filter parameters if any
+            const params = new URLSearchParams();
+            if (currentFilter && currentFilter !== 'all') {
+                params.append('category', currentFilter);
+            }
+
+            if (params.toString()) {
+                url += '?' + params.toString();
+            }
+
+            // Open PDF in new tab for download
+            window.open(url, '_blank');
         }
 
         // Initialize analytics when switching to charts tab

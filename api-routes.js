@@ -5,6 +5,7 @@ const multer = require('multer');
 const fs = require('fs');
 const sharp = require('sharp');
 const mammoth = require('mammoth');
+const PDFDocument = require('pdfkit');
 
 // Database connection
 const DB_PATH = path.join(__dirname, 'iowa-dot-tracker.db');
@@ -801,6 +802,201 @@ Remember: You're representing Iowa DOT, so be professional, accurate, and helpfu
             res.status(500).json({
                 success: false,
                 error: 'Failed to process chat message. Please try again.'
+            });
+        }
+    });
+
+    // ============================================
+    // PDF REPORT GENERATION
+    // ============================================
+
+    app.get('/api/reports/pdf', async (req, res) => {
+        try {
+            // Get filter parameters
+            const category = req.query.category;
+            const status = req.query.status;
+            const projectType = req.query.project_type;
+
+            // Build query
+            let query = 'SELECT * FROM projects WHERE 1=1';
+            const params = [];
+
+            if (category) {
+                query += ' AND category = ?';
+                params.push(category);
+            }
+            if (status) {
+                query += ' AND status = ?';
+                params.push(status);
+            }
+            if (projectType) {
+                query += ' AND project_type = ?';
+                params.push(projectType);
+            }
+
+            query += ' ORDER BY name ASC';
+
+            const projects = await dbAll(query, params);
+
+            // Create PDF document
+            const doc = new PDFDocument({
+                size: 'LETTER',
+                margins: { top: 50, bottom: 50, left: 50, right: 50 }
+            });
+
+            // Set response headers
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', `attachment; filename="iowa-dot-projects-report-${new Date().toISOString().split('T')[0]}.pdf"`);
+
+            // Pipe PDF to response
+            doc.pipe(res);
+
+            // Add Iowa DOT branding
+            doc.fontSize(24)
+               .fillColor('#03617A')
+               .text('Iowa Department of Transportation', { align: 'center' });
+
+            doc.fontSize(18)
+               .fillColor('#6b7280')
+               .text('Project Status Report', { align: 'center' });
+
+            doc.moveDown();
+            doc.fontSize(10)
+               .fillColor('#374151')
+               .text(`Generated: ${new Date().toLocaleString()}`, { align: 'center' });
+
+            // Add filters info if any
+            if (category || status || projectType) {
+                doc.moveDown();
+                doc.fontSize(10)
+                   .fillColor('#6b7280')
+                   .text('Filters Applied:', { underline: true });
+
+                if (category) doc.text(`• Category: ${category}`);
+                if (status) doc.text(`• Status: ${status}`);
+                if (projectType) doc.text(`• Project Type: ${projectType}`);
+            }
+
+            // Add summary statistics
+            doc.moveDown(2);
+            doc.fontSize(14)
+               .fillColor('#03617A')
+               .text('Summary Statistics', { underline: true });
+
+            doc.moveDown();
+            doc.fontSize(10)
+               .fillColor('#374151');
+
+            const totalProjects = projects.length;
+            const avgCompletion = totalProjects > 0
+                ? Math.round(projects.reduce((sum, p) => sum + (p.completion_percentage || 0), 0) / totalProjects)
+                : 0;
+            const completedProjects = projects.filter(p => p.completion_percentage >= 100).length;
+            const inProgressProjects = projects.filter(p => p.completion_percentage > 0 && p.completion_percentage < 100).length;
+
+            doc.text(`Total Projects: ${totalProjects}`);
+            doc.text(`Average Completion: ${avgCompletion}%`);
+            doc.text(`Completed Projects: ${completedProjects}`);
+            doc.text(`In Progress: ${inProgressProjects}`);
+            doc.text(`Not Started: ${totalProjects - completedProjects - inProgressProjects}`);
+
+            // Add projects list
+            doc.addPage();
+            doc.fontSize(16)
+               .fillColor('#03617A')
+               .text('Project Details', { underline: true });
+
+            doc.moveDown();
+
+            projects.forEach((project, index) => {
+                // Check if we need a new page
+                if (doc.y > 650) {
+                    doc.addPage();
+                }
+
+                // Project header
+                doc.fontSize(12)
+                   .fillColor('#03617A')
+                   .text(`${index + 1}. ${project.name}`, { continued: false });
+
+                doc.fontSize(9)
+                   .fillColor('#374151');
+
+                // Project details
+                doc.text(`Category: ${project.category || 'N/A'}`);
+                doc.text(`Status: ${project.status || 'N/A'}`);
+                doc.text(`Completion: ${project.completion_percentage || 0}%`);
+
+                if (project.project_type) {
+                    doc.text(`Type: ${project.project_type}`);
+                }
+
+                if (project.responsible) {
+                    doc.text(`Responsible: ${project.responsible}`);
+                }
+
+                // Progress bar visualization
+                const barWidth = 200;
+                const barHeight = 10;
+                const completion = project.completion_percentage || 0;
+                const barX = doc.x;
+                const barY = doc.y + 5;
+
+                // Background bar
+                doc.rect(barX, barY, barWidth, barHeight)
+                   .fillColor('#e5e7eb')
+                   .fill();
+
+                // Progress bar
+                if (completion > 0) {
+                    doc.rect(barX, barY, (barWidth * completion / 100), barHeight)
+                       .fillColor('#03617A')
+                       .fill();
+                }
+
+                doc.fillColor('#374151');
+                doc.y = barY + barHeight + 5;
+
+                // Description
+                if (project.description) {
+                    doc.fontSize(8)
+                       .fillColor('#6b7280')
+                       .text(project.description.substring(0, 200) + (project.description.length > 200 ? '...' : ''), {
+                           width: 500
+                       });
+                }
+
+                doc.moveDown();
+
+                // Add separator line
+                doc.moveTo(50, doc.y)
+                   .lineTo(550, doc.y)
+                   .strokeColor('#e5e7eb')
+                   .stroke();
+
+                doc.moveDown();
+            });
+
+            // Add footer on last page
+            doc.fontSize(8)
+               .fillColor('#6b7280')
+               .text(
+                   `Iowa DOT SLTP Tracker • Generated: ${new Date().toLocaleString()} • Page ${doc.bufferedPageRange().count}`,
+                   50,
+                   720,
+                   { align: 'center', width: 512 }
+               );
+
+            // Finalize PDF
+            doc.end();
+
+            console.log(`PDF report generated for ${projects.length} projects`);
+
+        } catch (error) {
+            console.error('Error generating PDF:', error);
+            res.status(500).json({
+                success: false,
+                error: 'Failed to generate PDF report'
             });
         }
     });
