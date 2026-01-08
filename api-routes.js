@@ -1002,6 +1002,43 @@ Remember: You're representing Iowa DOT, so be professional, accurate, and helpfu
     });
 
     // ============================================
+    // AI STRATEGIC PLAN DOCUMENT
+    // ============================================
+
+    app.get('/api/ai-strategic-plan/download', (req, res) => {
+        const docPath = path.join(__dirname, 'Iowa-DOT-AI-Strategic-Plan.docx');
+
+        if (fs.existsSync(docPath)) {
+            res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+            res.setHeader('Content-Disposition', 'attachment; filename="Iowa-DOT-AI-Strategic-Plan.docx"');
+            res.sendFile(docPath);
+        } else {
+            res.status(404).json({ success: false, error: 'Strategic plan document not found' });
+        }
+    });
+
+    // Parse and return AI Strategic Plan as HTML
+    app.get('/api/ai-strategic-plan/html', async (req, res) => {
+        try {
+            const docPath = path.join(__dirname, 'Iowa-DOT-AI-Strategic-Plan.docx');
+
+            if (!fs.existsSync(docPath)) {
+                return res.status(404).json({ success: false, error: 'Document not found' });
+            }
+
+            const result = await mammoth.convertToHtml({ path: docPath });
+            res.json({
+                success: true,
+                html: result.value,
+                messages: result.messages
+            });
+        } catch (error) {
+            console.error('Error parsing strategic plan:', error);
+            res.status(500).json({ success: false, error: 'Failed to parse document' });
+        }
+    });
+
+    // ============================================
     // PHOTO ENDPOINTS
     // ============================================
 
