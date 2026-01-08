@@ -39,12 +39,6 @@ setupApiRoutes(app);
 // Mount authentication routes
 app.use('/api/auth', require('./auth-routes'));
 
-// Mount patent feature API routes
-app.use('/api/patent', require('./patent-api-routes'));
-
-// Mount AI Strategy API routes
-app.use('/api/ai', require('./ai-api-routes'));
-
 // Serve static files from the current directory
 app.use(express.static(__dirname));
 

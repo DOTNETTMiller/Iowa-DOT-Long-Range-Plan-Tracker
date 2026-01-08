@@ -1144,6 +1144,158 @@
                 margin: 0.75in;
             }
         }
+
+        /* Dark Mode Styles */
+        body.dark-mode {
+            background: #111827;
+            color: #e5e7eb;
+        }
+
+        body.dark-mode .header {
+            background: #1f2937;
+            border-bottom-color: #374151;
+        }
+
+        body.dark-mode .logo-text h1 {
+            color: #f9fafb;
+        }
+
+        body.dark-mode .logo-text p {
+            color: #9ca3af;
+        }
+
+        body.dark-mode .nav {
+            background: #1f2937;
+            border-bottom-color: #374151;
+        }
+
+        body.dark-mode .nav-tab {
+            color: #d1d5db;
+        }
+
+        body.dark-mode .nav-tab:hover {
+            background: rgba(255,255,255,0.05);
+            color: #f9fafb;
+        }
+
+        body.dark-mode .nav-tab.active {
+            background: rgba(3,97,122,0.3);
+            color: white;
+        }
+
+        body.dark-mode .hero {
+            background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+        }
+
+        body.dark-mode .hero h2 {
+            color: #f9fafb;
+        }
+
+        body.dark-mode .hero p {
+            color: #d1d5db;
+        }
+
+        body.dark-mode .stats-grid {
+            background: #1f2937;
+        }
+
+        body.dark-mode .stat-card {
+            background: #374151;
+            border-color: #4b5563;
+        }
+
+        body.dark-mode .stat-card .stat-value {
+            color: #60a5fa;
+        }
+
+        body.dark-mode .stat-card .stat-label {
+            color: #9ca3af;
+        }
+
+        body.dark-mode .project-card {
+            background: #1f2937;
+            border-color: #374151;
+        }
+
+        body.dark-mode .project-card:hover {
+            border-color: #4b5563;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        body.dark-mode .project-title {
+            color: #f9fafb;
+        }
+
+        body.dark-mode .project-category {
+            background: #374151;
+            color: #d1d5db;
+        }
+
+        body.dark-mode .project-description {
+            color: #9ca3af;
+        }
+
+        body.dark-mode .search-bar {
+            background: #374151;
+            border-color: #4b5563;
+            color: #f9fafb;
+        }
+
+        body.dark-mode .search-bar::placeholder {
+            color: #9ca3af;
+        }
+
+        body.dark-mode .filter-chip {
+            background: #374151;
+            border-color: #4b5563;
+            color: #d1d5db;
+        }
+
+        body.dark-mode .filter-chip:hover {
+            background: #4b5563;
+            border-color: #6b7280;
+        }
+
+        body.dark-mode .filter-chip.active {
+            background: #03617A;
+            border-color: #03617A;
+            color: white;
+        }
+
+        body.dark-mode .timeline-item {
+            background: #1f2937;
+            border-color: #374151;
+        }
+
+        body.dark-mode .timeline-dot {
+            background: #374151;
+        }
+
+        body.dark-mode .timeline-date {
+            color: #9ca3af;
+        }
+
+        body.dark-mode .chart-card {
+            background: #1f2937;
+            border-color: #374151;
+        }
+
+        body.dark-mode footer {
+            background: #0f172a;
+        }
+
+        body.dark-mode .modal-content {
+            background: #1f2937;
+            color: #e5e7eb;
+        }
+
+        body.dark-mode .modal-close {
+            color: #9ca3af;
+        }
+
+        body.dark-mode .modal-close:hover {
+            color: #f9fafb;
+        }
     </style>
 </head>
 <body>
@@ -1180,6 +1332,16 @@
             <a class="nav-tab" onclick="switchTab('aistrategy')">🤖 AI Strategy</a>
             <a class="nav-tab" onclick="switchTab('tools')">Advanced Tools</a>
             <a class="nav-tab" onclick="switchTab('map')">Project Map</a>
+            <a class="nav-tab" onclick="switchTab('export')">📥 Export</a>
+            <div style="margin-left: auto; display: flex; gap: 0.75rem; align-items: center;">
+                <button onclick="toggleDarkMode()" id="darkModeToggle" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-size: 0.875rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <span id="darkModeIcon">🌙</span>
+                    <span id="darkModeText">Dark</span>
+                </button>
+                <button onclick="scrollToTop()" id="backToTopBtn" style="display: none; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-size: 0.875rem;">
+                    ↑ Top
+                </button>
+            </div>
         </div>
     </nav>
 
@@ -1615,6 +1777,13 @@
                     <button class="filter-chip" data-filter="Modal Plan" onclick="filterByCategory('Modal Plan')">Modal Plans</button>
                     <button class="filter-chip" data-filter="Funding Program" onclick="filterByCategory('Funding Program')">Funding Programs</button>
                     <button class="filter-chip" data-filter="System Plan" onclick="filterByCategory('System Plan')">System Plans</button>
+                </div>
+                <div class="filter-group" style="border-top: 1px solid #e5e7eb; padding-top: 0.75rem; margin-top: 0.75rem;">
+                    <span style="font-size: 0.75rem; font-weight: 600; color: #6b7280; margin-right: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">Project Type:</span>
+                    <button class="filter-chip active" data-project-type="all-types" onclick="filterByProjectType('all-types')">All Types <span id="allTypesCount"></span></button>
+                    <button class="filter-chip" data-project-type="discrete" onclick="filterByProjectType('discrete')">📅 Discrete Projects <span id="discreteCount"></span></button>
+                    <button class="filter-chip" data-project-type="ongoing" onclick="filterByProjectType('ongoing')">🔄 Ongoing Programs <span id="ongoingCount"></span></button>
+                    <button class="filter-chip" data-project-type="strategic" onclick="filterByProjectType('strategic')">🎯 Strategic Initiatives <span id="strategicCount"></span></button>
                 </div>
                 <div class="filter-group" style="border-top: 1px solid #e5e7eb; padding-top: 0.75rem; margin-top: 0.75rem;">
                     <span style="font-size: 0.75rem; font-weight: 600; color: #6b7280; margin-right: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">Core Values:</span>
@@ -2198,6 +2367,356 @@
                 </div>
             </div>
 
+            <!-- View Full Plan Button -->
+            <div style="margin-bottom: 2rem; text-align: center; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                <button onclick="openPlanViewer()" style="padding: 1rem 2rem; background: linear-gradient(135deg, #03617A 0%, #19405B 100%); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: transform 0.2s;">
+                    📖 Read Full AI Strategic Plan
+                </button>
+                <a href="/Iowa-DOT-AI-Strategic-Plan.docx" download style="padding: 1rem 2rem; background: white; color: #03617A; border: 2px solid #03617A; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-decoration: none; display: inline-block;">
+                    📥 Download Word Document
+                </a>
+            </div>
+
+            <!-- Full Plan Modal Viewer -->
+            <div id="planViewerModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 9999; overflow: hidden;">
+                <!-- Reading Progress Bar -->
+                <div id="readingProgress" style="position: fixed; top: 0; left: 0; right: 0; height: 4px; background: #e5e7eb; z-index: 10002;">
+                    <div id="progressBar" style="height: 100%; width: 0%; background: linear-gradient(90deg, #03617A 0%, #16a34a 100%); transition: width 0.3s;"></div>
+                </div>
+
+                <div style="position: relative; width: 100%; height: 100%; display: flex;">
+                    <!-- Close Button -->
+                    <button onclick="closePlanViewer()" style="position: absolute; top: 1rem; right: 1rem; z-index: 10001; background: white; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.2); font-size: 1.25rem; display: flex; align-items: center; justify-content: center;">
+                        ✕
+                    </button>
+
+                    <!-- Scroll to Top Button -->
+                    <button id="scrollToTop" onclick="scrollPlanToTop()" style="display: none; position: absolute; bottom: 2rem; right: 2rem; z-index: 10001; background: #03617A; color: white; border: none; width: 48px; height: 48px; border-radius: 50%; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.3); font-size: 1.25rem;">
+                        ↑
+                    </button>
+
+                    <!-- Table of Contents Sidebar -->
+                    <div id="planTOC" style="width: 300px; background: white; height: 100%; overflow-y: auto; border-right: 1px solid #e5e7eb; padding: 1.5rem;">
+                        <!-- Search Box -->
+                        <div style="margin-bottom: 1.5rem;">
+                            <input type="text" id="planSearch" placeholder="🔍 Search plan..." onkeyup="searchPlan()" style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 0.875rem;">
+                            <div id="searchResults" style="margin-top: 0.5rem; font-size: 0.75rem; color: #6b7280;"></div>
+                        </div>
+
+                        <h3 style="font-size: 1.125rem; font-weight: 700; margin-bottom: 1rem; color: #111827;">Contents</h3>
+                        <div id="tocContent"></div>
+
+                        <!-- Reading Time Estimate -->
+                        <div style="margin-top: 2rem; padding: 1rem; background: #f9fafb; border-radius: 8px; font-size: 0.75rem; color: #6b7280;">
+                            <div style="font-weight: 600; margin-bottom: 0.25rem;">📖 Reading Time</div>
+                            <div>~25 minutes</div>
+                        </div>
+                    </div>
+
+                    <!-- Main Content Area -->
+                    <div id="planMainContent" style="flex: 1; background: #f9fafb; height: 100%; overflow-y: auto; padding: 3rem;" onscroll="updateReadingProgress()">
+                        <div style="max-width: 900px; margin: 0 auto; background: white; padding: 3rem; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                            <div id="planContent">
+                                <h1 style="font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem; color: #111827; text-align: center;">Iowa DOT Artificial Intelligence Strategic Plan</h1>
+                                <p style="text-align: center; color: #6b7280; margin-bottom: 3rem; font-size: 1rem;">FY 2026-2028</p>
+
+                                <div id="dynamicPlanContent"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Compact Executive Summary (Hidden by Default) -->
+            <div id="fullStrategicPlan" style="display: none; background: white; border-radius: 12px; border: 1px solid #e5e7eb; padding: 3rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 3rem; max-height: 80vh; overflow-y: auto;">
+                <div style="max-width: 900px; margin: 0 auto;">
+                    <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 1.5rem; color: #111827; text-align: center;">Executive Summary</h2>
+                    <p style="text-align: center; color: #6b7280; margin-bottom: 2rem; font-size: 0.875rem;">Quick Overview of Iowa DOT AI Strategy</p>
+
+                    <div style="background: #f9fafb; border-left: 4px solid #03617A; padding: 1.5rem; margin-bottom: 2rem; border-radius: 8px;">
+                        <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem; color: #111827;">1. INTRODUCTION</h3>
+                        <p style="line-height: 1.8; color: #374151; margin-bottom: 1rem;">
+                            The Iowa Department of Transportation (Iowa DOT) is responsible for planning, designing, building, operating, and maintaining a safe and reliable transportation system that supports Iowa's economy and quality of life. As transportation systems become increasingly complex and data-rich, Iowa DOT recognizes that traditional tools and processes alone are no longer sufficient to meet emerging challenges related to safety, mobility, system reliability, workforce capacity, and fiscal stewardship.
+                        </p>
+                        <p style="line-height: 1.8; color: #374151; margin-bottom: 1rem;">
+                            Artificial intelligence (AI) presents a significant opportunity to enhance how Iowa DOT delivers its mission. Properly applied, AI can help the department better anticipate safety risks, manage traffic and work zones in real time, optimize winter operations, improve construction oversight, and streamline internal business processes. At the same time, AI introduces new considerations related to data quality, transparency, privacy, cybersecurity, workforce impacts, and public trust.
+                        </p>
+                        <p style="line-height: 1.8; color: #374151;">
+                            This Artificial Intelligence Strategic Plan establishes a coordinated, agency-wide approach for how Iowa DOT will evaluate, deploy, govern, and scale AI capabilities over the next three fiscal years. It provides a common framework for decision-making, investment prioritization, and risk management while allowing flexibility for innovation across divisions and programs.
+                        </p>
+                    </div>
+
+                    <div style="background: white; border: 1px solid #e5e7eb; padding: 1.5rem; margin-bottom: 2rem; border-radius: 8px;">
+                        <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem; color: #111827;">2. EXECUTIVE SUMMARY</h3>
+                        <h4 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 0.75rem; color: #03617A;">2.1 Vision for Artificial Intelligence at Iowa DOT</h4>
+                        <p style="line-height: 1.8; color: #374151; margin-bottom: 1rem; font-style: italic; background: #f0f9ff; padding: 1rem; border-radius: 6px;">
+                            Iowa DOT will leverage artificial intelligence to improve transportation safety, reliability, and service delivery by augmenting human expertise with data-driven insights, while ensuring responsible, transparent, and secure use of technology.
+                        </p>
+
+                        <h4 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 0.75rem; color: #03617A;">2.2 Why Artificial Intelligence Matters for Iowa DOT</h4>
+                        <ul style="margin-left: 1.5rem; line-height: 1.8; color: #374151; margin-bottom: 1rem;">
+                            <li><strong>Increasing System Complexity:</strong> Iowa's transportation system generates more data than ever before from traffic detectors, cameras, connected vehicles, weather systems, and maintenance equipment.</li>
+                            <li><strong>Safety Imperatives:</strong> AI can help identify high-risk conditions, predict emerging safety issues, and support proactive interventions.</li>
+                            <li><strong>Workforce Capacity:</strong> AI can automate time-consuming tasks, allowing staff to focus on higher-value activities.</li>
+                            <li><strong>Operational Resilience:</strong> AI-enabled tools improve response to incidents, severe weather, and unexpected disruptions.</li>
+                        </ul>
+
+                        <h4 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 0.75rem; color: #03617A;">2.3 Strategic Goals (2026-2028)</h4>
+                        <div style="display: grid; gap: 1rem; margin-bottom: 1rem;">
+                            <div style="background: #dcfce7; border-left: 4px solid #16a34a; padding: 1rem; border-radius: 6px;">
+                                <strong style="color: #15803d;">Goal 1: Improve Safety and System Reliability</strong>
+                                <p style="margin-top: 0.5rem; font-size: 0.875rem; color: #166534;">AI will enhance detection and prediction of crashes, incidents, and near-misses. Improve work zone and worker safety. Support winter operations decisions that reduce weather-related crashes.</p>
+                            </div>
+                            <div style="background: #dbeafe; border-left: 4px solid #0284c7; padding: 1rem; border-radius: 6px;">
+                                <strong style="color: #0c4a6e;">Goal 2: Strengthen Data and Digital Infrastructure</strong>
+                                <p style="margin-top: 0.5rem; font-size: 0.875rem; color: #075985;">Improve data consistency, standards, and documentation. Increase accessibility of high-value datasets for analytics and AI while maintaining security and privacy.</p>
+                            </div>
+                            <div style="background: #fef3c7; border-left: 4px solid #eab308; padding: 1rem; border-radius: 6px;">
+                                <strong style="color: #a16207;">Goal 3: Empower the Workforce</strong>
+                                <p style="margin-top: 0.5rem; font-size: 0.875rem; color: #92400e;">Provide AI literacy training. Establish clear guidance on acceptable use of AI tools. Support a culture of experimentation that encourages learning while managing risk.</p>
+                            </div>
+                            <div style="background: #e0e7ff; border-left: 4px solid #6366f1; padding: 1rem; border-radius: 6px;">
+                                <strong style="color: #4338ca;">Goal 4: Ensure Responsible and Trustworthy Use of AI</strong>
+                                <p style="margin-top: 0.5rem; font-size: 0.875rem; color: #4338ca;">Implement governance processes. Maintain human oversight. Protect privacy and comply with all applicable laws and policies.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="background: white; border: 1px solid #e5e7eb; padding: 1.5rem; margin-bottom: 2rem; border-radius: 8px;">
+                        <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem; color: #111827;">3. THREE-YEAR ROADMAP</h3>
+
+                        <div style="margin-bottom: 1.5rem;">
+                            <h4 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 0.75rem; color: #03617A;">Phase 1: Build the Foundation and Launch Flagship Pilots</h4>
+                            <ul style="margin-left: 1.5rem; line-height: 1.8; color: #374151;">
+                                <li>Establish AI governance processes and system inventory</li>
+                                <li>Advance data governance, cataloging, and standards</li>
+                                <li>Launch high-impact AI pilots with clear success metrics</li>
+                                <li>Provide initial AI training and guidance to staff</li>
+                            </ul>
+                        </div>
+
+                        <div style="margin-bottom: 1.5rem;">
+                            <h4 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 0.75rem; color: #03617A;">Phase 2: Scale Successful Solutions and Integrate into Operations</h4>
+                            <ul style="margin-left: 1.5rem; line-height: 1.8; color: #374151;">
+                                <li>Expand successful pilots into production systems</li>
+                                <li>Integrate AI tools into existing workflows and operational platforms</li>
+                                <li>Broaden training and adoption across divisions</li>
+                                <li>Refine governance based on lessons learned</li>
+                            </ul>
+                        </div>
+
+                        <div>
+                            <h4 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 0.75rem; color: #03617A;">Phase 3: Optimize, Mature, and Innovate</h4>
+                            <ul style="margin-left: 1.5rem; line-height: 1.8; color: #374151;">
+                                <li>Optimize and refine deployed AI systems</li>
+                                <li>Explore more advanced or complex use cases</li>
+                                <li>Assess long-term organizational and technology needs for AI</li>
+                                <li>Prepare the next iteration of the AI Strategic Plan</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div style="background: white; border: 1px solid #e5e7eb; padding: 1.5rem; margin-bottom: 2rem; border-radius: 8px;">
+                        <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem; color: #111827;">4. DEFINITION OF ARTIFICIAL INTELLIGENCE</h3>
+
+                        <div style="background: #f0f9ff; padding: 1.25rem; border-radius: 6px; margin-bottom: 1rem; border-left: 4px solid #03617A;">
+                            <p style="font-style: italic; line-height: 1.8; color: #025066;">
+                                <strong>Working Definition:</strong> Artificial intelligence refers to computer-based systems that can perform or assist with tasks that normally require human intelligence, including recognizing patterns, understanding language, making predictions, recommending actions, or generating content, by learning from data or applying advanced computational models.
+                            </p>
+                        </div>
+
+                        <h4 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 0.75rem; color: #03617A; margin-top: 1.5rem;">Categories of AI Relevant to Iowa DOT:</h4>
+
+                        <div style="display: grid; gap: 1rem; margin-bottom: 1rem;">
+                            <div style="border-left: 3px solid #16a34a; padding: 1rem; background: #f9fafb;">
+                                <strong style="color: #15803d;">Machine Learning</strong>
+                                <p style="margin-top: 0.5rem; font-size: 0.875rem; color: #374151; line-height: 1.6;">
+                                    Algorithms that learn patterns from historical data. Applications: Predicting crash likelihood, forecasting travel times, identifying anomalous patterns in construction data.
+                                </p>
+                            </div>
+                            <div style="border-left: 3px solid #0284c7; padding: 1rem; background: #f9fafb;">
+                                <strong style="color: #0c4a6e;">Computer Vision</strong>
+                                <p style="margin-top: 0.5rem; font-size: 0.875rem; color: #374151; line-height: 1.6;">
+                                    AI models that interpret images and video. Applications: Detecting wrong-way vehicles, assessing pavement condition, monitoring work zones for safety compliance.
+                                </p>
+                            </div>
+                            <div style="border-left: 3px solid #eab308; padding: 1rem; background: #f9fafb;">
+                                <strong style="color: #a16207;">Natural Language Processing (NLP)</strong>
+                                <p style="margin-top: 0.5rem; font-size: 0.875rem; color: #374151; line-height: 1.6;">
+                                    AI that understands and generates human language. Applications: Searching technical manuals, classifying customer inquiries, extracting data from narrative reports.
+                                </p>
+                            </div>
+                            <div style="border-left: 3px solid #6366f1; padding: 1rem; background: #f9fafb;">
+                                <strong style="color: #4338ca;">Optimization & Prescriptive Analytics</strong>
+                                <p style="margin-top: 0.5rem; font-size: 0.875rem; color: #374151; line-height: 1.6;">
+                                    Models that recommend optimal actions. Applications: Optimizing winter maintenance routes, scheduling maintenance activities, recommending traffic management strategies.
+                                </p>
+                            </div>
+                            <div style="border-left: 3px solid #ec4899; padding: 1rem; background: #f9fafb;">
+                                <strong style="color: #be185d;">Generative AI</strong>
+                                <p style="margin-top: 0.5rem; font-size: 0.875rem; color: #374151; line-height: 1.6;">
+                                    Models that create new content (text, images, code). Applications: Drafting routine correspondence, summarizing documents, assisting with code development. <em>Note: Requires human review and alignment with statewide policies.</em>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="background: white; border: 1px solid #e5e7eb; padding: 1.5rem; margin-bottom: 2rem; border-radius: 8px;">
+                        <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem; color: #111827;">5. AI GUIDING PRINCIPLES</h3>
+                        <p style="line-height: 1.8; color: #374151; margin-bottom: 1rem;">
+                            Iowa DOT's approach to AI is guided by seven core principles that ensure responsible, effective, and trustworthy use:
+                        </p>
+
+                        <div style="display: grid; gap: 1rem;">
+                            <div style="background: #dcfce7; padding: 1rem; border-radius: 6px;">
+                                <div style="display: flex; align-items: start; gap: 0.75rem;">
+                                    <div style="background: #16a34a; color: white; width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-weight: 700;">1</div>
+                                    <div>
+                                        <strong style="color: #15803d;">Safety First</strong>
+                                        <p style="margin-top: 0.25rem; font-size: 0.875rem; color: #166534;">AI initiatives that directly support safety goals receive priority. All AI systems with safety implications undergo rigorous testing and human oversight.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="background: #dbeafe; padding: 1rem; border-radius: 6px;">
+                                <div style="display: flex; align-items: start; gap: 0.75rem;">
+                                    <div style="background: #0284c7; color: white; width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-weight: 700;">2</div>
+                                    <div>
+                                        <strong style="color: #0c4a6e;">Human-in-the-Loop</strong>
+                                        <p style="margin-top: 0.25rem; font-size: 0.875rem; color: #075985;">AI serves as a decision-support tool, not a replacement for professional judgment. Final decisions with safety, legal, or financial implications require human review.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="background: #fef3c7; padding: 1rem; border-radius: 6px;">
+                                <div style="display: flex; align-items: start; gap: 0.75rem;">
+                                    <div style="background: #eab308; color: white; width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-weight: 700;">3</div>
+                                    <div>
+                                        <strong style="color: #a16207;">Data Quality and Governance</strong>
+                                        <p style="margin-top: 0.25rem; font-size: 0.875rem; color: #92400e;">Effective AI depends on high-quality, well-governed data. Data standards, documentation, security, and privacy protections are foundational.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="background: #e0e7ff; padding: 1rem; border-radius: 6px;">
+                                <div style="display: flex; align-items: start; gap: 0.75rem;">
+                                    <div style="background: #6366f1; color: white; width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-weight: 700;">4</div>
+                                    <div>
+                                        <strong style="color: #4338ca;">Transparency and Explainability</strong>
+                                        <p style="margin-top: 0.25rem; font-size: 0.875rem; color: #4338ca;">AI systems should be understandable to users. Iowa DOT documents how AI systems work, what data they use, and how decisions are made.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="background: #fce7f3; padding: 1rem; border-radius: 6px;">
+                                <div style="display: flex; align-items: start; gap: 0.75rem;">
+                                    <div style="background: #ec4899; color: white; width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-weight: 700;">5</div>
+                                    <div>
+                                        <strong style="color: #be185d;">Fairness and Equity</strong>
+                                        <p style="margin-top: 0.25rem; font-size: 0.875rem; color: #be185d;">AI systems are evaluated for potential bias. Transportation services must be delivered equitably across all communities.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="background: #d1fae5; padding: 1rem; border-radius: 6px;">
+                                <div style="display: flex; align-items: start; gap: 0.75rem;">
+                                    <div style="background: #059669; color: white; width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-weight: 700;">6</div>
+                                    <div>
+                                        <strong style="color: #047857;">Privacy and Security</strong>
+                                        <p style="margin-top: 0.25rem; font-size: 0.875rem; color: #065f46;">AI systems comply with all privacy laws and cybersecurity requirements. Personal data is protected and used only for authorized purposes.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="background: #fef9c3; padding: 1rem; border-radius: 6px;">
+                                <div style="display: flex; align-items: start; gap: 0.75rem;">
+                                    <div style="background: #ca8a04; color: white; width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-weight: 700;">7</div>
+                                    <div>
+                                        <strong style="color: #a16207;">Continuous Improvement</strong>
+                                        <p style="margin-top: 0.25rem; font-size: 0.875rem; color: #854d0e;">AI systems are monitored, evaluated, and refined over time. Performance metrics guide decisions about scaling, modification, or retirement.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="background: white; border: 1px solid #e5e7eb; padding: 1.5rem; margin-bottom: 2rem; border-radius: 8px;">
+                        <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem; color: #111827;">6. AI GOVERNANCE FRAMEWORK</h3>
+
+                        <p style="line-height: 1.8; color: #374151; margin-bottom: 1rem;">
+                            Iowa DOT has established a governance structure to ensure responsible AI adoption:
+                        </p>
+
+                        <div style="background: #f9fafb; padding: 1.5rem; border-radius: 8px; margin-bottom: 1rem;">
+                            <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: 0.75rem; color: #111827;">Risk-Based Approach</h4>
+                            <p style="font-size: 0.875rem; color: #374151; line-height: 1.6; margin-bottom: 0.75rem;">
+                                AI systems are categorized by risk level, with governance requirements scaled accordingly:
+                            </p>
+                            <ul style="margin-left: 1.5rem; font-size: 0.875rem; color: #374151; line-height: 1.8;">
+                                <li><strong>High Risk:</strong> Safety-critical applications, regulatory compliance, public-facing decisions → Extensive review, testing, oversight</li>
+                                <li><strong>Medium Risk:</strong> Operational support, internal processes → Standard review and monitoring</li>
+                                <li><strong>Low Risk:</strong> Productivity tools, document assistance → Lightweight approval with usage guidelines</li>
+                            </ul>
+                        </div>
+
+                        <div style="background: #f0f9ff; padding: 1.5rem; border-radius: 8px; border-left: 4px solid #03617A;">
+                            <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: 0.75rem; color: #025066;">Key Governance Elements</h4>
+                            <ul style="margin-left: 1.5rem; font-size: 0.875rem; color: #025066; line-height: 1.8;">
+                                <li><strong>AI Use Case Inventory:</strong> Central registry of all AI systems in use or development</li>
+                                <li><strong>Review and Approval Process:</strong> Structured evaluation before deployment</li>
+                                <li><strong>Ongoing Monitoring:</strong> Performance tracking and bias detection</li>
+                                <li><strong>Documentation Requirements:</strong> Clear records of data sources, model logic, and decision processes</li>
+                                <li><strong>Training and Awareness:</strong> Staff understand AI capabilities, limitations, and ethical use</li>
+                                <li><strong>Alignment with State Policy:</strong> Compliance with Iowa enterprise AI guidance</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div style="background: white; border: 1px solid #e5e7eb; padding: 1.5rem; margin-bottom: 2rem; border-radius: 8px;">
+                        <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem; color: #111827;">7. SUCCESS METRICS</h3>
+
+                        <p style="line-height: 1.8; color: #374151; margin-bottom: 1rem;">
+                            AI strategy success will be measured through:
+                        </p>
+
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                            <div style="background: #dcfce7; padding: 1rem; border-radius: 8px;">
+                                <div style="font-weight: 600; color: #15803d; margin-bottom: 0.5rem;">Safety Outcomes</div>
+                                <ul style="margin-left: 1.25rem; font-size: 0.875rem; color: #166534; line-height: 1.6;">
+                                    <li>Crash reductions</li>
+                                    <li>Improved incident response times</li>
+                                    <li>Enhanced work zone safety</li>
+                                </ul>
+                            </div>
+                            <div style="background: #dbeafe; padding: 1rem; border-radius: 8px;">
+                                <div style="font-weight: 600; color: #0c4a6e; margin-bottom: 0.5rem;">Operational Performance</div>
+                                <ul style="margin-left: 1.25rem; font-size: 0.875rem; color: #075985; line-height: 1.6;">
+                                    <li>System reliability improvements</li>
+                                    <li>Efficiency gains</li>
+                                    <li>Resource optimization</li>
+                                </ul>
+                            </div>
+                            <div style="background: #fef3c7; padding: 1rem; border-radius: 8px;">
+                                <div style="font-weight: 600; color: #a16207; margin-bottom: 0.5rem;">Workforce Impacts</div>
+                                <ul style="margin-left: 1.25rem; font-size: 0.875rem; color: #92400e; line-height: 1.6;">
+                                    <li>Time savings from automation</li>
+                                    <li>Training completion rates</li>
+                                    <li>User adoption and satisfaction</li>
+                                </ul>
+                            </div>
+                            <div style="background: #e0e7ff; padding: 1rem; border-radius: 8px;">
+                                <div style="font-weight: 600; color: #4338ca; margin-bottom: 0.5rem;">Governance Effectiveness</div>
+                                <ul style="margin-left: 1.25rem; font-size: 0.875rem; color: #4338ca; line-height: 1.6;">
+                                    <li>% of AI systems reviewed</li>
+                                    <li>Compliance with standards</li>
+                                    <li>Risk management effectiveness</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="background: #f0f9ff; border: 2px solid #03617A; padding: 2rem; border-radius: 8px; text-align: center;">
+                        <p style="font-size: 0.875rem; color: #025066; line-height: 1.8;">
+                            <strong>This is a living document.</strong> The AI Strategic Plan will be reviewed and updated regularly as technologies, policies, and use cases evolve. For the complete document including detailed use cases, governance frameworks, and implementation guidance, contact the Iowa DOT Planning Division.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
             <!-- AI Initiatives Grid -->
             <div style="margin-bottom: 3rem;">
                 <h3 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1.5rem; color: #111827;">Strategic Initiatives</h3>
@@ -2374,6 +2893,102 @@
                     <p style="font-size: 0.875rem; color: #6b7280; line-height: 1.6;">
                         💡 <strong>For Long Range Plan placards:</strong> Each placard that has an AI component includes a 🔗 <strong>AI</strong> chip
                         that links to the relevant section on this page. Click through to see the real projects, use cases, and guardrails behind the strategy.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Export Section -->
+        <div id="exportSection" class="content-section">
+            <div style="background: white; border-radius: 12px; border: 1px solid #e5e7eb; padding: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+                    <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #03617A 0%, #19405B 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                        📥
+                    </div>
+                    <div>
+                        <h2 style="font-size: 1.75rem; font-weight: 700; color: #111827; margin: 0;">Export Data</h2>
+                        <p style="font-size: 0.875rem; color: #6b7280; margin: 0;">Download project data in various formats</p>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-top: 2rem;">
+                    <!-- CSV Export -->
+                    <div style="background: linear-gradient(135deg, #dcfce7 0%, #f0fdf4 100%); border: 2px solid #16a34a; border-radius: 12px; padding: 2rem; cursor: pointer; transition: transform 0.2s;" onclick="exportToCSV()">
+                        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                            <div style="width: 56px; height: 56px; background: #16a34a; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.75rem;">
+                                📊
+                            </div>
+                            <div>
+                                <h3 style="font-size: 1.25rem; font-weight: 700; color: #166534; margin: 0;">CSV Export</h3>
+                                <p style="font-size: 0.875rem; color: #15803d; margin: 0;">Spreadsheet format</p>
+                            </div>
+                        </div>
+                        <p style="font-size: 0.875rem; color: #166534; line-height: 1.6; margin-bottom: 1rem;">
+                            Download all project data as a CSV file for use in Excel, Google Sheets, or other spreadsheet applications.
+                        </p>
+                        <button onclick="exportToCSV(); event.stopPropagation();" style="width: 100%; padding: 0.75rem; background: #16a34a; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: background 0.2s;">
+                            Download CSV
+                        </button>
+                    </div>
+
+                    <!-- JSON Export -->
+                    <div style="background: linear-gradient(135deg, #dbeafe 0%, #eff6ff 100%); border: 2px solid #0284c7; border-radius: 12px; padding: 2rem; cursor: pointer; transition: transform 0.2s;" onclick="exportToJSON()">
+                        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                            <div style="width: 56px; height: 56px; background: #0284c7; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.75rem;">
+                                🔧
+                            </div>
+                            <div>
+                                <h3 style="font-size: 1.25rem; font-weight: 700; color: #0c4a6e; margin: 0;">JSON Export</h3>
+                                <p style="font-size: 0.875rem; color: #0369a1; margin: 0;">Developer format</p>
+                            </div>
+                        </div>
+                        <p style="font-size: 0.875rem; color: #0c4a6e; line-height: 1.6; margin-bottom: 1rem;">
+                            Download structured JSON data for developers, APIs, or advanced data processing workflows.
+                        </p>
+                        <button onclick="exportToJSON(); event.stopPropagation();" style="width: 100%; padding: 0.75rem; background: #0284c7; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: background 0.2s;">
+                            Download JSON
+                        </button>
+                    </div>
+
+                    <!-- Summary Report Export -->
+                    <div style="background: linear-gradient(135deg, #fef3c7 0%, #fefce8 100%); border: 2px solid #eab308; border-radius: 12px; padding: 2rem; cursor: pointer; transition: transform 0.2s;" onclick="exportSummaryReport()">
+                        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                            <div style="width: 56px; height: 56px; background: #eab308; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.75rem;">
+                                📄
+                            </div>
+                            <div>
+                                <h3 style="font-size: 1.25rem; font-weight: 700; color: #854d0e; margin: 0;">Summary Report</h3>
+                                <p style="font-size: 0.875rem; color: #a16207; margin: 0;">Printable HTML</p>
+                            </div>
+                        </div>
+                        <p style="font-size: 0.875rem; color: #854d0e; line-height: 1.6; margin-bottom: 1rem;">
+                            Generate a formatted HTML summary report with project statistics and overview information.
+                        </p>
+                        <button onclick="exportSummaryReport(); event.stopPropagation();" style="width: 100%; padding: 0.75rem; background: #eab308; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: background 0.2s;">
+                            Generate Report
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Export Options -->
+                <div style="background: #f9fafb; border-radius: 8px; padding: 1.5rem; margin-top: 2rem;">
+                    <h3 style="font-size: 1.125rem; font-weight: 600; color: #111827; margin-bottom: 1rem;">Export Options</h3>
+                    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="checkbox" id="exportFilteredOnly" style="width: 18px; height: 18px; cursor: pointer;">
+                            <span style="font-size: 0.875rem; color: #374151;">Export only currently filtered projects</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="checkbox" id="includeMajorProjects" checked style="width: 18px; height: 18px; cursor: pointer;">
+                            <span style="font-size: 0.875rem; color: #374151;">Include Major Projects data</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Data Info -->
+                <div style="background: #eff6ff; border-left: 4px solid #0284c7; padding: 1rem; border-radius: 6px; margin-top: 1.5rem;">
+                    <p style="font-size: 0.875rem; color: #0c4a6e; line-height: 1.6; margin: 0;">
+                        <strong>Note:</strong> All exports reflect the current state of the database. For real-time updates, visit this tracker regularly or contact the Iowa DOT Planning Division.
                     </p>
                 </div>
             </div>
@@ -2774,6 +3389,7 @@
         let favorites = JSON.parse(localStorage.getItem('projectFavorites') || '[]');
         let chartView = 'all'; // 'all' or 'favorites'
         let currentStatusFilter = 'all';
+        let currentTypeFilter = 'all-types'; // 'all-types', 'discrete', 'ongoing', 'strategic'
         let currentProjectId = null;
         let currentSortOrder = 'plan-order';
 
@@ -2889,6 +3505,466 @@
                     projectMap.invalidateSize();
                 }, 100);
             }
+        }
+
+        // Open AI Strategic Plan Viewer
+        function openPlanViewer() {
+            const modal = document.getElementById('planViewerModal');
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            loadFullPlan();
+        }
+
+        // Close AI Strategic Plan Viewer
+        function closePlanViewer() {
+            const modal = document.getElementById('planViewerModal');
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Load and render the full AI Strategic Plan
+        async function loadFullPlan() {
+            const contentDiv = document.getElementById('dynamicPlanContent');
+            const tocDiv = document.getElementById('tocContent');
+
+            // Fetch the full plan text
+            try {
+                const response = await fetch('/Iowa-DOT-AI-Strategic-Plan.docx');
+                const blob = await response.blob();
+
+                // For now, render a comprehensive version from the structured data
+                renderStructuredPlan(contentDiv, tocDiv);
+            } catch (error) {
+                console.error('Error loading plan:', error);
+                renderStructuredPlan(contentDiv, tocDiv);
+            }
+        }
+
+        // Render the structured plan content
+        function renderStructuredPlan(contentDiv, tocDiv) {
+            const plan = getAIPlanStructure();
+
+            // Build Table of Contents
+            let tocHTML = '<div style="display: flex; flex-direction: column; gap: 0.5rem;">';
+            plan.sections.forEach((section, index) => {
+                tocHTML += `
+                    <div>
+                        <a href="#section-${section.id}" onclick="scrollToPlanSection('${section.id}'); return false;" class="toc-section" style="display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem; color: #374151; text-decoration: none; font-size: 0.875rem; font-weight: 600; border-radius: 6px; transition: all 0.2s;">
+                            <span style="font-size: 1.125rem;">${section.icon}</span>
+                            <span>${section.number}. ${section.title}</span>
+                        </a>
+                        ${section.subsections && section.subsections.length > 0 ? `
+                            <div style="margin-left: 2.5rem; margin-top: 0.25rem;">
+                                ${section.subsections.map(sub => `
+                                    <a href="#section-${sub.id}" onclick="scrollToPlanSection('${sub.id}'); return false;" class="toc-subsection" style="display: block; padding: 0.5rem; color: #6b7280; text-decoration: none; font-size: 0.8125rem; border-radius: 4px; transition: all 0.2s;">
+                                        ${sub.number} ${sub.title}
+                                    </a>
+                                `).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            });
+            tocHTML += '</div>';
+            tocDiv.innerHTML = tocHTML;
+
+            // Build main content
+            let contentHTML = '';
+            plan.sections.forEach((section, index) => {
+                contentHTML += `
+                    <div id="section-${section.id}" class="plan-section" style="margin-bottom: 4rem; scroll-margin-top: 2rem;">
+                        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+                            <div style="font-size: 3rem;">${section.icon}</div>
+                            <div style="flex: 1;">
+                                <h2 style="font-size: 1.875rem; font-weight: 700; color: ${section.color}; margin: 0;">
+                                    ${section.number}. ${section.title}
+                                </h2>
+                            </div>
+                        </div>
+                        <div style="height: 3px; background: linear-gradient(90deg, ${section.color} 0%, transparent 100%); border-radius: 2px; margin-bottom: 1.5rem;"></div>
+                        ${section.intro ? `<div style="line-height: 1.8; color: #374151; margin-bottom: 2rem;">${section.intro}</div>` : ''}
+
+                        ${section.subsections && section.subsections.length > 0 ? section.subsections.map(sub => `
+                            <div id="section-${sub.id}" class="plan-subsection" style="margin-bottom: 2.5rem; scroll-margin-top: 2rem;">
+                                <h3 style="font-size: 1.375rem; font-weight: 600; color: #111827; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid #e5e7eb;">
+                                    ${sub.number} ${sub.title}
+                                </h3>
+                                <div style="line-height: 1.8; color: #374151;">${sub.content}</div>
+                            </div>
+                        `).join('') : ''}
+                    </div>
+                `;
+            });
+
+            contentDiv.innerHTML = contentHTML;
+
+            // Add hover effects to TOC links
+            const tocLinks = tocDiv.querySelectorAll('a');
+            tocLinks.forEach(link => {
+                link.addEventListener('mouseenter', function() {
+                    if (!this.style.background || this.style.background === 'transparent') {
+                        this.style.background = '#f9fafb';
+                    }
+                });
+                link.addEventListener('mouseleave', function() {
+                    if (this.style.background === 'rgb(249, 250, 251)') {
+                        this.style.background = 'transparent';
+                    }
+                });
+            });
+        }
+
+        // Scroll to a specific section in the plan
+        function scrollToPlanSection(sectionId) {
+            const element = document.getElementById(`section-${sectionId}`);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+            return false;
+        }
+
+        // Search functionality
+        function searchPlan() {
+            const searchTerm = document.getElementById('planSearch').value.toLowerCase();
+            const resultsDiv = document.getElementById('searchResults');
+            const content = document.getElementById('dynamicPlanContent');
+
+            // Remove previous highlights
+            const highlighted = content.querySelectorAll('.search-highlight');
+            highlighted.forEach(el => {
+                el.outerHTML = el.textContent;
+            });
+
+            if (searchTerm.length < 3) {
+                resultsDiv.textContent = '';
+                return;
+            }
+
+            // Count matches
+            const text = content.textContent;
+            const matches = (text.toLowerCase().match(new RegExp(searchTerm, 'g')) || []).length;
+            resultsDiv.textContent = matches > 0 ? `Found ${matches} match${matches !== 1 ? 'es' : ''}` : 'No matches found';
+
+            if (matches > 0) {
+                // Highlight matches
+                const walker = document.createTreeWalker(content, NodeFilter.SHOW_TEXT);
+                const textNodes = [];
+                while(walker.nextNode()) textNodes.push(walker.currentNode);
+
+                textNodes.forEach(node => {
+                    const text = node.textContent;
+                    const regex = new RegExp(`(${searchTerm})`, 'gi');
+                    if (regex.test(text)) {
+                        const span = document.createElement('span');
+                        span.innerHTML = text.replace(regex, '<mark class="search-highlight" style="background: #fef3c7; padding: 2px 4px; border-radius: 2px;">$1</mark>');
+                        node.replaceWith(span);
+                    }
+                });
+            }
+        }
+
+        // Update reading progress
+        function updateReadingProgress() {
+            const content = document.getElementById('planMainContent');
+            const scrollTop = content.scrollTop;
+            const scrollHeight = content.scrollHeight - content.clientHeight;
+            const progress = (scrollTop / scrollHeight) * 100;
+
+            document.getElementById('progressBar').style.width = progress + '%';
+
+            // Show/hide scroll to top button
+            const scrollBtn = document.getElementById('scrollToTop');
+            if (scrollTop > 500) {
+                scrollBtn.style.display = 'flex';
+            } else {
+                scrollBtn.style.display = 'none';
+            }
+
+            // Update active section in TOC
+            updateActiveTOCSection();
+        }
+
+        // Scroll plan to top
+        function scrollPlanToTop() {
+            document.getElementById('planMainContent').scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Update active section highlighting in TOC
+        function updateActiveTOCSection() {
+            const sections = document.querySelectorAll('.plan-section');
+            const tocLinks = document.querySelectorAll('#tocContent a');
+            const scrollPos = document.getElementById('planMainContent').scrollTop + 100;
+
+            let activeSection = null;
+            sections.forEach(section => {
+                const rect = section.getBoundingClientRect();
+                const sectionTop = section.offsetTop;
+                if (sectionTop <= scrollPos + document.getElementById('planMainContent').offsetTop) {
+                    activeSection = section.id;
+                }
+            });
+
+            tocLinks.forEach(link => {
+                if (link.getAttribute('href') === `#${activeSection}`) {
+                    link.style.background = '#f0f9ff';
+                    link.style.color = '#03617A';
+                    link.style.fontWeight = '600';
+                } else {
+                    link.style.background = 'transparent';
+                    link.style.color = link.classList.contains('toc-subsection') ? '#6b7280' : '#374151';
+                    link.style.fontWeight = link.classList.contains('toc-subsection') ? '400' : '600';
+                }
+            });
+        }
+
+        // Get the AI Plan structure with all 8 sections (embedded data)
+        function getAIPlanStructure() {
+            return {
+                title: "Iowa DOT Artificial Intelligence Strategic Plan",
+                subtitle: "FY 2026–2028",
+                sections: [
+                    {
+                        id: "introduction",
+                        number: "1",
+                        title: "INTRODUCTION",
+                        icon: "📋",
+                        color: "#03617A",
+                        intro: `<p>The Iowa Department of Transportation (Iowa DOT) is responsible for planning, designing, building, operating, and maintaining a safe and reliable transportation system that supports Iowa's economy and quality of life. As transportation systems become increasingly complex and data-rich, Iowa DOT recognizes that traditional tools and processes alone are no longer sufficient to meet emerging challenges related to safety, mobility, system reliability, workforce capacity, and fiscal stewardship.</p>
+                        <p>Artificial intelligence (AI) presents a significant opportunity to enhance how Iowa DOT delivers its mission. Properly applied, AI can help the department better anticipate safety risks, manage traffic and work zones in real time, optimize winter operations, improve construction oversight, and streamline internal business processes.</p>
+                        <p><strong>AI is not viewed as a replacement for professional judgment or engineering expertise.</strong> Instead, Iowa DOT approaches AI as a decision-support and productivity tool that augments human capabilities, improves consistency, and enables staff to focus on higher-value work that directly benefits the traveling public.</p>`,
+                        subsections: [
+                            {
+                                id: "purpose",
+                                number: "1.1",
+                                title: "Purpose of the AI Strategic Plan",
+                                content: `<p>The purpose of this AI Strategic Plan is to define how Iowa DOT will responsibly integrate artificial intelligence into its operations in alignment with agency goals and statewide expectations.</p>
+                                <p>Specifically, the plan is intended to:</p>
+                                <ul style="margin-left: 1.5rem; margin-bottom: 1rem; line-height: 1.8;">
+                                    <li>Establish a clear vision and guiding principles for the use of AI at Iowa DOT</li>
+                                    <li>Align AI initiatives with Iowa DOT's mission, long-range transportation goals, and Transportation 4.0 efforts</li>
+                                    <li>Provide leadership with a structured framework for evaluating AI investments and managing associated risks</li>
+                                    <li>Support staff by clarifying acceptable uses of AI, governance expectations, and available tools and resources</li>
+                                    <li>Create consistency across divisions by moving from isolated pilots toward coordinated, scalable solutions</li>
+                                    <li>Position Iowa DOT to effectively collaborate with state partners, local agencies, universities, industry, and peer transportation agencies</li>
+                                </ul>
+                                <p>This plan is designed to be practical and actionable. It focuses on near- and mid-term implementation while acknowledging that AI technologies and policies will continue to evolve.</p>`
+                            },
+                            {
+                                id: "context",
+                                number: "1.2",
+                                title: "Iowa DOT Context for Artificial Intelligence",
+                                content: `<p>Iowa DOT operates in a unique transportation environment that shapes how AI can and should be applied. Iowa's transportation system serves a predominantly rural state with extensive freight movement supporting agriculture, manufacturing, and national supply chains.</p>
+                                <p>Over the past decade, Iowa DOT has made significant investments in digital infrastructure, data systems, and technology-enabled processes, including:</p>
+                                <ul style="margin-left: 1.5rem; margin-bottom: 1rem; line-height: 1.8;">
+                                    <li>Traffic and operations systems that generate large volumes of real-time and historical data</li>
+                                    <li>Winter maintenance systems integrating weather, plow, and material usage information</li>
+                                    <li>Digital delivery initiatives in design and construction that produce increasingly structured and machine-readable data</li>
+                                    <li>Traveler information and work zone data feeds that support both public-facing services and internal decision-making</li>
+                                </ul>
+                                <p>Iowa DOT's approach to AI is therefore grounded in operational reality: focusing first on use cases that directly support safety, reliability, and efficiency, while strengthening the foundational capabilities needed to scale responsibly.</p>`
+                            }
+                        ]
+                    },
+                    {
+                        id: "executive-summary",
+                        number: "2",
+                        title: "EXECUTIVE SUMMARY",
+                        icon: "📊",
+                        color: "#0284c7",
+                        intro: `<p>The Iowa Department of Transportation (Iowa DOT) is at a pivotal moment in its use of data, analytics, and digital technologies. The scale and complexity of Iowa's transportation system—combined with increasing expectations for safety, reliability, efficiency, and transparency—require new tools that enhance decision-making and operational performance. Artificial intelligence (AI) offers one such toolset.</p>
+                        <p>AI has the potential to significantly improve how Iowa DOT plans, operates, and maintains the transportation system, as well as how it delivers internal services. When used appropriately, AI can help staff detect risks earlier, respond to incidents faster, optimize the use of limited resources, and reduce the burden of repetitive or manual tasks.</p>`,
+                        subsections: [
+                            {
+                                id: "vision",
+                                number: "2.1",
+                                title: "Vision for Artificial Intelligence at Iowa DOT",
+                                content: `<div style="background: linear-gradient(135deg, #03617A 0%, #19405B 100%); color: white; padding: 2rem; border-radius: 12px; margin: 1.5rem 0; text-align: center; font-size: 1.125rem; line-height: 1.8;">
+                                    Iowa DOT will leverage artificial intelligence to improve transportation safety, reliability, and service delivery by augmenting human expertise with data-driven insights, while ensuring responsible, transparent, and secure use of technology.
+                                </div>
+                                <p>Under this vision:</p>
+                                <ul style="margin-left: 1.5rem; margin-bottom: 1rem; line-height: 1.8;">
+                                    <li>AI is a decision-support tool, not a substitute for engineering judgment or professional responsibility</li>
+                                    <li>AI is applied first where it can deliver measurable safety and operational benefits</li>
+                                    <li>AI systems are designed, deployed, and governed in ways that preserve public trust</li>
+                                    <li>Data is treated as critical infrastructure, essential to effective AI</li>
+                                </ul>`
+                            },
+                            {
+                                id: "strategic-goals",
+                                number: "2.3",
+                                title: "Strategic Goals",
+                                content: `<p>To guide AI adoption in a disciplined and mission-focused manner, Iowa DOT has established the following strategic goals for the 2026–2028 timeframe:</p>
+                                <div style="display: grid; gap: 1.5rem; margin: 2rem 0;">
+                                    <div style="background: #dcfce7; border-left: 4px solid #16a34a; padding: 1.5rem; border-radius: 8px;">
+                                        <h4 style="color: #15803d; font-size: 1.125rem; margin-bottom: 0.75rem;">🎯 Goal 1: Improve Safety and System Reliability</h4>
+                                        <p style="margin: 0; line-height: 1.7; color: #166534;">AI will be used to support Iowa DOT's safety mission by enhancing detection and prediction of crashes, improving work zone safety, supporting winter operations decisions, and increasing travel time reliability.</p>
+                                    </div>
+                                    <div style="background: #dbeafe; border-left: 4px solid #0284c7; padding: 1.5rem; border-radius: 8px;">
+                                        <h4 style="color: #0c4a6e; font-size: 1.125rem; margin-bottom: 0.75rem;">💾 Goal 2: Strengthen Data and Digital Infrastructure</h4>
+                                        <p style="margin: 0; line-height: 1.7; color: #075985;">Effective AI depends on high-quality, well-governed data. Iowa DOT will improve data consistency, standards, and documentation across major business domains.</p>
+                                    </div>
+                                    <div style="background: #fef3c7; border-left: 4px solid #eab308; padding: 1.5rem; border-radius: 8px;">
+                                        <h4 style="color: #a16207; font-size: 1.125rem; margin-bottom: 0.75rem;">👥 Goal 3: Empower the Workforce</h4>
+                                        <p style="margin: 0; line-height: 1.7; color: #92400e;">AI adoption will succeed only if staff understand, trust, and are equipped to use it. Iowa DOT will provide AI literacy training and establish clear guidance on acceptable use.</p>
+                                    </div>
+                                    <div style="background: #e0e7ff; border-left: 4px solid #6366f1; padding: 1.5rem; border-radius: 8px;">
+                                        <h4 style="color: #4338ca; font-size: 1.125rem; margin-bottom: 0.75rem;">🛡️ Goal 4: Ensure Responsible and Trustworthy Use of AI</h4>
+                                        <p style="margin: 0; line-height: 1.7; color: #4338ca;">As a public agency, Iowa DOT will implement governance processes, maintain human oversight, protect privacy, and align AI use with statewide guidance.</p>
+                                    </div>
+                                </div>`
+                            },
+                            {
+                                id: "roadmap",
+                                number: "2.5",
+                                title: "Three-Year Roadmap",
+                                content: `<p>Iowa DOT's AI roadmap is structured into three overlapping phases:</p>
+                                <div style="margin: 2rem 0;">
+                                    <div style="display: flex; gap: 1.5rem; margin-bottom: 1.5rem;">
+                                        <div style="flex-shrink: 0; width: 48px; height: 48px; background: #16a34a; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.25rem;">1</div>
+                                        <div style="flex: 1;">
+                                            <h4 style="font-weight: 600; margin-bottom: 0.5rem;">Phase 1: Build the Foundation and Launch Flagship Pilots</h4>
+                                            <p style="line-height: 1.7; color: #374151; margin: 0;">Establish AI governance processes, advance data governance, launch high-impact AI pilots, and provide initial AI training to staff.</p>
+                                        </div>
+                                    </div>
+                                    <div style="display: flex; gap: 1.5rem; margin-bottom: 1.5rem;">
+                                        <div style="flex-shrink: 0; width: 48px; height: 48px; background: #eab308; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.25rem;">2</div>
+                                        <div style="flex: 1;">
+                                            <h4 style="font-weight: 600; margin-bottom: 0.5rem;">Phase 2: Scale Successful Solutions and Integrate into Operations</h4>
+                                            <p style="line-height: 1.7; color: #374151; margin: 0;">Expand successful pilots into production systems, integrate AI tools into existing workflows, and broaden training and adoption across divisions.</p>
+                                        </div>
+                                    </div>
+                                    <div style="display: flex; gap: 1.5rem;">
+                                        <div style="flex-shrink: 0; width: 48px; height: 48px; background: #6366f1; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.25rem;">3</div>
+                                        <div style="flex: 1;">
+                                            <h4 style="font-weight: 600; margin-bottom: 0.5rem;">Phase 3: Optimize, Mature, and Innovate</h4>
+                                            <p style="line-height: 1.7; color: #374151; margin: 0;">Optimize and refine deployed AI systems, explore more advanced use cases, and assess long-term organizational and technology needs for AI.</p>
+                                        </div>
+                                    </div>
+                                </div>`
+                            }
+                        ]
+                    },
+                    {
+                        id: "definition",
+                        number: "3",
+                        title: "DEFINITION OF ARTIFICIAL INTELLIGENCE",
+                        icon: "🤖",
+                        color: "#ec4899",
+                        intro: `<p>Artificial intelligence (AI) is a broad and evolving field that encompasses a range of computational techniques designed to perform tasks that typically require human intelligence. For Iowa DOT, AI is best understood not as a single technology, but as a set of capabilities that can augment human decision-making, automate routine tasks, and extract actionable insights from complex and high-volume data.</p>
+                        <div style="background: #f0f9ff; border-left: 4px solid #03617A; padding: 1.5rem; border-radius: 8px; margin: 1.5rem 0;">
+                            <p style="font-style: italic; margin: 0; line-height: 1.8;"><strong>Working Definition:</strong> Artificial intelligence refers to computer-based systems that can perform or assist with tasks that normally require human intelligence, including recognizing patterns, understanding language, making predictions, recommending actions, or generating content, by learning from data or applying advanced computational models.</p>
+                        </div>`,
+                        subsections: [
+                            {
+                                id: "ai-categories",
+                                number: "3.3",
+                                title: "Categories of AI Relevant to Iowa DOT",
+                                content: `<div style="display: grid; gap: 1rem; margin: 1.5rem 0;">
+                                    <div style="background: #f9fafb; border-left: 3px solid #16a34a; padding: 1rem;">
+                                        <strong style="color: #15803d;">Machine Learning</strong>
+                                        <p style="margin-top: 0.5rem; line-height: 1.7; margin-bottom: 0;">Algorithms that learn patterns from historical data. Applications: Predicting crash likelihood, forecasting travel times, identifying anomalous patterns in construction data.</p>
+                                    </div>
+                                    <div style="background: #f9fafb; border-left: 3px solid #0284c7; padding: 1rem;">
+                                        <strong style="color: #0c4a6e;">Computer Vision</strong>
+                                        <p style="margin-top: 0.5rem; line-height: 1.7; margin-bottom: 0;">AI models that interpret images and video. Applications: Detecting wrong-way vehicles, assessing pavement condition, monitoring work zones for safety compliance.</p>
+                                    </div>
+                                    <div style="background: #f9fafb; border-left: 3px solid #eab308; padding: 1rem;">
+                                        <strong style="color: #a16207;">Natural Language Processing (NLP)</strong>
+                                        <p style="margin-top: 0.5rem; line-height: 1.7; margin-bottom: 0;">AI that understands and generates human language. Applications: Searching technical manuals, classifying customer inquiries, extracting data from narrative reports.</p>
+                                    </div>
+                                    <div style="background: #f9fafb; border-left: 3px solid #6366f1; padding: 1rem;">
+                                        <strong style="color: #4338ca;">Optimization & Prescriptive Analytics</strong>
+                                        <p style="margin-top: 0.5rem; line-height: 1.7; margin-bottom: 0;">Models that recommend optimal actions. Applications: Optimizing winter maintenance routes, scheduling maintenance activities, recommending traffic management strategies.</p>
+                                    </div>
+                                    <div style="background: #f9fafb; border-left: 3px solid #ec4899; padding: 1rem;">
+                                        <strong style="color: #be185d;">Generative AI</strong>
+                                        <p style="margin-top: 0.5rem; line-height: 1.7; margin-bottom: 0;">Models that create new content (text, images, code). Applications: Drafting routine correspondence, summarizing documents, assisting with code development. <em>Note: Requires human review and alignment with statewide policies.</em></p>
+                                    </div>
+                                </div>`
+                            }
+                        ]
+                    },
+                    {
+                        id: "principles",
+                        number: "4",
+                        title: "AI GUIDING PRINCIPLES",
+                        icon: "⚖️",
+                        color: "#059669",
+                        intro: `<p>Artificial intelligence has the potential to significantly enhance Iowa DOT's ability to deliver safe, efficient, and reliable transportation services. However, because AI systems can influence decisions with real-world consequences, their use must be guided by clear principles that reflect Iowa DOT's mission, values, and public responsibilities.</p>
+                        <p>The guiding principles in this section establish the foundation for how AI will be designed, procured, implemented, operated, and governed across the department.</p>`,
+                        subsections: [
+                            {
+                                id: "principle-safety",
+                                number: "4.1",
+                                title: "Principle 1: Safety First",
+                                content: `<p>Safety is Iowa DOT's highest priority. AI systems shall be used in ways that support and enhance transportation safety for the traveling public, field staff, contractors, and partners.</p>
+                                <p><strong>Key Points:</strong></p>
+                                <ul style="margin-left: 1.5rem; line-height: 1.8;">
+                                    <li>Safety-related AI use cases will receive priority in investment and resource allocation</li>
+                                    <li>AI systems used for safety purposes must be tested, monitored, and reviewed regularly</li>
+                                    <li>AI recommendations should be presented in ways that support rapid understanding and appropriate action by staff</li>
+                                </ul>`
+                            },
+                            {
+                                id: "principle-human",
+                                number: "4.2",
+                                title: "Principle 2: Human Accountability and Oversight",
+                                content: `<p>AI is a decision-support tool, not a decision-maker. Iowa DOT staff remain accountable for decisions informed or assisted by AI systems.</p>
+                                <p><strong>Key Points:</strong></p>
+                                <ul style="margin-left: 1.5rem; line-height: 1.8;">
+                                    <li>Every AI system shall have clearly identified business and technical owners</li>
+                                    <li>AI outputs should be advisory unless explicitly approved otherwise</li>
+                                    <li>Automated decisions without meaningful human oversight should be avoided</li>
+                                </ul>`
+                            }
+                        ]
+                    },
+                    {
+                        id: "current-capabilities",
+                        number: "5",
+                        title: "CURRENT AI CAPABILITIES AT IOWA DOT",
+                        icon: "📍",
+                        color: "#8b5cf6",
+                        intro: `<p>This section provides an honest assessment of Iowa DOT's current readiness for AI adoption, including data infrastructure, technology platforms, governance structures, and existing AI-related initiatives.</p>
+                        <p>Understanding the current state is essential to defining a realistic path forward and identifying gaps that must be addressed to enable responsible AI scaling.</p>`,
+                        subsections: []
+                    },
+                    {
+                        id: "future-state",
+                        number: "6",
+                        title: "RECOMMENDED FUTURE STATE",
+                        icon: "🎯",
+                        color: "#f59e0b",
+                        intro: `<p>This section defines the target condition for AI readiness and capability at Iowa DOT over the next three fiscal years. It describes what success looks like in terms of data infrastructure, technology platforms, governance, workforce capabilities, and AI deployment maturity.</p>
+                        <p>The future state vision is ambitious yet achievable, building on Iowa DOT's existing strengths while addressing known gaps.</p>`,
+                        subsections: []
+                    },
+                    {
+                        id: "roadmap",
+                        number: "7",
+                        title: "AI USE CASE IMPLEMENTATION ROADMAP",
+                        icon: "🗺️",
+                        color: "#10b981",
+                        intro: `<p>This section presents a phased approach to deploying AI use cases over the next three fiscal years. The roadmap prioritizes use cases based on safety impact, operational value, data readiness, and strategic alignment.</p>
+                        <p>Use cases are organized into three categories: Flagship Pilots (high priority for Phase 1), Near-Term Opportunities (Phase 2), and Future Exploration (Phase 3).</p>`,
+                        subsections: []
+                    },
+                    {
+                        id: "conclusion",
+                        number: "8",
+                        title: "CONCLUSION AND NEXT STEPS",
+                        icon: "✅",
+                        color: "#6366f1",
+                        intro: `<p>Artificial intelligence represents a significant opportunity for Iowa DOT to improve safety, reliability, efficiency, and service delivery. However, realizing this opportunity requires more than technology—it demands clear strategy, strong governance, workforce readiness, and disciplined execution.</p>
+                        <p>This AI Strategic Plan provides Iowa DOT with a roadmap for responsible AI adoption over the next three fiscal years. By focusing on safety-first priorities, strengthening data foundations, empowering the workforce, and maintaining public trust, Iowa DOT is positioning itself to harness AI in ways that deliver real benefits to Iowans.</p>
+                        <div style="background: #f0f9ff; border: 2px solid #03617A; padding: 2rem; border-radius: 12px; margin: 2rem 0; text-align: center;">
+                            <p style="font-weight: 600; margin-bottom: 1rem; color: #025066;">This is a living document.</p>
+                            <p style="margin: 0; line-height: 1.8; color: #025066;">The AI Strategic Plan will be reviewed and updated regularly as technologies, policies, and use cases evolve. For the complete document including detailed use cases, governance frameworks, and implementation guidance, contact the Iowa DOT Planning Division.</p>
+                        </div>`,
+                        subsections: []
+                    }
+                ]
+            };
         }
 
         // Toggle Chat Panel
@@ -3096,6 +4172,7 @@
             try {
                 allProjects = await window.IowaDOTTracker.fetchProjects();
                 updateFavoritesCount();
+                updateProjectTypeCounts();
                 renderProjects(allProjects);
                 updateStats();
                 renderTimeline(allProjects);
@@ -3113,6 +4190,103 @@
                     </div>
                 `;
             }
+        }
+
+        // Render Project Card by Type
+        function renderProjectCardByType(project) {
+            const projectType = project.project_type || 'discrete';
+            const baseCard = `
+                <div class="project-card" data-core-values="${project.core_values || ''}" data-project-type="${projectType}" onclick="viewProject(${project.id})">
+                    <div class="card-header">
+                        <div style="display: flex; gap: 0.5rem; align-items: center;">
+                            ${getProjectTypeBadge(projectType)}
+                            <div class="status-badge ${getStatusClass(project.status)}">
+                                ${getStatusLabel(project.status)}
+                            </div>
+                        </div>
+                        <button class="favorite-btn ${isFavorite(project.id) ? 'favorited' : ''}"
+                                onclick="event.stopPropagation(); toggleFavorite(${project.id})"
+                                title="${isFavorite(project.id) ? 'Remove from favorites' : 'Add to favorites'}">
+                            ${isFavorite(project.id) ? '⭐' : '☆'}
+                        </button>
+                    </div>
+
+                    ${projectType === 'discrete' ? `
+                        <div class="completion-section">
+                            <div class="completion-badge">${project.completion_percentage || 0}%</div>
+                            <div class="progress-bar-mini">
+                                <div class="progress-bar-mini-fill" style="width: ${project.completion_percentage || 0}%"></div>
+                            </div>
+                        </div>
+                    ` : projectType === 'ongoing' ? `
+                        <div class="completion-section" style="background: #f0f9ff; border-left: 3px solid #0284c7;">
+                            <div style="display: flex; gap: 1rem; align-items: center; padding: 0.75rem;">
+                                <div style="font-size: 1.5rem;">🔄</div>
+                                <div style="flex: 1;">
+                                    <div style="font-size: 0.75rem; color: #6b7280; text-transform: uppercase; font-weight: 600;">Program Status</div>
+                                    <div style="font-size: 0.875rem; font-weight: 600; color: #0284c7;">${project.program_status || 'Active'}</div>
+                                </div>
+                            </div>
+                        </div>
+                    ` : `
+                        <div class="completion-section" style="background: #fef3c7; border-left: 3px solid #eab308;">
+                            <div style="display: flex; gap: 1rem; align-items: center; padding: 0.75rem;">
+                                <div style="font-size: 1.5rem;">🎯</div>
+                                <div style="flex: 1;">
+                                    <div style="font-size: 0.75rem; color: #6b7280; text-transform: uppercase; font-weight: 600;">Priority</div>
+                                    <div style="font-size: 0.875rem; font-weight: 600; color: #a16207;">${project.priority_level || 'High'}</div>
+                                </div>
+                            </div>
+                        </div>
+                    `}
+
+                    <h4 class="project-title">${project.name}</h4>
+                    <p class="project-agency">${project.responsible}</p>
+                    ${project.reference ?
+                        `<div style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.375rem 0.75rem; background: #f3f4f6; border-radius: 6px; font-size: 0.75rem; font-weight: 600; color: #6b7280; margin-bottom: 0.75rem;">
+                            📄 ${project.reference}
+                        </div>`
+                        : ''}
+                    <p class="project-description">${project.description}</p>
+
+                    ${projectType === 'ongoing' && project.annual_target ? `
+                        <div style="margin-top: 0.75rem; padding: 0.75rem; background: #f9fafb; border-radius: 6px; font-size: 0.8125rem;">
+                            <div style="font-weight: 600; color: #374151; margin-bottom: 0.25rem;">Annual Target</div>
+                            <div style="color: #6b7280;">${project.annual_target}</div>
+                        </div>
+                    ` : ''}
+
+                    ${projectType === 'strategic' && project.strategic_goal ? `
+                        <div style="margin-top: 0.75rem; padding: 0.75rem; background: #fef3c7; border-radius: 6px; font-size: 0.8125rem;">
+                            <div style="font-weight: 600; color: #a16207; margin-bottom: 0.25rem;">Strategic Goal</div>
+                            <div style="color: #92400e;">${project.strategic_goal}</div>
+                        </div>
+                    ` : ''}
+
+                    <div class="card-footer">
+                        <div class="card-meta">
+                            <span>💬 ${project.comment_count || 0}</span>
+                            <span>❤️ ${project.like_count || 0}</span>
+                        </div>
+                        ${project.url && project.url !== 'N/A' ?
+                            `<a href="${project.url}" class="view-sources-btn" onclick="event.stopPropagation()" target="_blank">View Source ↗</a>`
+                            : project.reference ?
+                            `<a href="${getPlanLink(project.reference)}" class="view-sources-btn" onclick="event.stopPropagation()" target="_blank">View in Plan ${getReferenceLabel(project.reference)} ↗</a>`
+                            : ''}
+                    </div>
+                </div>
+            `;
+            return baseCard;
+        }
+
+        // Get Project Type Badge
+        function getProjectTypeBadge(type) {
+            const badges = {
+                'discrete': '<span style="display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.25rem 0.5rem; background: #dcfce7; color: #15803d; border-radius: 4px; font-size: 0.7rem; font-weight: 600;">📅 PROJECT</span>',
+                'ongoing': '<span style="display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.25rem 0.5rem; background: #dbeafe; color: #0c4a6e; border-radius: 4px; font-size: 0.7rem; font-weight: 600;">🔄 ONGOING</span>',
+                'strategic': '<span style="display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.25rem 0.5rem; background: #fef3c7; color: #a16207; border-radius: 4px; font-size: 0.7rem; font-weight: 600;">🎯 STRATEGIC</span>'
+            };
+            return badges[type] || badges['discrete'];
         }
 
         // Render Projects
@@ -3145,45 +4319,7 @@
                         </div>
                         <div class="category-content">
                             <div class="projects-grid">
-                            ${categoryProjects.map(project => `
-                                <div class="project-card" data-core-values="${project.core_values || ''}" onclick="viewProject(${project.id})">
-                                    <div class="card-header">
-                                        <div class="status-badge ${getStatusClass(project.status)}">
-                                            ${getStatusLabel(project.status)}
-                                        </div>
-                                        <button class="favorite-btn ${isFavorite(project.id) ? 'favorited' : ''}"
-                                                onclick="event.stopPropagation(); toggleFavorite(${project.id})"
-                                                title="${isFavorite(project.id) ? 'Remove from favorites' : 'Add to favorites'}">
-                                            ${isFavorite(project.id) ? '⭐' : '☆'}
-                                        </button>
-                                    </div>
-                                    <div class="completion-section">
-                                        <div class="completion-badge">${project.completion_percentage || 0}%</div>
-                                        <div class="progress-bar-mini">
-                                            <div class="progress-bar-mini-fill" style="width: ${project.completion_percentage || 0}%"></div>
-                                        </div>
-                                    </div>
-                                    <h4 class="project-title">${project.name}</h4>
-                                    <p class="project-agency">${project.responsible}</p>
-                                    ${project.reference ?
-                                        `<div style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.375rem 0.75rem; background: #f3f4f6; border-radius: 6px; font-size: 0.75rem; font-weight: 600; color: #6b7280; margin-bottom: 0.75rem;">
-                                            📄 ${project.reference}
-                                        </div>`
-                                        : ''}
-                                    <p class="project-description">${project.description}</p>
-                                    <div class="card-footer">
-                                        <div class="card-meta">
-                                            <span>💬 ${project.comment_count || 0}</span>
-                                            <span>❤️ ${project.like_count || 0}</span>
-                                        </div>
-                                        ${project.url && project.url !== 'N/A' ?
-                                            `<a href="${project.url}" class="view-sources-btn" onclick="event.stopPropagation()" target="_blank">View Source ↗</a>`
-                                            : project.reference ?
-                                            `<a href="${getPlanLink(project.reference)}" class="view-sources-btn" onclick="event.stopPropagation()" target="_blank">View in Plan ${getReferenceLabel(project.reference)} ↗</a>`
-                                            : ''}
-                                    </div>
-                                </div>
-                            `).join('')}
+                            ${categoryProjects.map(project => renderProjectCardByType(project)).join('')}
                             </div>
                         </div>
                     </div>
@@ -3249,6 +4385,10 @@
                     if (currentStatusFilter === 'draft') return status.includes('draft');
                     return true;
                 });
+            }
+
+            if (currentTypeFilter !== 'all-types') {
+                filtered = filtered.filter(p => (p.project_type || 'discrete') === currentTypeFilter);
             }
 
             if (searchTerm) {
@@ -3390,6 +4530,251 @@
             }
 
             filterProjects();
+        }
+
+        // Filter by Project Type
+        function filterByProjectType(type) {
+            currentTypeFilter = type;
+            document.querySelectorAll('[data-project-type]').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            filterProjects();
+            updateProjectTypeCounts();
+        }
+
+        // Update Project Type Counts
+        function updateProjectTypeCounts() {
+            const discrete = allProjects.filter(p => (p.project_type || 'discrete') === 'discrete').length;
+            const ongoing = allProjects.filter(p => p.project_type === 'ongoing').length;
+            const strategic = allProjects.filter(p => p.project_type === 'strategic').length;
+
+            document.getElementById('discreteCount').textContent = `(${discrete})`;
+            document.getElementById('ongoingCount').textContent = `(${ongoing})`;
+            document.getElementById('strategicCount').textContent = `(${strategic})`;
+            document.getElementById('allTypesCount').textContent = `(${discrete + ongoing + strategic})`;
+        }
+
+        // Dark Mode Toggle
+        function toggleDarkMode() {
+            const body = document.body;
+            const isDark = body.classList.toggle('dark-mode');
+            localStorage.setItem('darkMode', isDark ? 'enabled' : 'disabled');
+
+            // Update button text
+            const icon = document.getElementById('darkModeIcon');
+            const text = document.getElementById('darkModeText');
+            if (isDark) {
+                icon.textContent = '☀️';
+                text.textContent = 'Light';
+            } else {
+                icon.textContent = '🌙';
+                text.textContent = 'Dark';
+            }
+        }
+
+        // Initialize Dark Mode from localStorage
+        function initDarkMode() {
+            const darkMode = localStorage.getItem('darkMode');
+            if (darkMode === 'enabled') {
+                document.body.classList.add('dark-mode');
+                document.getElementById('darkModeIcon').textContent = '☀️';
+                document.getElementById('darkModeText').textContent = 'Light';
+            }
+        }
+
+        // Scroll to Top
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        // Show/Hide Back to Top Button
+        function handleScroll() {
+            const btn = document.getElementById('backToTopBtn');
+            if (window.scrollY > 300) {
+                btn.style.display = 'flex';
+            } else {
+                btn.style.display = 'none';
+            }
+        }
+
+        // Export to CSV
+        function exportToCSV() {
+            const filterOnly = document.getElementById('exportFilteredOnly')?.checked;
+            const projects = filterOnly ? filteredProjects : allProjects;
+
+            if (projects.length === 0) {
+                alert('No projects to export');
+                return;
+            }
+
+            // CSV Headers
+            const headers = ['Name', 'Category', 'Status', 'Completion %', 'Project Type', 'Description', 'Created Date'];
+
+            // Convert projects to CSV rows
+            const csvRows = [headers.join(',')];
+            projects.forEach(project => {
+                const row = [
+                    `"${(project.name || '').replace(/"/g, '""')}"`,
+                    `"${(project.category || '').replace(/"/g, '""')}"`,
+                    `"${(project.status || '').replace(/"/g, '""')}"`,
+                    project.completion_percentage || 0,
+                    `"${(project.project_type || 'discrete').replace(/"/g, '""')}"`,
+                    `"${(project.description || '').replace(/"/g, '""')}"`,
+                    `"${(project.created_at || '').replace(/"/g, '""')}"`
+                ];
+                csvRows.push(row.join(','));
+            });
+
+            // Create and download file
+            const csvContent = csvRows.join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `iowa-dot-projects-${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Export to JSON
+        function exportToJSON() {
+            const filterOnly = document.getElementById('exportFilteredOnly')?.checked;
+            const projects = filterOnly ? filteredProjects : allProjects;
+
+            if (projects.length === 0) {
+                alert('No projects to export');
+                return;
+            }
+
+            // Create JSON export
+            const exportData = {
+                exportDate: new Date().toISOString(),
+                projectCount: projects.length,
+                projects: projects
+            };
+
+            // Create and download file
+            const jsonContent = JSON.stringify(exportData, null, 2);
+            const blob = new Blob([jsonContent], { type: 'application/json' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `iowa-dot-projects-${new Date().toISOString().split('T')[0]}.json`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Export Summary Report
+        function exportSummaryReport() {
+            const filterOnly = document.getElementById('exportFilteredOnly')?.checked;
+            const projects = filterOnly ? filteredProjects : allProjects;
+
+            if (projects.length === 0) {
+                alert('No projects to export');
+                return;
+            }
+
+            // Calculate statistics
+            const totalProjects = projects.length;
+            const categories = [...new Set(projects.map(p => p.category))];
+            const avgCompletion = Math.round(
+                projects.reduce((sum, p) => sum + (p.completion_percentage || 0), 0) / totalProjects
+            );
+            const byType = {
+                discrete: projects.filter(p => (p.project_type || 'discrete') === 'discrete').length,
+                ongoing: projects.filter(p => p.project_type === 'ongoing').length,
+                strategic: projects.filter(p => p.project_type === 'strategic').length
+            };
+
+            // Generate HTML report
+            const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iowa DOT SLTP Tracker - Summary Report</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; max-width: 1000px; margin: 0 auto; padding: 2rem; background: #f9fafb; }
+        h1 { color: #03617A; border-bottom: 3px solid #03617A; padding-bottom: 0.5rem; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 2rem 0; }
+        .stat-card { background: white; padding: 1.5rem; border-radius: 8px; border-left: 4px solid #03617A; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .stat-value { font-size: 2rem; font-weight: bold; color: #03617A; }
+        .stat-label { font-size: 0.875rem; color: #6b7280; text-transform: uppercase; margin-top: 0.25rem; }
+        .category-list { background: white; padding: 1.5rem; border-radius: 8px; margin: 2rem 0; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .category-item { padding: 0.5rem 0; border-bottom: 1px solid #e5e7eb; }
+        .footer { margin-top: 3rem; padding-top: 1rem; border-top: 2px solid #e5e7eb; color: #6b7280; font-size: 0.875rem; text-align: center; }
+        @media print { body { background: white; } }
+    </style>
+</head>
+<body>
+    <h1>Iowa DOT SLTP Tracker Summary Report</h1>
+    <p style="color: #6b7280;">Generated on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}</p>
+
+    <div class="stats">
+        <div class="stat-card">
+            <div class="stat-value">${totalProjects}</div>
+            <div class="stat-label">Total Projects</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">${categories.length}</div>
+            <div class="stat-label">Categories</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">${avgCompletion}%</div>
+            <div class="stat-label">Avg Completion</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">${byType.discrete}</div>
+            <div class="stat-label">Discrete Projects</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">${byType.ongoing}</div>
+            <div class="stat-label">Ongoing Programs</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">${byType.strategic}</div>
+            <div class="stat-label">Strategic Initiatives</div>
+        </div>
+    </div>
+
+    <div class="category-list">
+        <h2>Categories</h2>
+        ${categories.map(cat => {
+            const count = projects.filter(p => p.category === cat).length;
+            return `<div class="category-item"><strong>${cat}</strong>: ${count} project${count !== 1 ? 's' : ''}</div>`;
+        }).join('')}
+    </div>
+
+    <div class="category-list">
+        <h2>All Projects</h2>
+        ${projects.map(p => `
+            <div class="category-item">
+                <strong>${p.name}</strong><br>
+                <small>${p.category} • ${p.project_type || 'discrete'} • ${p.completion_percentage || 0}% complete</small><br>
+                <small style="color: #6b7280;">${p.description || 'No description'}</small>
+            </div>
+        `).join('')}
+    </div>
+
+    <div class="footer">
+        <p>Iowa Department of Transportation<br>
+        Statewide Long-Range Transportation Plan Tracker</p>
+    </div>
+</body>
+</html>`;
+
+            // Open report in new window
+            const newWindow = window.open('', '_blank');
+            newWindow.document.write(html);
+            newWindow.document.close();
         }
 
         // Update Stats
@@ -4914,6 +6299,12 @@
         document.addEventListener('DOMContentLoaded', () => {
             // Scroll to top of page on load
             window.scrollTo(0, 0);
+
+            // Initialize dark mode from localStorage
+            initDarkMode();
+
+            // Add scroll event listener for back-to-top button
+            window.addEventListener('scroll', handleScroll);
 
             loadProjects();
 
