@@ -1461,7 +1461,11 @@
             color: #f9fafb !important;
         }
 
-        /* Dark mode for specific color overrides */
+        /* Dark mode for specific color overrides - ADA compliant contrast */
+        body.dark-mode [style*="color: #000"],
+        body.dark-mode [style*="color:#000"],
+        body.dark-mode [style*="color: black"],
+        body.dark-mode [style*="color:black"],
         body.dark-mode [style*="color: #374151"],
         body.dark-mode [style*="color:#374151"],
         body.dark-mode [style*="color: #1f2937"],
@@ -1469,7 +1473,43 @@
         body.dark-mode [style*="color: #111827"],
         body.dark-mode [style*="color:#111827"],
         body.dark-mode [style*="color: #6b7280"],
-        body.dark-mode [style*="color:#6b7280"] {
+        body.dark-mode [style*="color:#6b7280"],
+        body.dark-mode [style*="color: #4b5563"],
+        body.dark-mode [style*="color:#4b5563"],
+        body.dark-mode [style*="color: #374151"],
+        body.dark-mode [style*="color:#374151"] {
+            color: #e5e7eb !important;
+        }
+
+        /* Dark mode: force all headings and paragraphs to light colors */
+        body.dark-mode h1,
+        body.dark-mode h2,
+        body.dark-mode h3,
+        body.dark-mode h4,
+        body.dark-mode h5,
+        body.dark-mode h6 {
+            color: #f9fafb !important;
+        }
+
+        body.dark-mode p {
+            color: #d1d5db !important;
+        }
+
+        body.dark-mode span,
+        body.dark-mode div {
+            /* Only override if color is dark - use attribute selector */
+        }
+
+        /* Dark mode: Override all text to ensure readability */
+        body.dark-mode .hero h2,
+        body.dark-mode .hero p,
+        body.dark-mode .hero-content h2,
+        body.dark-mode .hero-content p {
+            color: #f9fafb !important;
+        }
+
+        body.dark-mode .stat-subtext,
+        body.dark-mode .stat-text {
             color: #d1d5db !important;
         }
 
